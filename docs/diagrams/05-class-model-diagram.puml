@@ -1,0 +1,128 @@
+@startuml class-model-diagram
+' DTO / record model returned by the REST API
+' Author: Wallace Espindola - https://github.com/wallaceespindola/
+' Source: src/main/java/com/wallaceespindola/dbmigration/dto + domain/MigrationEngine
+
+skinparam classAttributeIconSize 0
+hide empty methods
+
+class ApiResponse<T> <<record>> {
+  + success : boolean
+  + message : String
+  + data : T
+  + timestamp : Instant
+  --
+  + {static} ok(T data, String message) : ApiResponse<T>
+  + {static} error(String message) : ApiResponse<T>
+}
+
+class ComparisonReport <<record>> {
+  + flyway : MigrationStatusReport
+  + liquibase : MigrationStatusReport
+  + flywaySchema : SchemaSnapshot
+  + liquibaseSchema : SchemaSnapshot
+  + schemasEquivalent : boolean
+  + schemaDifferences : List<String>
+  + featureMatrix : List<FeatureComparison>
+}
+
+class MigrationStatusReport <<record>> {
+  + engine : MigrationEngine
+  + engineDisplayName : String
+  + historyTable : String
+  + appliedCount : int
+  + pendingCount : int
+  + lastAppliedAt : Instant
+  + upToDate : boolean
+  + migrations : List<AppliedMigration>
+}
+
+class AppliedMigration <<record>> {
+  + identifier : String
+  + description : String
+  + script : String
+  + type : String
+  + author : String
+  + checksum : String
+  + appliedAt : Instant
+  + executionTimeMs : Long
+  + status : String
+}
+
+class SchemaSnapshot <<record>> {
+  + engine : MigrationEngine
+  + tables : List<String>
+  + views : List<String>
+  + columns : List<String>
+  + indexes : List<String>
+  + bookkeepingTables : List<String>
+}
+
+class ProductView <<record>> {
+  + productId : Long
+  + sku : String
+  + productName : String
+  + price : BigDecimal
+  + stockQuantity : Integer
+  + active : Boolean
+  + categoryId : Long
+  + categoryName : String
+}
+
+class FeatureComparison <<record>> {
+  + feature : String
+  + flyway : String
+  + liquibase : String
+  + edge : String
+}
+
+enum MigrationEngine {
+  FLYWAY
+  LIQUIBASE
+  --
+  - displayName : String
+  - historyTable : String
+  - model : String
+  --
+  + displayName() : String
+  + historyTable() : String
+  + model() : String
+  + {static} from(String value) : MigrationEngine
+}
+
+ApiResponse::data ..> ComparisonReport : payload of\nGET /api/v1/comparison
+ApiResponse::data ..> MigrationStatusReport : payload of\nGET /api/v1/migrations/{engine}
+ApiResponse::data ..> SchemaSnapshot : payload of\nGET /api/v1/migrations/{engine}/schema
+ApiResponse::data ..> ProductView : list payload of\nGET /api/v1/catalog/{engine}
+ApiResponse::data ..> FeatureComparison : list payload of\nGET /api/v1/comparison/features
+
+ComparisonReport *-- "2" MigrationStatusReport : flyway, liquibase
+ComparisonReport *-- "2" SchemaSnapshot : flywaySchema, liquibaseSchema
+ComparisonReport *-- "18" FeatureComparison : featureMatrix
+MigrationStatusReport *-- "*" AppliedMigration : migrations
+MigrationStatusReport --> MigrationEngine : engine
+SchemaSnapshot --> MigrationEngine : engine
+
+note right of AppliedMigration
+  Normalised across both engines:
+  - identifier: Flyway "V1"/"R__desc",
+    Liquibase "id::author"
+  - author: always "n/a" for Flyway
+  - executionTimeMs: null for Liquibase,
+    which records no per-changeset duration
+end note
+
+note right of SchemaSnapshot
+  columns entries are "TABLE.COLUMN:TYPE".
+  bookkeepingTables holds
+  FLYWAY_SCHEMA_HISTORY on one side and
+  DATABASECHANGELOG + DATABASECHANGELOGLOCK
+  on the other; they are excluded from the diff.
+end note
+
+note right of FeatureComparison
+  edge is one of FLYWAY, LIQUIBASE or TIE.
+  18 rows, static, held by FeatureMatrix.
+end note
+
+@enduml

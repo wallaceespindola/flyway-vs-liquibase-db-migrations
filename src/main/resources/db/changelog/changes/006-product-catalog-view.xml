@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Liquibase changeset 006 — runOnChange, the counterpart to Flyway's R__ repeatable migration.
+
+  With runOnChange="true" Liquibase re-executes this changeset whenever its checksum changes, which
+  is exactly the semantic of R__product_catalog_view.sql on the Flyway side. Both tools converge here
+  — the difference is only where the behaviour is declared: in the filename for Flyway, in an
+  attribute for Liquibase.
+-->
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="006-product-catalog-view" author="wallaceespindola" context="demo"
+               runOnChange="true">
+        <comment>Product catalog view, redefined whenever this changeset changes</comment>
+
+        <createView viewName="v_product_catalog" replaceIfExists="true">
+            SELECT p.id AS product_id,
+                   p.sku AS sku,
+                   p.name AS product_name,
+                   p.price AS price,
+                   p.stock_quantity AS stock_quantity,
+                   p.active AS active,
+                   c.id AS category_id,
+                   c.name AS category_name
+            FROM product p
+            JOIN category c ON c.id = p.category_id
+        </createView>
+
+        <rollback>
+            <dropView viewName="v_product_catalog"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

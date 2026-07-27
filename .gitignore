@@ -1,16 +1,11 @@
-# Compiled class file
+# ---------- Java ----------
 *.class
-
-# Log file
-*.log
-
-# BlueJ files
 *.ctxt
-
-# Mobile Tools for Java (J2ME)
+hs_err_pid*
+replay_pid*
 .mtj.tmp/
 
-# Package Files #
+# ---------- Packaged artefacts ----------
 *.jar
 *.war
 *.nar
@@ -18,7 +13,107 @@
 *.zip
 *.tar.gz
 *.rar
+# ...but keep the Maven wrapper if one is ever added
+!.mvn/wrapper/maven-wrapper.jar
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
+# ---------- Build output ----------
+target/
+build/
+out/
+bin/
+dist/
+
+# ---------- Application runtime state ----------
+# Both H2 databases and the pid/log files written by scripts/start.sh
+data/
+.run/
+*.log
+*.db
+*.mv.db
+*.trace.db
+*.lock.db
+
+# ---------- Environment ----------
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# ---------- AI assistant files ----------
+.claude/
+.claude/**
+.cursor/
+.cursorrules
+.aider*
+.continue/
+.windsurfrules
+.codeium/
+.github/copilot-instructions.md
+*.ai.md
+.specstory/
+.roo/
+.cline/
+repomix-output.*
+
+# ---------- JetBrains IDEs (IntelliJ IDEA) ----------
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+.idea_modules/
+atlassian-ide-plugin.xml
+
+# ---------- Visual Studio Code ----------
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+.history/
+
+# ---------- Eclipse / NetBeans ----------
+.classpath
+.project
+.settings/
+.apt_generated/
+.factorypath
+nbproject/private/
+nb-configuration.xml
+
+# ---------- macOS ----------
+.DS_Store
+.DS_Store?
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+.TemporaryItems
+.VolumeIcon.icns
+.DocumentRevisions-V100
+Icon?
+
+# ---------- Windows ----------
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.stackdump
+*.lnk
+
+# ---------- Linux ----------
+*~
+.directory
+.Trash-*
+.nfs*
+
+# ---------- Python (docs/presentation generator) ----------
+__pycache__/
+*.py[cod]
+.venv/
+venv/

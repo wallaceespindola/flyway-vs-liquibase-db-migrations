@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Side-by-side comparison of Flyway and Liquibase database migrations">
+    <title>Flyway vs Liquibase — Migration Comparison</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗃️</text></svg>">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="site-header">
+    <div class="wrap header-inner">
+        <div>
+            <h1>Flyway <span class="vs">vs</span> Liquibase</h1>
+            <p class="tagline">
+                The same schema, built twice by two migration engines against two independent H2 databases,
+                then diffed at runtime.
+            </p>
+        </div>
+        <div class="header-actions">
+            <span id="verdict-pill" class="pill pill-loading">Loading…</span>
+            <button id="refresh-btn" class="btn" type="button">Refresh</button>
+        </div>
+    </div>
+</header>
+
+<main class="wrap">
+
+    <!-- Banner: the headline result -->
+    <section id="verdict" class="card verdict-card" aria-live="polite">
+        <h2 class="card-title">Did both engines produce the same schema?</h2>
+        <div id="verdict-body" class="verdict-body">
+            <p class="muted">Querying <code>/api/v1/comparison</code>…</p>
+        </div>
+    </section>
+
+    <!-- Engine summary cards -->
+    <section class="grid-2" aria-label="Engine summaries">
+        <article class="card engine-card engine-flyway">
+            <header class="engine-head">
+                <h2>Flyway</h2>
+                <span class="chip" id="flyway-count">—</span>
+            </header>
+            <p class="engine-model">Versioned SQL scripts discovered by filename convention.</p>
+            <dl class="stat-list">
+                <div><dt>History table</dt><dd><code>flyway_schema_history</code></dd></div>
+                <div><dt>Database</dt><dd><code>./data/flywaydb</code></dd></div>
+                <div><dt>Last applied</dt><dd id="flyway-last">—</dd></div>
+                <div><dt>Pending</dt><dd id="flyway-pending">—</dd></div>
+            </dl>
+        </article>
+
+        <article class="card engine-card engine-liquibase">
+            <header class="engine-head">
+                <h2>Liquibase</h2>
+                <span class="chip" id="liquibase-count">—</span>
+            </header>
+            <p class="engine-model">Changesets declared in an explicit master changelog.</p>
+            <dl class="stat-list">
+                <div><dt>History table</dt><dd><code>DATABASECHANGELOG</code></dd></div>
+                <div><dt>Database</dt><dd><code>./data/liquibasedb</code></dd></div>
+                <div><dt>Last applied</dt><dd id="liquibase-last">—</dd></div>
+                <div><dt>Pending</dt><dd id="liquibase-pending">—</dd></div>
+            </dl>
+        </article>
+    </section>
+
+    <!-- Applied migration history -->
+    <section class="card" aria-labelledby="history-title">
+        <h2 class="card-title" id="history-title">Applied migrations</h2>
+        <p class="card-note">
+            Normalised into one shape. Flyway identifies a migration by version; Liquibase by
+            <code>id::author</code>. Flyway records execution time; Liquibase does not persist it.
+        </p>
+        <div class="grid-2">
+            <div>
+                <h3 class="sub accent-flyway">Flyway</h3>
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead>
+                        <tr><th>ID</th><th>Description</th><th>Type</th><th>Applied</th><th>Time</th></tr>
+                        </thead>
+                        <tbody id="flyway-migrations"><tr><td colspan="5" class="muted">Loading…</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+            <div>
+                <h3 class="sub accent-liquibase">Liquibase</h3>
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead>
+                        <tr><th>ID</th><th>Description</th><th>Type</th><th>Applied</th><th>Author</th></tr>
+                        </thead>
+                        <tbody id="liquibase-migrations"><tr><td colspan="5" class="muted">Loading…</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Schema comparison -->
+    <section class="card" aria-labelledby="schema-title">
+        <h2 class="card-title" id="schema-title">Resulting schema</h2>
+        <p class="card-note">
+            Read back from <code>INFORMATION_SCHEMA</code> on both databases. Engine bookkeeping tables are
+            listed separately because they are the one place the two databases are expected to differ.
+        </p>
+        <div class="grid-2" id="schema-panels">
+            <div class="muted">Loading…</div>
+        </div>
+    </section>
+
+    <!-- Feature matrix -->
+    <section class="card" aria-labelledby="features-title">
+        <h2 class="card-title" id="features-title">Feature matrix</h2>
+        <p class="card-note">Editorial judgements, served from <code>/api/v1/comparison/features</code>.</p>
+        <div class="legend">
+            <span class="legend-item"><span class="dot dot-flyway"></span> Flyway edge</span>
+            <span class="legend-item"><span class="dot dot-liquibase"></span> Liquibase edge</span>
+            <span class="legend-item"><span class="dot dot-tie"></span> Tie</span>
+        </div>
+        <div class="table-scroll">
+            <table class="data-table feature-table">
+                <thead>
+                <tr><th>Feature</th><th>Flyway</th><th>Liquibase</th><th>Edge</th></tr>
+                </thead>
+                <tbody id="feature-matrix"><tr><td colspan="4" class="muted">Loading…</td></tr></tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Seeded data -->
+    <section class="card" aria-labelledby="catalog-title">
+        <h2 class="card-title" id="catalog-title">Seeded data</h2>
+        <p class="card-note">
+            Read through the <code>v_product_catalog</code> view on each database — proof the migrations
+            produced a working schema, not just bookkeeping rows.
+        </p>
+        <div class="tabs" role="tablist">
+            <button class="tab is-active" role="tab" data-engine="flyway" aria-selected="true">Flyway</button>
+            <button class="tab" role="tab" data-engine="liquibase" aria-selected="false">Liquibase</button>
+        </div>
+        <div class="table-scroll">
+            <table class="data-table">
+                <thead>
+                <tr><th>SKU</th><th>Product</th><th>Category</th><th class="num">Price</th><th class="num">Stock</th><th>Active</th></tr>
+                </thead>
+                <tbody id="catalog-rows"><tr><td colspan="6" class="muted">Loading…</td></tr></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="card links-card">
+        <h2 class="card-title">Explore further</h2>
+        <ul class="link-list">
+            <li><a href="/swagger-ui.html">Swagger UI</a> — the full REST API</li>
+            <li><a href="/h2-console">H2 console</a> — query either database directly
+                (<code>jdbc:h2:file:./data/flywaydb</code> / <code>jdbc:h2:file:./data/liquibasedb</code>, user <code>sa</code>, no password)</li>
+            <li><a href="/api/v1/comparison">/api/v1/comparison</a> — the raw comparison payload</li>
+            <li><a href="/actuator/health">/actuator/health</a> — Actuator health</li>
+        </ul>
+    </section>
+
+</main>
+
+<footer class="site-footer">
+    <div class="wrap">
+        <p>
+            Built by <strong>Wallace Espindola</strong> —
+            <a href="https://github.com/wallaceespindola/" rel="noopener">GitHub</a> ·
+            <a href="https://www.linkedin.com/in/wallaceespindola/" rel="noopener">LinkedIn</a> ·
+            <a href="https://github.com/wallaceespindola/flyway-vs-liquibase-db-migrations" rel="noopener">Repository</a>
+        </p>
+        <p class="muted small">Apache License 2.0 · Spring Boot 3.4 · Java 21 · H2</p>
+    </div>
+</footer>
+
+<script src="js/app.js"></script>
+</body>
+</html>

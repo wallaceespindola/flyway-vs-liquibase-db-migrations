@@ -1,0 +1,15 @@
+# Test overrides: both engines migrate throwaway in-memory databases so the test run never touches
+# ./data. DB_CLOSE_DELAY=-1 keeps each in-memory database alive for the whole JVM, which the
+# connection pool relies on.
+app:
+  datasource:
+    flyway:
+      url: jdbc:h2:mem:flyway-test;DB_CLOSE_DELAY=-1;NON_KEYWORDS=VALUE
+    liquibase:
+      url: jdbc:h2:mem:liquibase-test;DB_CLOSE_DELAY=-1;NON_KEYWORDS=VALUE
+
+logging:
+  level:
+    org.flywaydb: WARN
+    liquibase: WARN
+    com.wallaceespindola.dbmigration: INFO

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Liquibase changeset 001 — the XML format.
+
+  Everything here is database-agnostic: `BIGINT`, `autoIncrement` and the constraint tags are
+  translated by Liquibase into the dialect of whatever database it is pointed at. The equivalent
+  Flyway migration (V1__create_category_table.sql) is raw H2 SQL and would need rewriting for a
+  different engine.
+-->
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="001-create-category-table" author="wallaceespindola" context="demo">
+        <comment>Create the category reference table</comment>
+
+        <createTable tableName="category">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="pk_category" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(100)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uk_category_name"/>
+            </column>
+            <column name="description" type="VARCHAR(500)"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="category" indexName="idx_category_name">
+            <column name="name"/>
+        </createIndex>
+
+        <!-- Liquibase infers the rollback for createTable/createIndex, but declaring it keeps the
+             intent explicit and survives future refactoring of the forward change. -->
+        <rollback>
+            <dropIndex tableName="category" indexName="idx_category_name"/>
+            <dropTable tableName="category"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

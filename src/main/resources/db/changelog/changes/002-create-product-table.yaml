@@ -1,0 +1,94 @@
+# Liquibase changeset 002 — the YAML format.
+#
+# Identical semantics to the XML format, terser to read and diff. Mixing formats inside one
+# changelog is legal and common: teams often keep structural changes in XML/YAML for portability and
+# drop to raw SQL only where a vendor-specific feature is genuinely needed.
+databaseChangeLog:
+  - changeSet:
+      id: 002-create-product-table
+      author: wallaceespindola
+      context: demo
+      comment: Create the product table with a foreign key to category
+      changes:
+        - createTable:
+            tableName: product
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_product
+                    nullable: false
+              - column:
+                  name: sku
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uk_product_sku
+              - column:
+                  name: name
+                  type: VARCHAR(200)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: VARCHAR(1000)
+              - column:
+                  name: price
+                  type: DECIMAL(12, 2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: stock_quantity
+                  type: INT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: category_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_product_category
+                    references: category(id)
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - sql:
+            comment: Check constraints have no portable Liquibase tag, so raw SQL is used here
+            sql: >-
+              ALTER TABLE product ADD CONSTRAINT ck_product_price_positive CHECK (price >= 0);
+              ALTER TABLE product ADD CONSTRAINT ck_product_stock_non_negative CHECK (stock_quantity >= 0)
+        - createIndex:
+            tableName: product
+            indexName: idx_product_category
+            columns:
+              - column:
+                  name: category_id
+        - createIndex:
+            tableName: product
+            indexName: idx_product_sku
+            columns:
+              - column:
+                  name: sku
+      rollback:
+        - dropIndex:
+            tableName: product
+            indexName: idx_product_sku
+        - dropIndex:
+            tableName: product
+            indexName: idx_product_category
+        - dropTable:
+            tableName: product

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Liquibase changeset 004 — preconditions and explicit rollback.
+
+  This is the changeset that has no Flyway equivalent. Two capabilities are on display:
+
+    1. <preConditions> guard the change. If `product` is missing the changeset is marked as run
+       rather than exploding mid-deploy. Flyway has no declarative equivalent.
+    2. <rollback> makes `liquibase rollbackCount 1` a supported, tested operation. The Flyway
+       counterpart (V4__add_product_audit_table.sql) can only be undone by writing a new forward
+       migration, or by buying Flyway Teams for the `undo` command.
+-->
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="004-add-product-audit-table" author="wallaceespindola" context="demo">
+        <!-- Schema order matters: preConditions must precede comment and the change tags. -->
+        <preConditions onFail="MARK_RAN" onFailMessage="product table missing, skipping audit table">
+            <tableExists tableName="product"/>
+        </preConditions>
+
+        <comment>Add the product audit trail, guarded by a precondition</comment>
+
+        <createTable tableName="product_audit">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" primaryKeyName="pk_product_audit" nullable="false"/>
+            </column>
+            <column name="product_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_product_audit_product"
+                             references="product(id)"/>
+            </column>
+            <column name="audit_action" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="changed_by" type="VARCHAR(100)" defaultValue="system">
+                <constraints nullable="false"/>
+            </column>
+            <column name="changed_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="product_audit" indexName="idx_product_audit_product">
+            <column name="product_id"/>
+        </createIndex>
+
+        <sql>
+            INSERT INTO product_audit (product_id, audit_action, changed_by)
+            SELECT id, 'CREATED', 'liquibase-changeset' FROM product
+        </sql>
+
+        <rollback>
+            <dropIndex tableName="product_audit" indexName="idx_product_audit_product"/>
+            <dropTable tableName="product_audit"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

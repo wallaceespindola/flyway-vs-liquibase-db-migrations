@@ -1,0 +1,116 @@
+@startuml component-diagram
+' Flyway vs Liquibase DB Migrations - C4-style container/component view
+' Author: Wallace Espindola - https://github.com/wallaceespindola/
+
+skinparam componentStyle rectangle
+skinparam linetype ortho
+
+actor "Developer / Reviewer" as user
+
+node "Browser" as browser {
+  component "Swagger UI\n/swagger-ui.html" as swagger
+  component "H2 Console\n/h2-console" as h2console
+  component "Static dashboard\n(src/main/resources/static)" as dashboard
+}
+
+node "Spring Boot process (JVM 21)\nembedded Tomcat :8080" as app {
+
+  package "Web layer (@RestController)" {
+    component "ComparisonController\nGET /api/v1/comparison\nGET /api/v1/comparison/features" as cmpCtrl
+    component "MigrationController\nGET /api/v1/migrations\nGET /api/v1/migrations/engines\nGET /api/v1/migrations/{engine}\nGET /api/v1/migrations/{engine}/schema" as migCtrl
+    component "CatalogController\nGET /api/v1/catalog/{engine}" as catCtrl
+    component "HealthController\nGET /api/v1/health" as healthCtrl
+    component "GlobalExceptionHandler\n@RestControllerAdvice" as advice
+    component "Actuator\n/actuator/health, info, metrics" as actuator
+  }
+
+  package "Service layer (@Service)" {
+    component "ComparisonService" as cmpSvc
+    component "SchemaInspectionService" as schemaSvc
+    component "FlywayHistoryService\nimplements MigrationHistoryProvider" as fwHist
+    component "LiquibaseHistoryService\nimplements MigrationHistoryProvider" as lbHist
+    component "FeatureMatrix\n18 static rows" as matrix
+  }
+
+  package "Configuration (@Configuration)" {
+    component "FlywayConfig" as fwCfg
+    component "LiquibaseConfig" as lbCfg
+  }
+
+  package "Migration engines" {
+    component "Flyway\ninitMethod=migrate\nlocations=classpath:db/migration" as flyway
+    component "SpringLiquibase\nchangeLog=db.changelog-master.yaml\ncontexts=demo" as liquibase
+  }
+
+  package "Data access" {
+    component "flywayJdbcTemplate\n@Primary @DependsOn(flyway)" as fwJdbc
+    component "liquibaseJdbcTemplate\n@DependsOn(liquibase)" as lbJdbc
+  }
+}
+
+database "H2 file DB\n./data/flywaydb" as fwDb {
+  frame "PUBLIC" as fwSchema {
+    [category, product, product_audit\nv_product_catalog] as fwBiz
+    [flyway_schema_history] as fwHistTbl
+  }
+}
+
+database "H2 file DB\n./data/liquibasedb" as lbDb {
+  frame "PUBLIC " as lbSchema {
+    [category, product, product_audit\nv_product_catalog ] as lbBiz
+    [DATABASECHANGELOG\nDATABASECHANGELOGLOCK] as lbHistTbl
+  }
+}
+
+folder "Classpath resources" as res {
+  artifact "db/migration\nV1..V5 + R__ (6 scripts)" as fwScripts
+  artifact "db/changelog\nmaster YAML + 001..006\n(7 changesets)" as lbChangelogs
+}
+
+user --> browser
+browser --> cmpCtrl : HTTPS/HTTP JSON
+browser --> migCtrl : HTTP JSON
+browser --> catCtrl : HTTP JSON
+browser --> healthCtrl : HTTP JSON
+swagger ..> cmpCtrl : OpenAPI 3 (springdoc)
+h2console ..> fwDb : JDBC (dev only)
+h2console ..> lbDb : JDBC (dev only)
+dashboard --> cmpCtrl
+
+cmpCtrl --> cmpSvc
+migCtrl --> cmpSvc
+healthCtrl --> cmpSvc
+catCtrl --> schemaSvc
+cmpCtrl --> matrix : rows()
+advice ..> cmpCtrl : wraps errors in ApiResponse
+
+cmpSvc --> fwHist : status()
+cmpSvc --> lbHist : status()
+cmpSvc --> schemaSvc : snapshot()
+cmpSvc --> matrix : rows()
+
+fwHist --> flyway : info().all()
+lbHist --> lbJdbc : SELECT ... FROM DATABASECHANGELOG
+schemaSvc --> fwJdbc : INFORMATION_SCHEMA + v_product_catalog
+schemaSvc --> lbJdbc : INFORMATION_SCHEMA + v_product_catalog
+
+fwCfg ..> flyway : builds
+fwCfg ..> fwJdbc : builds
+lbCfg ..> liquibase : builds
+lbCfg ..> lbJdbc : builds
+
+flyway --> fwScripts : reads
+liquibase --> lbChangelogs : reads
+flyway --> fwDb : DDL/DML + flyway_schema_history
+liquibase --> lbDb : DDL/DML + DATABASECHANGELOG
+
+fwJdbc --> fwDb : JDBC
+lbJdbc --> lbDb : JDBC
+
+note bottom of fwDb
+  Both databases hold an identical business schema.
+  Only the bookkeeping tables differ.
+  Verified: zero structural differences.
+end note
+
+@enduml

@@ -1,0 +1,64 @@
+@startuml deployment-diagram
+' Flyway vs Liquibase DB Migrations - deployment view
+' Author: Wallace Espindola - https://github.com/wallaceespindola/
+
+skinparam linetype ortho
+
+node "Developer workstation" as host {
+
+  node "Browser" as browser {
+    artifact "Swagger UI\n/swagger-ui.html" as swagger
+    artifact "H2 Console\n/h2-console" as h2c
+  }
+
+  node "JVM 21 (single process)\njava -jar flyway-vs-liquibase-db-migrations.jar" as jvm {
+    node "Embedded Tomcat\nlistening on :8080" as tomcat {
+      artifact "Spring Boot 3.4.2 application context" as ctx {
+        component "REST API /api/v1/**" as api
+        component "Actuator /actuator/**" as act
+        component "Flyway engine" as flyway
+        component "SpringLiquibase engine" as liquibase
+        component "flywayJdbcTemplate" as fwJdbc
+        component "liquibaseJdbcTemplate" as lbJdbc
+      }
+    }
+  }
+
+  folder "Working directory ./data" as datadir {
+    database "flywaydb.mv.db\nH2 file, embedded mode\nAUTO_SERVER=TRUE" as fwFile
+    database "liquibasedb.mv.db\nH2 file, embedded mode\nAUTO_SERVER=TRUE" as lbFile
+  }
+}
+
+node "Docker container\n(Dockerfile + docker-compose.yml)" as docker {
+  artifact "eclipse-temurin:21-jre\n+ application jar" as image
+  folder "/app/data (volume)" as vol
+}
+
+browser --> tomcat : HTTP :8080
+swagger --> api
+h2c ..> fwFile : JDBC (dev only)
+h2c ..> lbFile : JDBC (dev only)
+
+flyway --> fwFile : JDBC file:./data/flywaydb
+liquibase --> lbFile : JDBC file:./data/liquibasedb
+fwJdbc --> fwFile : JDBC
+lbJdbc --> lbFile : JDBC
+
+image ..> vol : mounts ./data
+docker ..> jvm : alternative packaging\nof the same process
+
+note right of datadir
+  Databases are files on local disk.
+  Deleting ./data resets both engines
+  and forces a full re-migration on
+  the next startup.
+end note
+
+note bottom of jvm
+  One process, one port, two databases.
+  Migrations run during application-context
+  refresh, before Tomcat accepts traffic.
+end note
+
+@enduml

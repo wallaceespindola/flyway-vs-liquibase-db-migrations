@@ -1,0 +1,86 @@
+spring:
+  application:
+    name: flyway-vs-liquibase-db-migrations
+
+  # Both engines are wired EXPLICITLY (see config/FlywayConfig + config/LiquibaseConfig) so the
+  # demo shows the real bootstrap of each tool instead of Spring Boot auto-configuration magic.
+  # Each engine owns its own H2 database; the logical schema is identical on both sides so the
+  # dashboard can diff them 1:1.
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: false
+
+  jackson:
+    # Nulls are kept in responses on purpose: "Liquibase records no execution time" is a finding the
+    # comparison should show explicitly, not hide by omitting the field.
+    serialization:
+      write-dates-as-timestamps: false
+
+  mvc:
+    problemdetails:
+      enabled: true
+
+app:
+  datasource:
+    flyway:
+      url: jdbc:h2:file:./data/flywaydb;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE;NON_KEYWORDS=VALUE
+      driver-class-name: org.h2.Driver
+      username: sa
+      password: ""
+    liquibase:
+      url: jdbc:h2:file:./data/liquibasedb;DB_CLOSE_DELAY=-1;AUTO_SERVER=TRUE;NON_KEYWORDS=VALUE
+      driver-class-name: org.h2.Driver
+      username: sa
+      password: ""
+  migration:
+    flyway:
+      locations: classpath:db/migration
+      baseline-on-migrate: true
+    liquibase:
+      change-log: classpath:db/changelog/db.changelog-master.yaml
+      contexts: demo
+      default-schema: PUBLIC
+
+server:
+  port: 8080
+  error:
+    include-message: always
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: Flyway vs Liquibase DB Migrations
+    version: 1.0.0
+    author: Wallace Espindola
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+  api-docs:
+    path: /v3/api-docs
+
+logging:
+  level:
+    root: INFO
+    com.wallaceespindola.dbmigration: DEBUG
+    org.flywaydb: INFO
+    liquibase: INFO

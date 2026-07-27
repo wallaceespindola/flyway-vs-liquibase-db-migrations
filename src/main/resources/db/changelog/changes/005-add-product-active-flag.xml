@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Liquibase changeset 005 — contexts and labels.
+
+  `context` and `labels` let one changelog serve every environment: run with `contexts=demo` and this
+  applies; run with `contexts=prod` and the backfill below is skipped. Flyway's nearest equivalent is
+  placeholder substitution or separate migration locations per environment — coarser, and resolved at
+  the filesystem level rather than per change.
+-->
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="005-add-product-active-flag" author="wallaceespindola" context="demo"
+               labels="schema-evolution">
+        <comment>Expand step: add the active flag to product</comment>
+
+        <addColumn tableName="product">
+            <column name="active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+
+        <createIndex tableName="product" indexName="idx_product_active">
+            <column name="active"/>
+        </createIndex>
+
+        <rollback>
+            <dropIndex tableName="product" indexName="idx_product_active"/>
+            <dropColumn tableName="product" columnName="active"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="005b-backfill-product-active-flag" author="wallaceespindola" context="demo"
+               labels="data-backfill">
+        <comment>Backfill: out-of-stock products are deactivated</comment>
+
+        <update tableName="product">
+            <column name="active" valueBoolean="false"/>
+            <where>stock_quantity = 0</where>
+        </update>
+
+        <rollback>
+            <update tableName="product">
+                <column name="active" valueBoolean="true"/>
+                <where>stock_quantity = 0</where>
+            </update>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

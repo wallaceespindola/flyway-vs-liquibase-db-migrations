@@ -1,0 +1,201 @@
+@startuml class-diagram
+' Flyway vs Liquibase DB Migrations - Java class diagram
+' Author: Wallace Espindola - https://github.com/wallaceespindola/
+' Source of truth: src/main/java/com/wallaceespindola/dbmigration
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+hide empty members
+
+package "com.wallaceespindola.dbmigration" {
+  class DbMigrationComparisonApplication <<@SpringBootApplication>> {
+    + {static} main(String[] args) : void
+  }
+}
+
+package "config" {
+  class FlywayConfig <<@Configuration>> {
+    + {static} DATA_SOURCE : String = "flywayDataSource"
+    + {static} JDBC_TEMPLATE : String = "flywayJdbcTemplate"
+    - locations : String
+    - baselineOnMigrate : boolean
+    + flywayDataSourceProperties() : DataSourceProperties
+    + flywayDataSource(DataSourceProperties) : DataSource
+    + flyway(DataSource) : Flyway
+    + flywayJdbcTemplate(DataSource) : JdbcTemplate
+  }
+
+  class LiquibaseConfig <<@Configuration>> {
+    + {static} DATA_SOURCE : String = "liquibaseDataSource"
+    + {static} JDBC_TEMPLATE : String = "liquibaseJdbcTemplate"
+    - changeLog : String
+    - contexts : String
+    - defaultSchema : String
+    + liquibaseDataSourceProperties() : DataSourceProperties
+    + liquibaseDataSource(DataSourceProperties) : DataSource
+    + liquibase(DataSource) : SpringLiquibase
+    + liquibaseJdbcTemplate(DataSource) : JdbcTemplate
+  }
+
+  class OpenApiConfig <<@Configuration>> {
+    + dbMigrationOpenApi() : OpenAPI
+  }
+}
+
+package "domain" {
+  enum MigrationEngine {
+    FLYWAY
+    LIQUIBASE
+    --
+    + displayName() : String
+    + historyTable() : String
+    + model() : String
+    + {static} from(String) : MigrationEngine
+  }
+}
+
+package "service" {
+  interface MigrationHistoryProvider {
+    + engine() : MigrationEngine
+    + status() : MigrationStatusReport
+  }
+
+  class FlywayHistoryService <<@Service>> {
+    - {static} NO_AUTHOR : String = "n/a"
+    - flyway : Flyway
+    + engine() : MigrationEngine
+    + status() : MigrationStatusReport
+    - {static} toAppliedMigration(MigrationInfo) : AppliedMigration
+  }
+
+  class LiquibaseHistoryService <<@Service>> {
+    - {static} HISTORY_QUERY : String
+    - {static} CHANGELOG_ROW_MAPPER : RowMapper<AppliedMigration>
+    - jdbcTemplate : JdbcTemplate
+    + engine() : MigrationEngine
+    + status() : MigrationStatusReport
+    - {static} describe(ResultSet) : String
+  }
+
+  class SchemaInspectionService <<@Service>> {
+    - {static} BOOKKEEPING_TABLES : Set<String>
+    - {static} SCHEMA : String = "PUBLIC"
+    - {static} TABLES_QUERY : String
+    - {static} VIEWS_QUERY : String
+    - {static} COLUMNS_QUERY : String
+    - {static} INDEXES_QUERY : String
+    - {static} CATALOG_QUERY : String
+    - templates : Map<MigrationEngine, JdbcTemplate>
+    + snapshot(MigrationEngine) : SchemaSnapshot
+    + catalog(MigrationEngine) : List<ProductView>
+    - templateFor(MigrationEngine) : JdbcTemplate
+    - {static} isBookkeeping(String) : boolean
+  }
+
+  class ComparisonService <<@Service>> {
+    - providers : Map<MigrationEngine, MigrationHistoryProvider>
+    - schemaInspection : SchemaInspectionService
+    + status(MigrationEngine) : MigrationStatusReport
+    + schema(MigrationEngine) : SchemaSnapshot
+    + compare() : ComparisonReport
+    ~ {static} diff(SchemaSnapshot, SchemaSnapshot) : List<String>
+    - {static} compareSets(String, List<String>, List<String>, List<String>) : void
+  }
+
+  class FeatureMatrix <<final utility>> {
+    - {static} ROWS : List<FeatureComparison>
+    + {static} rows() : List<FeatureComparison>
+  }
+}
+
+package "controller" {
+  class MigrationController <<@RestController>> {
+    - comparisonService : ComparisonService
+    + statusForBothEngines() : ResponseEntity<ApiResponse<Map<String, MigrationStatusReport>>>
+    + engines() : ResponseEntity<ApiResponse<List<Map<String, String>>>>
+    + status(String) : ResponseEntity<ApiResponse<MigrationStatusReport>>
+    + schema(String) : ResponseEntity<ApiResponse<SchemaSnapshot>>
+  }
+
+  class ComparisonController <<@RestController>> {
+    - comparisonService : ComparisonService
+    + compare() : ResponseEntity<ApiResponse<ComparisonReport>>
+    + features() : ResponseEntity<ApiResponse<List<FeatureComparison>>>
+  }
+
+  class CatalogController <<@RestController>> {
+    - schemaInspectionService : SchemaInspectionService
+    + catalog(String) : ResponseEntity<ApiResponse<List<ProductView>>>
+  }
+
+  class HealthController <<@RestController>> {
+    - comparisonService : ComparisonService
+    + health() : ResponseEntity<ApiResponse<Map<String, Object>>>
+  }
+
+  class GlobalExceptionHandler <<@RestControllerAdvice>> {
+    + handleBadRequest(IllegalArgumentException) : ResponseEntity<ApiResponse<Void>>
+    + handleDataAccess(DataAccessException) : ResponseEntity<ApiResponse<Void>>
+    + handleUnexpected(Exception) : ResponseEntity<ApiResponse<Void>>
+  }
+}
+
+package "dto" {
+  class ApiResponse<T> <<record>>
+  class ComparisonReport <<record>>
+  class MigrationStatusReport <<record>>
+  class AppliedMigration <<record>>
+  class SchemaSnapshot <<record>>
+  class ProductView <<record>>
+  class FeatureComparison <<record>>
+}
+
+package "external" {
+  class Flyway <<org.flywaydb.core>>
+  class SpringLiquibase <<liquibase.integration.spring>>
+  class JdbcTemplate <<org.springframework.jdbc.core>>
+}
+
+' --- Implementations -------------------------------------------------------
+MigrationHistoryProvider <|.. FlywayHistoryService
+MigrationHistoryProvider <|.. LiquibaseHistoryService
+
+' --- Bean wiring -----------------------------------------------------------
+FlywayConfig ..> Flyway : creates (initMethod=migrate)
+FlywayConfig ..> JdbcTemplate : creates flywayJdbcTemplate\n@DependsOn("flyway")
+LiquibaseConfig ..> SpringLiquibase : creates (afterPropertiesSet)
+LiquibaseConfig ..> JdbcTemplate : creates liquibaseJdbcTemplate\n@DependsOn("liquibase")
+
+FlywayHistoryService --> Flyway : info()
+LiquibaseHistoryService --> JdbcTemplate : liquibaseJdbcTemplate
+SchemaInspectionService --> JdbcTemplate : flyway + liquibase templates
+
+' --- Service collaboration -------------------------------------------------
+ComparisonService o--> "2" MigrationHistoryProvider
+ComparisonService --> SchemaInspectionService
+ComparisonService ..> FeatureMatrix
+ComparisonService ..> ComparisonReport
+
+' --- Controllers -----------------------------------------------------------
+MigrationController --> ComparisonService
+ComparisonController --> ComparisonService
+ComparisonController ..> FeatureMatrix
+CatalogController --> SchemaInspectionService
+HealthController --> ComparisonService
+GlobalExceptionHandler ..> ApiResponse
+
+' --- DTO usage -------------------------------------------------------------
+FlywayHistoryService ..> MigrationStatusReport
+LiquibaseHistoryService ..> MigrationStatusReport
+MigrationStatusReport o--> "*" AppliedMigration
+MigrationStatusReport --> MigrationEngine
+SchemaSnapshot --> MigrationEngine
+SchemaInspectionService ..> SchemaSnapshot
+SchemaInspectionService ..> ProductView
+FeatureMatrix o--> "18" FeatureComparison
+ComparisonReport o--> "2" MigrationStatusReport
+ComparisonReport o--> "2" SchemaSnapshot
+ComparisonReport o--> "*" FeatureComparison
+MigrationHistoryProvider ..> MigrationEngine
+
+@enduml

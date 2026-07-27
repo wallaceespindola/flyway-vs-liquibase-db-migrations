@@ -1,0 +1,171 @@
+@startuml startup-sequence
+' Application startup: both engines migrate during context refresh
+' Author: Wallace Espindola - https://github.com/wallaceespindola/
+
+title Startup — Spring context refresh migrates both databases
+
+participant "JVM" as jvm
+participant "SpringApplication" as boot
+participant "FlywayConfig" as fwCfg
+participant "Flyway" as flyway
+database "H2 ./data/flywaydb" as fwDb
+participant "LiquibaseConfig" as lbCfg
+participant "SpringLiquibase" as liquibase
+database "H2 ./data/liquibasedb" as lbDb
+participant "Service beans" as svc
+participant "Embedded Tomcat" as tomcat
+
+jvm -> boot : main(args)
+activate boot
+boot -> boot : load application.yml\nexclude DataSourceAutoConfiguration
+
+group Flyway side
+  boot -> fwCfg : flywayDataSourceProperties()
+  fwCfg --> boot : DataSourceProperties(app.datasource.flyway)
+  boot -> fwCfg : flywayDataSource(properties)
+  fwCfg --> boot : DataSource @Primary
+  boot -> fwCfg : flyway(dataSource)
+  fwCfg -> flyway : Flyway.configure()\n.locations(classpath:db/migration)\n.baselineOnMigrate(true)\n.validateOnMigrate(true)\n.cleanDisabled(true).load()
+  boot -> flyway : migrate()   <<initMethod>>
+  activate flyway
+  flyway -> fwDb : create/validate flyway_schema_history
+  flyway -> fwDb : V1 create category
+  flyway -> fwDb : V2 create product
+  flyway -> fwDb : V3 seed reference data
+  flyway -> fwDb : V4 add product_audit
+  flyway -> fwDb : V5 add product.active + backfill
+  flyway -> fwDb : R__ create or replace v_product_catalog
+  flyway -> fwDb : insert 6 history rows
+  flyway --> boot : MigrateResult
+  deactivate flyway
+  boot -> fwCfg : flywayJdbcTemplate(dataSource)  <<@DependsOn("flyway")>>
+  fwCfg --> boot : JdbcTemplate @Primary
+end
+
+group Liquibase side
+  boot -> lbCfg : liquibaseDataSourceProperties()
+  lbCfg --> boot : DataSourceProperties(app.datasource.liquibase)
+  boot -> lbCfg : liquibaseDataSource(properties)
+  lbCfg --> boot : DataSource
+  boot -> lbCfg : liquibase(dataSource)
+  lbCfg -> liquibase : setChangeLog(db.changelog-master.yaml)\nsetContexts("demo")\nsetDefaultSchema("PUBLIC")
+  boot -> liquibase : afterPropertiesSet()   <<InitializingBean>>
+  activate liquibase
+  liquibase -> lbDb : create DATABASECHANGELOG + DATABASECHANGELOGLOCK
+  liquibase -> lbDb : acquire changelog lock
+  liquibase -> lbDb : 001 create category (XML)
+  liquibase -> lbDb : 002 create product (YAML)
+  liquibase -> lbDb : 003 seed reference data (SQL)
+  liquibase -> lbDb : 004 add product_audit\n(preCondition tableExists product)
+  liquibase -> lbDb : 005 add product.active
+  liquibase -> lbDb : 005b backfill active=false where stock_quantity=0
+  liquibase -> lbDb : 006 create v_product_catalog (runOnChange)
+  liquibase -> lbDb : insert 7 DATABASECHANGELOG rows, release lock
+  liquibase --> boot : done
+  deactivate liquibase
+  boot -> lbCfg : liquibaseJdbcTemplate(dataSource)  <<@DependsOn("liquibase")>>
+  lbCfg --> boot : JdbcTemplate
+end
+
+boot -> svc : construct FlywayHistoryService(flyway)\nLiquibaseHistoryService(liquibaseJdbcTemplate)\nSchemaInspectionService(both templates)\nComparisonService(List<MigrationHistoryProvider>, schemaInspection)
+svc --> boot : beans ready
+boot -> tomcat : start on :8080
+tomcat --> boot : accepting requests
+boot --> jvm : context refreshed
+deactivate boot
+
+note over flyway, liquibase
+  Both engines run at the same lifecycle position: bean initialisation.
+  Any migration failure aborts context refresh, so Tomcat never starts
+  against a half-migrated database.
+end note
+
+@enduml
+
+@startuml comparison-request-sequence
+' Request flow: GET /api/v1/comparison
+' Author: Wallace Espindola - https://github.com/wallaceespindola/
+
+title Request — GET /api/v1/comparison
+
+actor Browser
+participant "ComparisonController" as ctrl
+participant "ComparisonService" as svc
+participant "SchemaInspectionService" as schema
+participant "FlywayHistoryService" as fwHist
+participant "Flyway" as flyway
+participant "LiquibaseHistoryService" as lbHist
+participant "FeatureMatrix" as matrix
+participant "flywayJdbcTemplate" as fwJdbc
+participant "liquibaseJdbcTemplate" as lbJdbc
+database "H2 flywaydb" as fwDb
+database "H2 liquibasedb" as lbDb
+participant "GlobalExceptionHandler" as advice
+
+Browser -> ctrl : GET /api/v1/comparison
+activate ctrl
+ctrl -> svc : compare()
+activate svc
+
+svc -> schema : snapshot(FLYWAY)
+activate schema
+schema -> fwJdbc : INFORMATION_SCHEMA.TABLES / VIEWS / COLUMNS / INDEXES
+fwJdbc -> fwDb : SELECT
+fwDb --> fwJdbc : rows
+schema --> svc : SchemaSnapshot(FLYWAY)\nbookkeeping = flyway_schema_history
+deactivate schema
+
+svc -> schema : snapshot(LIQUIBASE)
+activate schema
+schema -> lbJdbc : INFORMATION_SCHEMA.TABLES / VIEWS / COLUMNS / INDEXES
+lbJdbc -> lbDb : SELECT
+lbDb --> lbJdbc : rows
+schema --> svc : SchemaSnapshot(LIQUIBASE)\nbookkeeping = DATABASECHANGELOG(+LOCK)
+deactivate schema
+
+svc -> svc : diff(flywaySchema, liquibaseSchema)\ntables + views + columns; indexes excluded
+
+svc -> fwHist : status()
+activate fwHist
+fwHist -> flyway : info().all()
+flyway --> fwHist : MigrationInfo[]
+fwHist --> svc : MigrationStatusReport(FLYWAY, 6 applied)
+deactivate fwHist
+
+svc -> lbHist : status()
+activate lbHist
+lbHist -> lbJdbc : SELECT ID, AUTHOR, FILENAME, DATEEXECUTED, ORDEREXECUTED,\nEXECTYPE, MD5SUM, DESCRIPTION, COMMENTS, CONTEXTS, LABELS,\nDEPLOYMENT_ID FROM DATABASECHANGELOG ORDER BY ORDEREXECUTED
+lbJdbc -> lbDb : SELECT
+lbDb --> lbJdbc : 7 rows
+lbHist --> svc : MigrationStatusReport(LIQUIBASE, 7 applied)
+deactivate lbHist
+
+svc -> matrix : rows()
+matrix --> svc : List<FeatureComparison> (18)
+
+svc --> ctrl : ComparisonReport(schemasEquivalent=true, differences=[])
+deactivate svc
+
+ctrl -> ctrl : ApiResponse.ok(report,\n"Both engines produced an equivalent business schema")
+ctrl --> Browser : 200 OK, application/json
+deactivate ctrl
+
+group Failure path — database unreachable
+  Browser -> ctrl : GET /api/v1/comparison
+  ctrl -> svc : compare()
+  svc -> schema : snapshot(FLYWAY)
+  schema -> fwJdbc : SELECT ...
+  fwJdbc --> schema : DataAccessException
+  schema --> ctrl : DataAccessException propagates
+  ctrl -> advice : handleDataAccess(e)
+  advice --> Browser : 503 Service Unavailable\nApiResponse.error("Database unavailable: ...")
+end
+
+group Failure path — unknown engine (on /api/v1/migrations/{engine})
+  Browser -> ctrl : GET /api/v1/migrations/mysql
+  ctrl -> ctrl : MigrationEngine.from("mysql")
+  ctrl -> advice : IllegalArgumentException
+  advice --> Browser : 400 Bad Request\nApiResponse.error("Unknown migration engine 'mysql'. Expected one of: flyway, liquibase")
+end
+
+@enduml

@@ -1,0 +1,32 @@
+# One-command startup via Docker.
+#   docker compose up --build
+# Then open http://localhost:8080/
+#
+# Author: Wallace Espindola
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: flyway-vs-liquibase-db-migrations:1.0.0
+    container_name: flyway-vs-liquibase
+    ports:
+      - "${SERVER_PORT:-8080}:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-default}
+      JAVA_OPTS: ${JAVA_OPTS:--XX:MaxRAMPercentage=75.0}
+    volumes:
+      # Persist both H2 databases so migration history survives a restart. Remove this volume to
+      # watch Flyway and Liquibase migrate a clean database from scratch.
+      - h2-data:/app/data
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/api/v1/health > /dev/null 2>&1 || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+volumes:
+  h2-data:

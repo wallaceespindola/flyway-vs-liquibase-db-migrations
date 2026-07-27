@@ -1,0 +1,19 @@
+# Liquibase master changelog.
+#
+# Unlike Flyway — which discovers versioned files by filename convention — Liquibase requires an
+# explicit entry point that composes the changelog from included files. The cost is one more file to
+# maintain; the benefit is total control over ordering, plus the ability to mix formats freely.
+# The includes below deliberately use XML, YAML and SQL to show that all three are first-class.
+databaseChangeLog:
+  - include:
+      file: db/changelog/changes/001-create-category-table.xml
+  - include:
+      file: db/changelog/changes/002-create-product-table.yaml
+  - include:
+      file: db/changelog/changes/003-seed-reference-data.sql
+  - include:
+      file: db/changelog/changes/004-add-product-audit-table.xml
+  - include:
+      file: db/changelog/changes/005-add-product-active-flag.xml
+  - include:
+      file: db/changelog/changes/006-product-catalog-view.xml
