@@ -18,10 +18,10 @@ Author Information: Include an Author section in the README containing the autho
 
 Keep these values easy to update and clearly separated from the technical documentation.
 
-Project name: distributed-batch-orchestrator
-Author: Wallace Espindola
-GitHub: github.com/wallaceespindola
-LinkedIn: linkedin.com/in/wallaceespindola
+- Project name: https://github.com/wallaceespindola/flyway-vs-liquibase-db-migrations
+- Author: Wallace Espindola
+- GitHub: github.com/wallaceespindola
+- LinkedIn: linkedin.com/in/wallaceespindola
 
 Author Information: 
 The project README must include an Author section identifying Wallace Espindola as the project author, with links to his GitHub (wallaceespindola) and LinkedIn (wallaceespindola) profiles.
