@@ -31,10 +31,10 @@ run: ## Run in the foreground with the Spring Boot plugin
 	$(MVN) -B spring-boot:run
 
 start: ## Build and start in the background, then wait for health
-	./scripts/start.sh
+	./start.sh
 
 stop: ## Stop the background application
-	./scripts/stop.sh
+	./stop.sh
 
 restart: stop start ## Restart the background application
 

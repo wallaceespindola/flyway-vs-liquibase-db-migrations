@@ -26,6 +26,15 @@ The headline result, produced by the app itself:
 Both tools land on an identical business schema. Everything that differs — bookkeeping, metadata,
 rollback support, ergonomics — is what the rest of this project is about.
 
+## The dashboard
+
+![The Flyway vs Liquibase comparison dashboard, showing zero structural differences between the two
+schemas, the per-engine summary cards, and the normalised applied-migration
+tables](docs/images/dashboard.png)
+
+Served at <http://localhost:8080/> by the same Spring Boot process — plain HTML, CSS and JavaScript,
+no framework and no build step. Every number on the page is read live from the REST API.
+
 ---
 
 ## Quick start
@@ -36,8 +45,8 @@ One command, no database to install. H2 runs embedded and both engines migrate o
 git clone https://github.com/wallaceespindola/flyway-vs-liquibase-db-migrations.git
 cd flyway-vs-liquibase-db-migrations
 
-./scripts/start.sh          # Linux / macOS
-# .\scripts\start.ps1       # Windows PowerShell
+./start.sh                  # Linux / macOS
+# .\start.ps1               # Windows PowerShell
 # make start                # or via the Makefile
 # docker compose up --build # or via Docker
 ```
@@ -52,12 +61,12 @@ Then open **<http://localhost:8080/>**.
 | <http://localhost:8080/h2-console> | Query either database directly |
 | <http://localhost:8080/actuator/health> | Actuator health |
 
-Stop it with `./scripts/stop.sh` (or `.\scripts\stop.ps1`, or `make stop`).
+Stop it with `./stop.sh` (or `.\stop.ps1`, or `make stop`).
 
 To watch both engines migrate a clean database from scratch, add `--clean`:
 
 ```bash
-./scripts/start.sh --clean
+./start.sh --clean
 ```
 
 ### Requirements

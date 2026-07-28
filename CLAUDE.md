@@ -18,8 +18,8 @@ mvn verify                    # tests + JaCoCo gate (fails under 80% line covera
 mvn test                      # tests only
 mvn spring-boot:run           # foreground
 make help                     # every Makefile target
-./scripts/start.sh [--clean]  # build + background start + health wait (start.ps1 on Windows)
-./scripts/stop.sh             # stop (stop.ps1 on Windows)
+./start.sh [--clean]          # build + background start + health wait (start.ps1 on Windows)
+./stop.sh                     # stop (stop.ps1 on Windows)
 make clean-db                 # rm -rf data/ so both engines re-migrate from scratch
 ```
 

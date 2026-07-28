@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 #
-# Stops the application started by scripts/start.sh on Linux and macOS.
+# Stops the application started by start.sh on Linux and macOS.
 #
 # Usage:
-#   ./scripts/stop.sh          graceful shutdown
-#   ./scripts/stop.sh --clean  also delete both H2 databases
+#   ./stop.sh          graceful shutdown
+#   ./stop.sh --clean  also delete both H2 databases
 #
 # Author: Wallace Espindola
 
 set -euo pipefail
 
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$PROJECT_ROOT"
 
 PID_FILE=".run/app.pid"

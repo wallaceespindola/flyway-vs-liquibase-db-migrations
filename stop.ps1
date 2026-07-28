@@ -1,14 +1,14 @@
 <#
 .SYNOPSIS
-    Stops the application started by scripts\start.ps1 on Windows.
+    Stops the application started by start.ps1 on Windows.
 
 .PARAMETER Clean
     Also delete both H2 databases.
 
 .EXAMPLE
-    .\scripts\stop.ps1
+    .\stop.ps1
 .EXAMPLE
-    .\scripts\stop.ps1 -Clean
+    .\stop.ps1 -Clean
 
 .NOTES
     Author: Wallace Espindola
@@ -20,7 +20,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-$ProjectRoot = Split-Path -Parent $PSScriptRoot
+$ProjectRoot = $PSScriptRoot
 Set-Location $ProjectRoot
 
 $PidFile = '.run\app.pid'

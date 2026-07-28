@@ -3,18 +3,18 @@
 # One-command startup for Linux and macOS.
 #
 # Builds the jar if needed, starts the application in the background, waits for it to become
-# healthy, and prints the URLs. Use scripts/stop.sh to shut it down.
+# healthy, and prints the URLs. Use stop.sh to shut it down.
 #
 # Usage:
-#   ./scripts/start.sh              start in the background
-#   ./scripts/start.sh --foreground run in the foreground (Ctrl-C to stop)
-#   ./scripts/start.sh --clean      delete both H2 databases first, so migrations re-run from scratch
+#   ./start.sh              start in the background
+#   ./start.sh --foreground run in the foreground (Ctrl-C to stop)
+#   ./start.sh --clean      delete both H2 databases first, so migrations re-run from scratch
 #
 # Author: Wallace Espindola
 
 set -euo pipefail
 
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$PROJECT_ROOT"
 
 PORT="${SERVER_PORT:-8080}"
@@ -66,7 +66,7 @@ is_our_process() {
 if [[ -f "$PID_FILE" ]]; then
     EXISTING_PID="$(cat "$PID_FILE")"
     if is_our_process "$EXISTING_PID"; then
-        echo "Application is already running (PID $EXISTING_PID). Run scripts/stop.sh first."
+        echo "Application is already running (PID $EXISTING_PID). Run stop.sh first."
         exit 1
     fi
     echo "==> Ignoring stale pid file (PID $EXISTING_PID is not this application)"
@@ -106,7 +106,7 @@ for _ in $(seq 1 60); do
         echo "  H2 console   http://localhost:${PORT}/h2-console"
         echo "  Logs         $LOG_FILE"
         echo
-        echo "  Stop with:   ./scripts/stop.sh"
+        echo "  Stop with:   ./stop.sh"
         exit 0
     fi
     if ! kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then

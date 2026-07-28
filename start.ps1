@@ -4,7 +4,7 @@
 
 .DESCRIPTION
     Builds the jar if needed, starts the application, waits for it to become healthy and prints the
-    URLs. Use scripts\stop.ps1 to shut it down.
+    URLs. Use stop.ps1 to shut it down.
 
 .PARAMETER Foreground
     Run in the foreground instead of the background. Ctrl-C stops it.
@@ -13,11 +13,11 @@
     Delete both H2 databases first, so both engines migrate from scratch.
 
 .EXAMPLE
-    .\scripts\start.ps1
+    .\start.ps1
 .EXAMPLE
-    .\scripts\start.ps1 -Clean
+    .\start.ps1 -Clean
 .EXAMPLE
-    .\scripts\start.ps1 -Foreground
+    .\start.ps1 -Foreground
 
 .NOTES
     Author: Wallace Espindola
@@ -30,7 +30,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-$ProjectRoot = Split-Path -Parent $PSScriptRoot
+$ProjectRoot = $PSScriptRoot
 Set-Location $ProjectRoot
 
 $Port    = if ($env:SERVER_PORT) { $env:SERVER_PORT } else { '8080' }
@@ -85,7 +85,7 @@ if (Test-Path $PidFile) {
     if (-not [int]::TryParse($rawPid, [ref]$existingPid)) { $existingPid = 0 }
 
     if (Test-IsOurProcess -ProcessId $existingPid) {
-        Write-Host "Application is already running (PID $existingPid). Run scripts\stop.ps1 first."
+        Write-Host "Application is already running (PID $existingPid). Run stop.ps1 first."
         exit 1
     }
     Write-Host "==> Ignoring stale pid file (PID '$rawPid' is not this application)"
@@ -153,7 +153,7 @@ for ($i = 0; $i -lt 60; $i++) {
         Write-Host "  H2 console   http://localhost:$Port/h2-console"
         Write-Host "  Logs         $LogFile"
         Write-Host ''
-        Write-Host '  Stop with:   .\scripts\stop.ps1'
+        Write-Host '  Stop with:   .\stop.ps1'
         exit 0
     } catch {
         if ($process.HasExited) {

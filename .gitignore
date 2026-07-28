@@ -24,7 +24,7 @@ bin/
 dist/
 
 # ---------- Application runtime state ----------
-# Both H2 databases and the pid/log files written by scripts/start.sh
+# Both H2 databases and the pid/log files written by start.sh
 data/
 .run/
 *.log

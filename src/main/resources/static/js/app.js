@@ -27,6 +27,12 @@
     /** Coerces a value to a safe integer for interpolation, so counts can never carry markup. */
     const num = value => (Number.isFinite(Number(value)) ? Number(value) : 0);
 
+    /** "1 view" / "3 views" — a single view is a real case here, so the plural has to be conditional. */
+    const count = (value, singular, plural = `${singular}s`) => {
+        const n = num(value);
+        return `${n} ${n === 1 ? singular : plural}`;
+    };
+
     const $ = id => document.getElementById(id);
 
     const fmtDateTime = iso => {
@@ -111,10 +117,10 @@
             body.innerHTML = `
                 <p class="verdict-headline">Yes — zero structural differences.</p>
                 <p class="verdict-detail">
-                    Flyway applied ${num(report.flyway.appliedCount)} migrations and Liquibase applied
-                    ${num(report.liquibase.appliedCount)} changesets against separate databases. Comparing
-                    ${num(fw.tables.length)} tables, ${num(fw.views.length)} views and
-                    ${num(fw.columns.length)} columns read back
+                    Flyway applied ${count(report.flyway.appliedCount, 'migration')} and Liquibase applied
+                    ${count(report.liquibase.appliedCount, 'changeset')} against separate databases. Comparing
+                    ${count(fw.tables.length, 'table')}, ${count(fw.views.length, 'view')} and
+                    ${count(fw.columns.length, 'column')} read back
                     from <code>INFORMATION_SCHEMA</code>, the two business schemas are identical. The only
                     difference between the databases is the bookkeeping each engine keeps for itself:
                     <code>${esc(fw.bookkeepingTables.join(', '))}</code> versus
@@ -124,7 +130,7 @@
         }
 
         body.innerHTML = `
-            <p class="verdict-headline">No — ${num(report.schemaDifferences.length)} difference(s) found.</p>
+            <p class="verdict-headline">No — ${count(report.schemaDifferences.length, 'difference')} found.</p>
             <p class="verdict-detail">The two engines did not converge on the same business schema:</p>
             <ul class="diff-list">
                 ${report.schemaDifferences.map(d => `<li>${esc(d)}</li>`).join('')}
