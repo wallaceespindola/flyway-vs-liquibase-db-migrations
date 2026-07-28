@@ -42,14 +42,14 @@ image per block, suffixed with the block name.
 
 ## Accuracy notes
 
-Two elements are drawn dashed or greyed because they are referenced in the project description but do not exist in
-the repository as of this commit:
-
-- **Static dashboard** — `src/main/resources/static` is absent. Swagger UI at `/swagger-ui.html` is the working
-  browser client. The diagrams keep the dashboard node so the intended topology is visible, marked as planned.
-- **Docker packaging** — no `Dockerfile` or `docker-compose.yml` exists. The container node in the deployment
-  diagram is optional and marked as such. If added, `./data` must be a mounted volume or both databases are
-  discarded on every container restart.
+- **Static dashboard** — served from `src/main/resources/static` (`index.html`, `css/styles.css`, `js/app.js`) by
+  the same Spring Boot process on port 8080. Swagger UI at `/swagger-ui.html` sits alongside it.
+- **Docker packaging** — `Dockerfile` and `docker-compose.yml` exist at the repository root, with `docker-build`,
+  `docker-up` and `docker-down` targets in the `Makefile`. Compose mounts `./data` as a named volume; without a
+  volume both databases are discarded on every container restart.
+- **Indexes are excluded from the equivalence check.** `ComparisonService.diff()` compares tables, views and
+  columns only, because H2 auto-generates constraint-backing indexes under names that legitimately differ between
+  the two engines.
 
 Everything else is verifiable against the source:
 

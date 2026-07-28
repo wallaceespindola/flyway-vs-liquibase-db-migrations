@@ -55,9 +55,22 @@ if [[ "$JAVA_MAJOR" =~ ^[0-9]+$ ]] && (( JAVA_MAJOR < 21 )); then
     exit 1
 fi
 
-if [[ -f "$PID_FILE" ]] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then
-    echo "Application is already running (PID $(cat "$PID_FILE")). Run scripts/stop.sh first."
-    exit 1
+# A pid file can outlive its process (OOM kill, kill -9), and the OS recycles pids. Confirm the pid
+# really belongs to this application before trusting it, or we refuse to start over a stranger.
+is_our_process() {
+    local pid="$1"
+    kill -0 "$pid" 2>/dev/null || return 1
+    ps -p "$pid" -o command= 2>/dev/null | grep -q 'flyway-vs-liquibase-db-migrations.jar'
+}
+
+if [[ -f "$PID_FILE" ]]; then
+    EXISTING_PID="$(cat "$PID_FILE")"
+    if is_our_process "$EXISTING_PID"; then
+        echo "Application is already running (PID $EXISTING_PID). Run scripts/stop.sh first."
+        exit 1
+    fi
+    echo "==> Ignoring stale pid file (PID $EXISTING_PID is not this application)"
+    rm -f "$PID_FILE"
 fi
 
 if $CLEAN; then
@@ -81,7 +94,9 @@ echo $! > "$PID_FILE"
 
 printf '==> Waiting for the application to become healthy'
 for _ in $(seq 1 60); do
-    if curl -fsS "http://localhost:${PORT}/api/v1/health" >/dev/null 2>&1; then
+    # Liveness must not depend on /api/v1/health: that endpoint returns 503 when either database is
+    # unreachable, and `curl -f` would treat a running-but-degraded app as never having started.
+    if curl -fsS "http://localhost:${PORT}/actuator/health" >/dev/null 2>&1; then
         echo
         echo "==> Ready."
         echo

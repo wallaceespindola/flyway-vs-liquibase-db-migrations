@@ -58,8 +58,8 @@ Here's the part that should end the "which tool builds a better schema" debate f
   "data": {
     "schemasEquivalent": true,
     "schemaDifferences": [],
-    "flywayStatus": { "engine": "FLYWAY", "appliedCount": 6, "pendingCount": 0 },
-    "liquibaseStatus": { "engine": "LIQUIBASE", "appliedCount": 7, "pendingCount": 0 }
+    "flyway":    { "engine": "FLYWAY",    "appliedCount": 6, "pendingCount": 0, "upToDate": true },
+    "liquibase": { "engine": "LIQUIBASE", "appliedCount": 7, "pendingCount": 0, "upToDate": true }
   },
   "message": "Both engines produced an equivalent business schema"
 }
@@ -144,7 +144,7 @@ Liquibase supports XML, YAML, JSON and SQL as equally first-class formats, mixab
 </changeSet>
 ```
 
-The product table went in as YAML instead (`002-create-product-table.yaml`), and the seed data dropped to Liquibase-formatted SQL because check constraints — `CHECK (price >= 0)` — have no portable Liquibase tag and have to be written as raw SQL anyway. That mixing is the point: Liquibase doesn't force you to be abstract everywhere, only where it can be.
+The product table went in as YAML instead (`002-create-product-table.yaml`). That file is where the abstraction runs out: check constraints — `CHECK (price >= 0)` — have no portable Liquibase tag, so the changeset drops to an inline `<sql>` block for exactly those two lines. The seed data (`003-seed-reference-data.sql`) uses the SQL-formatted changelog for its own reason, to show raw SQL is a first-class format. That mixing is the point: Liquibase doesn't force you to be abstract everywhere, only where it can be.
 
 What you're trading is real in both directions, and it's not a "Liquibase wins" story. Flyway's SQL is something every engineer on your team can read cold, no changeset grammar to learn — that matters more than it sounds like in a code review with someone who's never touched either tool before. Liquibase's abstraction buys you dialect portability: the exact same `createTable` changeset can, in principle, generate correct DDL against PostgreSQL, MySQL or Oracle without being rewritten. If your product only ever runs against one database, that portability is a feature you're paying learning-curve cost for and never cashing in.
 

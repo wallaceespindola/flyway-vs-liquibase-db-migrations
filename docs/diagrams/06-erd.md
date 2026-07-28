@@ -1,8 +1,9 @@
 # Entity Relationship Diagram
 
 The business schema is identical in both databases. Flyway builds it with `V1..V5` plus one repeatable script;
-Liquibase builds it with changesets `001..006`. Column names, types, constraints and index names match on both
-sides — that equivalence is what `GET /api/v1/comparison` verifies at runtime.
+Liquibase builds it with changesets `001..006`. Table, view and column definitions match on both sides — that is
+the equivalence `GET /api/v1/comparison` verifies at runtime. Index *names* are deliberately excluded from the
+check, because H2 auto-generates constraint-backing indexes under names that differ between the two engines.
 
 Source: `src/main/resources/db/migration/*.sql`, `src/main/resources/db/changelog/changes/*`
 

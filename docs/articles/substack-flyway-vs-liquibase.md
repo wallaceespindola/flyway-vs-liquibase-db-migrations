@@ -46,7 +46,7 @@ There's a repeatable view in this schema — `v_product_catalog`, joining produc
 
 If you'd asked me before I built this, I would have given you a hedge. Now I'd actually commit to an answer, and it depends on one question: does your team need rollback as an operational primitive, or not?
 
-If the answer is no — if forward-only migrations are an acceptable discipline, your team is comfortable writing SQL directly, and you want merge conflicts to fail loud and early — I'd pick Flyway. The bootstrap is three method calls. Code review means reading SQL, which every engineer on the team already knows how to do without learning a tag vocabulary first.
+If the answer is no — if forward-only migrations are an acceptable discipline, your team is comfortable writing SQL directly, and you want merge conflicts to fail loud and early — I'd pick Flyway. The bootstrap is a DataSource and a location. Code review means reading SQL, which every engineer on the team already knows how to do without learning a tag vocabulary first.
 
 If the answer is yes — if you need `rollbackCount` as a real deploy-time safety net, need database portability because your changelog has to run against more than one dialect, or need an audit trail that records who changed what and under which context — Liquibase earns its extra setup. The changelog composition step is more ceremony, but you're buying real capability with it, not just complexity for its own sake.
 

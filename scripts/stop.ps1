@@ -25,6 +25,16 @@ Set-Location $ProjectRoot
 
 $PidFile = '.run\app.pid'
 
+# Windows recycles pids and Get-Process -Id 0 succeeds (the Idle process), so a stale or empty pid
+# file must never be signalled blindly.
+function Test-IsOurProcess {
+    param([int]$ProcessId)
+
+    if ($ProcessId -le 0) { return $false }
+    $proc = Get-CimInstance Win32_Process -Filter "ProcessId = $ProcessId" -ErrorAction SilentlyContinue
+    return $null -ne $proc -and $proc.CommandLine -like '*flyway-vs-liquibase-db-migrations.jar*'
+}
+
 function Stop-AppProcess {
     param([int]$ProcessId)
 
@@ -44,11 +54,14 @@ function Stop-AppProcess {
 }
 
 if (Test-Path $PidFile) {
-    $appPid = [int](Get-Content $PidFile)
-    if (Get-Process -Id $appPid -ErrorAction SilentlyContinue) {
+    $rawPid = (Get-Content $PidFile -Raw).Trim()
+    $appPid = 0
+    if (-not [int]::TryParse($rawPid, [ref]$appPid)) { $appPid = 0 }
+
+    if (Test-IsOurProcess -ProcessId $appPid) {
         Stop-AppProcess -ProcessId $appPid
     } else {
-        Write-Host "==> No process for PID $appPid, cleaning up stale pid file"
+        Write-Host "==> PID '$rawPid' is not this application, cleaning up stale pid file without signalling it"
     }
     Remove-Item $PidFile -ErrorAction SilentlyContinue
 } else {

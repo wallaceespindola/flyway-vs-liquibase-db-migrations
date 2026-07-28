@@ -1,8 +1,8 @@
 /*
  * Flyway vs Liquibase dashboard.
  *
- * Vanilla ES2020 — no framework, no bundler, no dependencies. Everything is driven by four GETs
- * against the app's own REST API.
+ * Vanilla ES2020 — no framework, no bundler, no dependencies. The whole dashboard is driven by two
+ * GETs: /api/v1/comparison (which already embeds the feature matrix) and /api/v1/catalog/{engine}.
  */
 (() => {
     'use strict';
@@ -57,9 +57,35 @@
             banner = document.createElement('div');
             banner.id = 'error-banner';
             banner.className = 'error-banner';
+            // role=alert so screen readers announce the failure; the banner sits outside the
+            // aria-live region on #verdict, so it needs its own.
+            banner.setAttribute('role', 'alert');
             document.querySelector('main').prepend(banner);
         }
         banner.textContent = `Could not load data: ${message}. Is the application running on this port?`;
+    }
+
+    /**
+     * Replaces every "Loading…" placeholder with the failure reason.
+     *
+     * Without this, a failed comparison call leaves five regions of the page reading "Loading…"
+     * forever, which is indistinguishable from a slow request.
+     */
+    function markRegionsFailed(message) {
+        const note = `Unavailable — ${message}`;
+
+        $('verdict-body').innerHTML = `<p class="verdict-detail">${esc(note)}</p>`;
+        [['flyway-migrations', 5], ['liquibase-migrations', 5], ['feature-matrix', 4], ['catalog-rows', 6]]
+            .forEach(([id, columns]) => {
+                $(id).innerHTML = `<tr><td colspan="${columns}" class="muted">${esc(note)}</td></tr>`;
+            });
+        $('schema-panels').innerHTML = `<p class="muted">${esc(note)}</p>`;
+
+        ['flyway', 'liquibase'].forEach(prefix => {
+            $(`${prefix}-count`).textContent = 'unavailable';
+            $(`${prefix}-last`).textContent = '—';
+            $(`${prefix}-pending`).textContent = '—';
+        });
     }
 
     function clearError() {
@@ -211,12 +237,22 @@
 
     // ---------- loading ----------
 
+    // Monotonic token so a slow catalog response cannot overwrite a newer one. Clicking Flyway then
+    // Liquibase quickly would otherwise render Flyway's rows under the Liquibase tab.
+    let catalogRequest = 0;
+
     async function loadCatalog(engine) {
+        const request = ++catalogRequest;
         try {
-            renderCatalog(await getJson(API.catalog(engine)));
+            const products = await getJson(API.catalog(engine));
+            if (request === catalogRequest) {
+                renderCatalog(products);
+            }
         } catch (e) {
-            $('catalog-rows').innerHTML =
-                `<tr><td colspan="6" class="muted">Could not load catalog: ${esc(e.message)}</td></tr>`;
+            if (request === catalogRequest) {
+                $('catalog-rows').innerHTML =
+                    `<tr><td colspan="6" class="muted">Could not load catalog: ${esc(e.message)}</td></tr>`;
+            }
         }
     }
 
@@ -238,6 +274,8 @@
             showError(e.message);
             $('verdict-pill').textContent = 'Unavailable';
             $('verdict-pill').className = 'pill pill-warn';
+            $('verdict').className = 'card verdict-card is-warn';
+            markRegionsFailed(e.message);
         } finally {
             button.disabled = false;
         }
@@ -248,15 +286,31 @@
     document.addEventListener('DOMContentLoaded', () => {
         $('refresh-btn').addEventListener('click', loadAll);
 
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.tab').forEach(t => {
-                    t.classList.remove('is-active');
-                    t.setAttribute('aria-selected', 'false');
-                });
-                tab.classList.add('is-active');
-                tab.setAttribute('aria-selected', 'true');
-                loadCatalog(tab.dataset.engine);
+        const tabs = Array.from(document.querySelectorAll('.tab'));
+
+        const activate = tab => {
+            tabs.forEach(t => {
+                const selected = t === tab;
+                t.classList.toggle('is-active', selected);
+                t.setAttribute('aria-selected', String(selected));
+                // Roving tabindex: only the selected tab is in the tab order, which is what the
+                // tablist pattern expects.
+                t.tabIndex = selected ? 0 : -1;
+            });
+            $('catalog-panel').setAttribute('aria-labelledby', tab.id);
+            loadCatalog(tab.dataset.engine);
+        };
+
+        tabs.forEach((tab, index) => {
+            tab.addEventListener('click', () => activate(tab));
+
+            tab.addEventListener('keydown', event => {
+                const offset = {ArrowRight: 1, ArrowLeft: -1, Home: -index, End: tabs.length - 1 - index}[event.key];
+                if (offset === undefined) return;
+                event.preventDefault();
+                const next = tabs[(index + offset + tabs.length) % tabs.length];
+                next.focus();
+                activate(next);
             });
         });
 

@@ -13,6 +13,13 @@ services:
     container_name: flyway-vs-liquibase
     ports:
       - "${SERVER_PORT:-8080}:8080"
+    # Without env_file, Compose uses .env only for ${...} substitution in this file — so the
+    # APP_DATASOURCE_* and APP_MIGRATION_* entries documented in .env.example would be silently
+    # ignored. Passing the file through hands them to the container, where Spring's relaxed binding
+    # maps them onto app.datasource.* and app.migration.*.
+    env_file:
+      - path: .env
+        required: false
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-default}
       JAVA_OPTS: ${JAVA_OPTS:--XX:MaxRAMPercentage=75.0}

@@ -3,7 +3,6 @@ title: Flyway vs Liquibase - I Ran Both Against the Same Schema So You Don't Hav
 published: false
 description: A Spring Boot 3.4 app that migrates two identical H2 databases with Flyway and Liquibase, then diffs the resulting schemas at runtime. Clone it, run it, see the numbers yourself.
 tags: java, database, springboot, devops
-cover_image: https://placeholder-image-url.com/cover.png
 ---
 
 Most "Flyway vs Liquibase" articles are opinion pieces. This one comes with a repo you can clone and a running app that proves its own claims — an actual side-by-side comparison instead of a blog post asking you to trust it.
@@ -162,8 +161,8 @@ Compare that to Flyway's `V4__add_product_audit_table.sql`, which creates the sa
           "identifier": "V1",
           "description": "create category table",
           "author": "n/a",
-          "checksum": "1214579649",
-          "executionTimeMs": 8,
+          "checksum": "-1250524602",
+          "executionTimeMs": 2,
           "status": "Success"
         }
       ]
@@ -178,7 +177,7 @@ Compare that to Flyway's `V4__add_product_audit_table.sql`, which creates the sa
       "migrations": [
         {
           "identifier": "001-create-category-table::wallaceespindola",
-          "description": "Create the category table",
+          "description": "Create the category reference table",
           "author": "wallaceespindola",
           "checksum": "8:3f...e2",
           "executionTimeMs": null,

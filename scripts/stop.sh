@@ -24,6 +24,14 @@ for arg in "$@"; do
     esac
 done
 
+# A pid file can outlive its process (OOM kill, kill -9) and the OS recycles pids, so never signal a
+# pid without first confirming it is actually this application.
+is_our_process() {
+    local pid="$1"
+    kill -0 "$pid" 2>/dev/null || return 1
+    ps -p "$pid" -o command= 2>/dev/null | grep -q 'flyway-vs-liquibase-db-migrations.jar'
+}
+
 stop_pid() {
     local pid="$1"
     echo "==> Stopping PID $pid"
@@ -38,10 +46,10 @@ stop_pid() {
 
 if [[ -f "$PID_FILE" ]]; then
     PID="$(cat "$PID_FILE")"
-    if kill -0 "$PID" 2>/dev/null; then
+    if is_our_process "$PID"; then
         stop_pid "$PID"
     else
-        echo "==> No process for PID $PID, cleaning up stale pid file"
+        echo "==> PID $PID is not this application, cleaning up stale pid file without signalling it"
     fi
     rm -f "$PID_FILE"
 else

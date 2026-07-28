@@ -96,13 +96,15 @@ auto-configuration. Auto-configuration would hide exactly the thing this project
 it actually takes to bootstrap each tool.
 
 ```java
-// FlywayConfig — three lines and it runs.
+// FlywayConfig — a DataSource, a location, and it runs. The rest is hardening.
 @Bean(name = "flyway", initMethod = "migrate")
 public Flyway flyway(@Qualifier(DATA_SOURCE) DataSource dataSource) {
     return Flyway.configure()
             .dataSource(dataSource)
             .locations(locations)
             .baselineOnMigrate(baselineOnMigrate)
+            .validateOnMigrate(true)
+            .cleanDisabled(true)
             .load();
 }
 
@@ -156,7 +158,8 @@ implementations of `MigrationHistoryProvider`:
 MigrationInfo[] all = flyway.info().all();
 
 // LiquibaseHistoryService — no equivalent API, so the bookkeeping table is the interface.
-SELECT ID, AUTHOR, FILENAME, DATEEXECUTED, EXECTYPE, MD5SUM, CONTEXTS, LABELS, DEPLOYMENT_ID
+SELECT ID, AUTHOR, FILENAME, DATEEXECUTED, ORDEREXECUTED, EXECTYPE,
+       MD5SUM, DESCRIPTION, COMMENTS, CONTEXTS, LABELS, DEPLOYMENT_ID
 FROM DATABASECHANGELOG ORDER BY ORDEREXECUTED
 ```
 

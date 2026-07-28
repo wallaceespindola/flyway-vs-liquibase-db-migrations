@@ -238,8 +238,8 @@ Notes read from the source:
 - `SchemaInspectionService` is the only bean holding both `JdbcTemplate`s, in a
   `Map<MigrationEngine, JdbcTemplate>` built in the constructor.
 - `FeatureMatrix` is a final utility class with a private throwing constructor; its 18 rows are static data.
-- `ComparisonService.diff` and `compareSets` are package-private and static — they are unit-testable without the
-  Spring context.
+- `ComparisonService.diff` is package-private and static, so it is unit-testable without the Spring context;
+  `compareSets` is private static and is exercised through `diff`.
 
 Author: Wallace Espindola — [github.com/wallaceespindola](https://github.com/wallaceespindola/) ·
 [linkedin.com/in/wallaceespindola](https://www.linkedin.com/in/wallaceespindola/)

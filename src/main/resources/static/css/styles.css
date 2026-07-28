@@ -35,6 +35,20 @@
         --border: #d8e0ee;
         --text: #16202f;
         --text-muted: #5a6b83;
+
+        /* The dark-mode accents fail WCAG AA on white (#35c4d0 is 2.1:1, #f2784b is 2.9:1), and
+           --liquibase is the site-wide link colour. Darkened here to clear 4.5:1 while keeping the
+           same hue, so the Flyway/Liquibase colour coding still reads. */
+        --flyway: #b8431a;
+        --flyway-soft: rgba(184, 67, 26, 0.10);
+        --liquibase: #0d7a84;
+        --liquibase-soft: rgba(13, 122, 132, 0.10);
+        --tie: #6d48d4;
+        --tie-soft: rgba(109, 72, 212, 0.10);
+        --ok: #1a7f45;
+        --ok-soft: rgba(26, 127, 69, 0.12);
+        --warn: #9a6400;
+        --warn-soft: rgba(154, 100, 0, 0.12);
     }
 }
 
@@ -147,7 +161,9 @@ a:hover { text-decoration: none; }
 
 /* ---------- layout ---------- */
 
-main { padding: 26px 20px 50px; }
+/* main also carries .wrap, whose padding wins on specificity — so the block padding has to be set
+   on the same selector rather than on the bare element. */
+main.wrap { padding-top: 26px; padding-bottom: 50px; }
 
 .card {
     background: var(--bg-raised);
@@ -172,9 +188,16 @@ main { padding: 26px 20px 50px; }
 
 .grid-2 {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+    /* min() lets the track shrink below 330px instead of forcing horizontal page overflow on
+       narrow phones (375px viewport leaves ~303px once .wrap and .card padding are subtracted). */
+    grid-template-columns: repeat(auto-fit, minmax(min(330px, 100%), 1fr));
     gap: 20px;
 }
+
+/* The engine cards sit in a bare .grid-2 section and zero their own margin, so the gap to the next
+   card comes from the grid container. Nested grids inside a .card must not add to it. */
+.grid-2 { margin-bottom: 22px; }
+.card > .grid-2 { margin-bottom: 0; }
 
 .sub {
     margin: 0 0 10px;

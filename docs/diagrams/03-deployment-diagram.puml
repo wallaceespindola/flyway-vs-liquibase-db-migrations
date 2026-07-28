@@ -31,7 +31,7 @@ node "Developer workstation" as host {
 }
 
 node "Docker container\n(Dockerfile + docker-compose.yml)" as docker {
-  artifact "eclipse-temurin:21-jre\n+ application jar" as image
+  artifact "eclipse-temurin:21-jre-alpine\n+ application jar" as image
   folder "/app/data (volume)" as vol
 }
 

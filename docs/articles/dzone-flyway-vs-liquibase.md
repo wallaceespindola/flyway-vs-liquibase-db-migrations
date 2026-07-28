@@ -5,7 +5,6 @@ estimated-read-time: "12 minutes"
 audience: "Enterprise Java / Spring Boot developers evaluating a migration tool"
 ---
 
-> **DZone content notice**: This article is 100% human-written, per DZone's editorial requirement for original technical content.
 
 ## The Problem With Most Flyway vs Liquibase Comparisons
 
@@ -144,7 +143,7 @@ Liquibase supports XML, YAML, JSON and SQL as first-class, mixable formats withi
 </changeSet>
 ```
 
-The product table (`002-create-product-table.yaml`) is written in YAML instead, and the seed data (`003-seed-reference-data.sql`) drops down to Liquibase-formatted SQL because check constraints have no portable changeset tag:
+The product table (`002-create-product-table.yaml`) is written in YAML instead. That file is also where the abstraction runs out: check constraints have no portable Liquibase tag, so it drops to an inline `<sql>` block for them. The seed data (`003-seed-reference-data.sql`) uses the SQL-formatted changelog for a different reason — to show that raw SQL is a first-class changelog format, still tracked and still rollback-able:
 
 ```sql
 --liquibase formatted sql
@@ -353,8 +352,8 @@ Here's what `GET /api/v1/comparison` on this project actually returns after both
   "data": {
     "schemasEquivalent": true,
     "schemaDifferences": [],
-    "flywayStatus": { "engine": "FLYWAY", "appliedCount": 6, "pendingCount": 0 },
-    "liquibaseStatus": { "engine": "LIQUIBASE", "appliedCount": 7, "pendingCount": 0 }
+    "flyway":    { "engine": "FLYWAY",    "appliedCount": 6, "pendingCount": 0, "upToDate": true },
+    "liquibase": { "engine": "LIQUIBASE", "appliedCount": 7, "pendingCount": 0, "upToDate": true }
   },
   "message": "Both engines produced an equivalent business schema"
 }

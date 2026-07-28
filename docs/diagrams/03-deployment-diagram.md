@@ -9,6 +9,7 @@ Source: `application.yml` (`app.datasource.*.url`, `server.port`), `pom.xml` (Sp
 flowchart TB
     subgraph host["Developer workstation"]
         subgraph browser["Browser"]
+            dash["Dashboard<br/>/ (static)"]
             swagger["Swagger UI<br/>/swagger-ui.html"]
             h2c["H2 Console<br/>/h2-console"]
         end
@@ -33,7 +34,7 @@ flowchart TB
     end
 
     subgraph docker["Docker container — Dockerfile + docker-compose.yml"]
-        image["eclipse-temurin:21-jre + application jar"]
+        image["eclipse-temurin:21-jre-alpine + application jar"]
         vol["/app/data volume"]
     end
 
@@ -59,8 +60,9 @@ Operational notes:
   while the application holds it.
 - `DB_CLOSE_DELAY=-1` keeps the in-JVM database open until the JVM exits.
 - Deleting `./data` resets both engines. Flyway then re-runs V1..V5 and R__; Liquibase re-runs all 7 changesets.
-- The Docker box is dashed on purpose: there is no `Dockerfile` or `docker-compose.yml` in the repository yet. If
-  added, `./data` must be a mounted volume or both databases are lost on every container restart.
+- The Docker path is real: `Dockerfile` (multi-stage, non-root, `eclipse-temurin:21-jre-alpine-alpine` runtime) and
+  `docker-compose.yml` are both at the repository root. Compose mounts `./data` as the named volume `h2-data`;
+  without a volume both databases are lost on every container restart.
 
 Author: Wallace Espindola — [github.com/wallaceespindola](https://github.com/wallaceespindola/) ·
 [linkedin.com/in/wallaceespindola](https://www.linkedin.com/in/wallaceespindola/)

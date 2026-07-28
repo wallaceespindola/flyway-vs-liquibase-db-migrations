@@ -91,7 +91,9 @@
                 <div class="table-scroll">
                     <table class="data-table">
                         <thead>
-                        <tr><th>ID</th><th>Description</th><th>Type</th><th>Applied</th><th>Author</th></tr>
+                        <!-- "Source" rather than "Type": the file extension is the interesting part
+                             here, because it shows XML, YAML and SQL changesets side by side. -->
+                        <tr><th>ID</th><th>Description</th><th>Source</th><th>Applied</th><th>Author</th></tr>
                         </thead>
                         <tbody id="liquibase-migrations"><tr><td colspan="5" class="muted">Loading…</td></tr></tbody>
                     </table>
@@ -115,7 +117,10 @@
     <!-- Feature matrix -->
     <section class="card" aria-labelledby="features-title">
         <h2 class="card-title" id="features-title">Feature matrix</h2>
-        <p class="card-note">Editorial judgements, served from <code>/api/v1/comparison/features</code>.</p>
+        <p class="card-note">
+            Editorial judgements, embedded in the <code>/api/v1/comparison</code> payload and also available on
+            their own at <code>/api/v1/comparison/features</code>.
+        </p>
         <div class="legend">
             <span class="legend-item"><span class="dot dot-flyway"></span> Flyway edge</span>
             <span class="legend-item"><span class="dot dot-liquibase"></span> Liquibase edge</span>
@@ -138,11 +143,13 @@
             Read through the <code>v_product_catalog</code> view on each database — proof the migrations
             produced a working schema, not just bookkeeping rows.
         </p>
-        <div class="tabs" role="tablist">
-            <button class="tab is-active" role="tab" data-engine="flyway" aria-selected="true">Flyway</button>
-            <button class="tab" role="tab" data-engine="liquibase" aria-selected="false">Liquibase</button>
+        <div class="tabs" role="tablist" aria-label="Choose which engine's database to read">
+            <button class="tab is-active" role="tab" id="tab-flyway" data-engine="flyway"
+                    aria-selected="true" aria-controls="catalog-panel" tabindex="0">Flyway</button>
+            <button class="tab" role="tab" id="tab-liquibase" data-engine="liquibase"
+                    aria-selected="false" aria-controls="catalog-panel" tabindex="-1">Liquibase</button>
         </div>
-        <div class="table-scroll">
+        <div class="table-scroll" id="catalog-panel" role="tabpanel" aria-labelledby="tab-flyway" tabindex="0">
             <table class="data-table">
                 <thead>
                 <tr><th>SKU</th><th>Product</th><th>Category</th><th class="num">Price</th><th class="num">Stock</th><th>Active</th></tr>
