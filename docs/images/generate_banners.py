@@ -6,7 +6,7 @@ One banner per publishing platform, each at that platform's native cover ratio s
 badly by the CMS, and each with a DIFFERENT layout — a single recoloured template reads as five
 copies of the same image when the articles are seen together.
 
-    dzone     split panel        two engines face off across a divider
+    dzone     convergence        both real file stacks feeding one schema
     medium    editorial          centred, quiet, magazine cover
     devto     terminal           a shell session showing the real curl and its output
     linkedin  data card          left-aligned headline with a stat block
@@ -59,7 +59,7 @@ class Banner:
 
 
 BANNERS = [
-    Banner("dzone", 1200, 628, "split"),
+    Banner("dzone", 1200, 628, "convergence"),
     Banner("medium", 1400, 700, "editorial"),
     Banner("devto", 1000, 420, "terminal"),
     Banner("linkedin", 1280, 720, "card"),
@@ -116,7 +116,7 @@ LIQUIBASE_FILES = [
 SCHEMA_OBJECTS = ["category", "product", "product_audit", "v_product_catalog"]
 
 
-def style_split(w: int, h: int) -> str:
+def style_convergence(w: int, h: int) -> str:
     """
     Two file stacks converging on one database.
 
@@ -436,7 +436,7 @@ def style_typographic(w: int, h: int) -> str:
 
 
 STYLES = {
-    "split": style_split,
+    "convergence": style_convergence,
     "editorial": style_editorial,
     "terminal": style_terminal,
     "card": style_card,
