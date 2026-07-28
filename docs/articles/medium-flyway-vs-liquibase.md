@@ -4,6 +4,7 @@ subtitle: "A Spring Boot experiment that settles the schema question and surface
 tags: [software-engineering, spring-boot, java, databases, devops]
 ---
 
+![Flyway vs Liquibase — the same schema built twice by two migration engines, 6 migrations against 7 changesets, with a zero-difference result](https://raw.githubusercontent.com/wallaceespindola/flyway-vs-liquibase-db-migrations/main/docs/images/banner-medium.png)
 ## The Question I Got Tired of Answering With Opinions
 
 Every few months, someone on a team I'm working with asks whether we should be using Flyway or Liquibase for the next service. And every few months, the conversation turns into a recycled set of opinions: Flyway is simpler, Liquibase is more powerful, Flyway is SQL so it's "safer," Liquibase has rollback so it's "safer." Everyone's right and nobody's checked.

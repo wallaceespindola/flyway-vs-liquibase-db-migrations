@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="50%" stop-color="#1a2337"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="rule" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#f2784b"/>
+      <stop offset="100%" stop-color="#35c4d0"/>
+    </linearGradient>
+    <radialGradient id="glowL" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#f2784b" stop-opacity="0.26"/>
+      <stop offset="55%" stop-color="#f2784b" stop-opacity="0.09"/>
+      <stop offset="100%" stop-color="#f2784b" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowR" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#35c4d0" stop-opacity="0.26"/>
+      <stop offset="55%" stop-color="#35c4d0" stop-opacity="0.09"/>
+      <stop offset="100%" stop-color="#35c4d0" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <ellipse cx="160.0" cy="128.0" rx="597.33" ry="458.67" fill="url(#glowL)"/>
+  <ellipse cx="1120.0" cy="602.67" rx="597.33" ry="458.67" fill="url(#glowR)"/>
+
+  <!-- accent edges: Flyway left, Liquibase right -->
+  <rect x="0" y="0" width="7.47" height="720" fill="#f2784b"/>
+  <rect x="1272.53" y="0" width="7.47" height="720" fill="#35c4d0"/>
+
+  <text x="640.0" y="161.6" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+        font-size="22.4" fill="#94a3b8" letter-spacing="5.33"
+        font-weight="600">LINKEDIN</text>
+
+  <text x="640.0" y="310.93" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+        font-size="110.93" font-weight="700" letter-spacing="-2.13">
+    <tspan fill="#f2784b">Flyway</tspan><tspan fill="#94a3b8" dx="27.73"
+      font-size="55.47" font-weight="400">vs</tspan><tspan fill="#35c4d0"
+      dx="27.73">Liquibase</tspan>
+  </text>
+
+  <rect x="480.0" y="381.33" width="320.0" height="4.27" rx="2.13"
+        fill="url(#rule)"/>
+
+  <text x="640.0" y="438.93" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+        font-size="28.8" fill="#e6ecf7" opacity="0.92">What actually differs, and how to choose.</text>
+
+  <!-- applied-count chips, the two real numbers from the app -->
+  <g>
+    <rect x="420.265" y="515.73" width="209.07" height="53.33" rx="26.67"
+          fill="#f2784b" fill-opacity="0.13" stroke="#f2784b" stroke-opacity="0.55"
+          stroke-width="1.6"/>
+    <text x="524.8" y="550.9278" text-anchor="middle"
+          font-family="Menlo, Consolas, monospace" font-size="22.4" fill="#f2784b">6 migrations</text>
+
+    <rect x="650.665" y="515.73" width="209.07" height="53.33" rx="26.67"
+          fill="#35c4d0" fill-opacity="0.13" stroke="#35c4d0" stroke-opacity="0.55"
+          stroke-width="1.6"/>
+    <text x="755.1999999999999" y="550.9278" text-anchor="middle"
+          font-family="Menlo, Consolas, monospace" font-size="22.4" fill="#35c4d0">7 changesets</text>
+  </g>
+
+  <text x="640.0" y="679.47" text-anchor="middle" font-family="Menlo, Consolas, monospace"
+        font-size="21.33" fill="#4ade80" opacity="0.9">"schemasEquivalent": true</text>
+</svg>

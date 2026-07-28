@@ -5,7 +5,7 @@ estimated-read-time: "12 minutes"
 audience: "Enterprise Java / Spring Boot developers evaluating a migration tool"
 ---
 
-
+![Flyway vs Liquibase — the same schema built twice by two migration engines, 6 migrations against 7 changesets, with a zero-difference result](https://raw.githubusercontent.com/wallaceespindola/flyway-vs-liquibase-db-migrations/main/docs/images/banner-dzone.png)
 ## The Problem With Most Flyway vs Liquibase Comparisons
 
 Most comparisons of Flyway and Liquibase read like feature checklists lifted from each vendor's own marketing page. You get a table with checkmarks, a paragraph about "convention over configuration," another about "database-agnostic changesets," and a conclusion that dodges the actual question: if you run both tools against the same schema, do you end up in the same place?

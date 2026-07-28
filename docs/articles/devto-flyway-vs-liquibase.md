@@ -3,6 +3,7 @@ title: Flyway vs Liquibase - I Ran Both Against the Same Schema So You Don't Hav
 published: false
 description: A Spring Boot 3.4 app that migrates two identical H2 databases with Flyway and Liquibase, then diffs the resulting schemas at runtime. Clone it, run it, see the numbers yourself.
 tags: java, database, springboot, devops
+cover_image: https://raw.githubusercontent.com/wallaceespindola/flyway-vs-liquibase-db-migrations/main/docs/images/banner-devto.png
 ---
 
 Most "Flyway vs Liquibase" articles are opinion pieces. This one comes with a repo you can clone and a running app that proves its own claims — an actual side-by-side comparison instead of a blog post asking you to trust it.
