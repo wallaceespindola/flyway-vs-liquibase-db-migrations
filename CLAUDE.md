@@ -31,7 +31,8 @@ mvn test -Dtest='ApplicationIntegrationTest$CentralClaim'
 mvn test -Dtest=ComparisonServiceTest#identicalSchemasHaveNoDifferences
 ```
 
-Coverage report: `target/site/jacoco/index.html`.
+Coverage report: `target/site/jacoco/index.html`. Currently 86 tests, 98.8% line / 82.5% branch
+coverage against an 80% line gate — only `main()` is uncovered, by design.
 
 ## Architecture — the parts that matter
 

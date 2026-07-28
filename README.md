@@ -281,11 +281,12 @@ mvn test -Dtest='ApplicationIntegrationTest$CentralClaim'
 mvn test -Dtest=ComparisonServiceTest#identicalSchemasHaveNoDifferences
 ```
 
-**82 tests.** The unit tests cover the diff algorithm, engine resolution, the `DATABASECHANGELOG` row
-mapping and error handling. `ApplicationIntegrationTest` boots the whole application against two real
-freshly-migrated in-memory databases and asserts on what the engines actually produced — including
-that both seeded identical data and that Liquibase applied changesets written in XML, YAML *and* SQL.
-The coverage report lands in `target/site/jacoco/index.html`.
+**86 tests, 98.8% line coverage** (82.5% branch) against an 80% gate. The unit tests cover the diff
+algorithm, engine resolution, the `DATABASECHANGELOG` row mapping, health degradation and error
+handling. `ApplicationIntegrationTest` boots the whole application against two real freshly-migrated
+in-memory databases and asserts on what the engines actually produced — including that both seeded
+identical data and that Liquibase applied changesets written in XML, YAML *and* SQL. The coverage
+report lands in `target/site/jacoco/index.html`.
 
 CI runs `mvn verify` and then boots the packaged jar and asserts `schemasEquivalent` is still true, so
 a migration change that makes the two engines diverge fails the build.
