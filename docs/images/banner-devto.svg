@@ -20,26 +20,40 @@
   </defs>
   <rect width="1000" height="420" fill="url(#bg)"/>
 
-  <rect x="46.0" y="38.0" width="908.0" height="344.0" rx="12.0" fill="#131c2e"
-        stroke="#2a3650" stroke-width="1.5"/>
-  <path d="M 46.0 50.0 a 12.0 12.0 0 0 1 12.0 -12.0 h 884.0
-           a 12.0 12.0 0 0 1 12.0 12.0 v 26.0 h -908.0 z" fill="#1a2337"/>
-  <line x1="46.0" y1="76.0" x2="954.0" y2="76.0" stroke="#2a3650"
-        stroke-width="1.5"/>
-  <circle cx="72.0" cy="57.0" r="6.5" fill="#ff5f57"/>
-  <circle cx="96.0" cy="57.0" r="6.5" fill="#febc2e"/>
-  <circle cx="120.0" cy="57.0" r="6.5" fill="#28c840"/>
-  <text x="500.0" y="63.84" text-anchor="middle" font-family="Menlo, Consolas, monospace"
-        font-size="16.0" fill="#94a3b8">flyway-vs-liquibase-db-migrations</text>
-  <text x="72.0" y="116.0" font-family="Menlo, Consolas, monospace" font-size="19.0" xml:space="preserve"><tspan fill="#4ade80">$</tspan> <tspan fill="#e6ecf7">./start.sh</tspan></text>
-  <text x="72.0" y="146.0" font-family="Menlo, Consolas, monospace" font-size="19.0" xml:space="preserve"><tspan fill="#94a3b8">==&gt; Flyway applied </tspan><tspan fill="#f2784b">6 migrations</tspan></text>
-  <text x="72.0" y="176.0" font-family="Menlo, Consolas, monospace" font-size="19.0" xml:space="preserve"><tspan fill="#94a3b8">==&gt; Liquibase applied </tspan><tspan fill="#35c4d0">7 changesets</tspan></text>
-  <text x="72.0" y="206.0" font-family="Menlo, Consolas, monospace" font-size="19.0" xml:space="preserve"><tspan fill="#4ade80">$</tspan> <tspan fill="#e6ecf7">curl -s localhost:8080/api/v1/comparison</tspan></text>
-  <text x="72.0" y="236.0" font-family="Menlo, Consolas, monospace" font-size="19.0" xml:space="preserve"><tspan fill="#94a3b8">  "</tspan><tspan fill="#a78bfa">schemasEquivalent</tspan><tspan fill="#94a3b8">": </tspan><tspan fill="#4ade80">true</tspan><tspan fill="#94a3b8">,</tspan></text>
-  <text x="72.0" y="266.0" font-family="Menlo, Consolas, monospace" font-size="19.0" xml:space="preserve"><tspan fill="#94a3b8">  "</tspan><tspan fill="#a78bfa">schemaDifferences</tspan><tspan fill="#94a3b8">": []</tspan></text>
-  <text x="928.0" y="354.0" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
-        font-size="26.0" font-weight="700">
-    <tspan fill="#f2784b">Flyway</tspan><tspan fill="#94a3b8" dx="9.0"
-      font-weight="400">vs</tspan><tspan fill="#35c4d0" dx="9.0">Liquibase</tspan>
+  <text x="20.0" y="38.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="25.0" font-weight="700"
+        letter-spacing="-0.4">
+    <tspan fill="#f2784b">Flyway</tspan><tspan fill="#94a3b8" dx="8.0" font-size="17.0"
+      font-weight="400">vs</tspan><tspan fill="#35c4d0" dx="8.0">Liquibase</tspan>
   </text>
+  <text x="275.0" y="38.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="15.0" fill="#94a3b8">
+    the same migration, written twice</text>
+  <text x="980.0" y="38.0" text-anchor="end" font-family="Menlo, Consolas, monospace" font-size="13.0"
+        fill="#4ade80">"schemasEquivalent": true</text>
+
+
+  <rect x="20.0" y="66.0" width="472.0" height="292.0" rx="9.0" fill="#131c2e"
+        stroke="#2a3650" stroke-width="1.2"/>
+  <path d="M 20.0 75.0 a 9.0 9.0 0 0 1 9.0 -9.0 h 454.0
+           a 9.0 9.0 0 0 1 9.0 9.0 v 19.0 h -472.0 z" fill="#f2784b"
+        fill-opacity="0.16"/>
+  <rect x="20.0" y="66.0" width="4.0" height="292.0" rx="2.0" fill="#f2784b"/>
+  <text x="34.0" y="85.04" font-family="Menlo, Consolas, monospace" font-size="12.0"
+        fill="#f2784b" font-weight="700">V4__add_product_audit_table.sql</text>
+  <text x="478.0" y="85.04" text-anchor="end"
+        font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.0" fill="#94a3b8" letter-spacing="1.0">SQL</text>  <text x="34.0" y="118.0" font-family="Menlo, Consolas, monospace" font-size="11.5" xml:space="preserve"><tspan fill="#f2784b">CREATE TABLE</tspan><tspan fill="#e6ecf7"> product_audit (</tspan></text>  <text x="34.0" y="136.5" font-family="Menlo, Consolas, monospace" font-size="11.5" xml:space="preserve"><tspan fill="#e6ecf7">  id</tspan><tspan fill="#a78bfa">           BIGINT</tspan><tspan fill="#e6ecf7"> AUTO_INCREMENT PK,</tspan></text>  <text x="34.0" y="155.0" font-family="Menlo, Consolas, monospace" font-size="11.5" xml:space="preserve"><tspan fill="#e6ecf7">  product_id</tspan><tspan fill="#a78bfa">   BIGINT</tspan><tspan fill="#e6ecf7">  NOT NULL,</tspan></text>  <text x="34.0" y="173.5" font-family="Menlo, Consolas, monospace" font-size="11.5" xml:space="preserve"><tspan fill="#e6ecf7">  audit_action</tspan><tspan fill="#a78bfa"> VARCHAR(20)</tspan><tspan fill="#e6ecf7"> NOT NULL,</tspan></text>  <text x="34.0" y="192.0" font-family="Menlo, Consolas, monospace" font-size="11.5" xml:space="preserve"><tspan fill="#e6ecf7">  changed_by</tspan><tspan fill="#a78bfa">   VARCHAR(100)</tspan><tspan fill="#f2784b"> DEFAULT</tspan><tspan fill="#9ae6b4"> 'system',</tspan></text>  <text x="34.0" y="210.5" font-family="Menlo, Consolas, monospace" font-size="11.5" xml:space="preserve"><tspan fill="#e6ecf7">  changed_at</tspan><tspan fill="#a78bfa">   TIMESTAMP</tspan><tspan fill="#e6ecf7">  NOT NULL</tspan></text>  <text x="34.0" y="229.0" font-family="Menlo, Consolas, monospace" font-size="11.5" xml:space="preserve"><tspan fill="#e6ecf7">);</tspan></text>  <text x="34.0" y="247.5" font-family="Menlo, Consolas, monospace" font-size="11.5" xml:space="preserve"><tspan fill="#e6ecf7"></tspan></text>  <rect x="28.0" y="252.68" width="456.0" height="18.5" rx="3.0" fill="#94a3b8" fill-opacity="0.07"/>  <text x="34.0" y="266.0" font-family="Menlo, Consolas, monospace" font-size="11.5" xml:space="preserve"><tspan fill="#64748b">-- No precondition. No guard.</tspan></text>  <text x="34.0" y="284.5" font-family="Menlo, Consolas, monospace" font-size="11.5" xml:space="preserve"><tspan fill="#e6ecf7"></tspan></text>  <rect x="28.0" y="289.68" width="456.0" height="18.5" rx="3.0" fill="#94a3b8" fill-opacity="0.07"/>  <text x="34.0" y="303.0" font-family="Menlo, Consolas, monospace" font-size="11.5" xml:space="preserve"><tspan fill="#64748b">-- No rollback. Reverting means</tspan></text>  <rect x="28.0" y="308.18" width="456.0" height="18.5" rx="3.0" fill="#94a3b8" fill-opacity="0.07"/>  <text x="34.0" y="321.5" font-family="Menlo, Consolas, monospace" font-size="11.5" xml:space="preserve"><tspan fill="#64748b">-- a NEW forward migration.</tspan></text>  <rect x="28.0" y="326.68" width="456.0" height="18.5" rx="3.0" fill="#94a3b8" fill-opacity="0.07"/>  <text x="34.0" y="340.0" font-family="Menlo, Consolas, monospace" font-size="11.5" xml:space="preserve"><tspan fill="#64748b">-- undo is a paid Teams feature.</tspan></text>
+
+  <rect x="508.0" y="66.0" width="472.0" height="292.0" rx="9.0" fill="#131c2e"
+        stroke="#2a3650" stroke-width="1.2"/>
+  <path d="M 508.0 75.0 a 9.0 9.0 0 0 1 9.0 -9.0 h 454.0
+           a 9.0 9.0 0 0 1 9.0 9.0 v 19.0 h -472.0 z" fill="#35c4d0"
+        fill-opacity="0.16"/>
+  <rect x="508.0" y="66.0" width="4.0" height="292.0" rx="2.0" fill="#35c4d0"/>
+  <text x="522.0" y="85.04" font-family="Menlo, Consolas, monospace" font-size="12.0"
+        fill="#35c4d0" font-weight="700">004-add-product-audit-table.xml</text>
+  <text x="966.0" y="85.04" text-anchor="end"
+        font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="11.0" fill="#94a3b8" letter-spacing="1.0">XML</text>  <text x="522.0" y="118.0" font-family="Menlo, Consolas, monospace" font-size="11.5" xml:space="preserve"><tspan fill="#35c4d0">&lt;changeSet</tspan><tspan fill="#a78bfa"> id=</tspan><tspan fill="#9ae6b4">"004-add-product-audit-table"</tspan></text>  <text x="522.0" y="136.5" font-family="Menlo, Consolas, monospace" font-size="11.5" xml:space="preserve"><tspan fill="#a78bfa">            author=</tspan><tspan fill="#9ae6b4">"wallaceespindola"</tspan><tspan fill="#35c4d0">&gt;</tspan></text>  <rect x="516.0" y="141.68" width="456.0" height="18.5" rx="3.0" fill="#4ade80" fill-opacity="0.1"/>  <text x="522.0" y="155.0" font-family="Menlo, Consolas, monospace" font-size="11.5" xml:space="preserve"><tspan fill="#35c4d0">  &lt;preConditions</tspan><tspan fill="#a78bfa"> onFail=</tspan><tspan fill="#9ae6b4">"MARK_RAN"</tspan><tspan fill="#35c4d0">&gt;</tspan></text>  <rect x="516.0" y="160.18" width="456.0" height="18.5" rx="3.0" fill="#4ade80" fill-opacity="0.1"/>  <text x="522.0" y="173.5" font-family="Menlo, Consolas, monospace" font-size="11.5" xml:space="preserve"><tspan fill="#35c4d0">    &lt;tableExists</tspan><tspan fill="#a78bfa"> tableName=</tspan><tspan fill="#9ae6b4">"product"</tspan><tspan fill="#35c4d0">/&gt;</tspan></text>  <rect x="516.0" y="178.68" width="456.0" height="18.5" rx="3.0" fill="#4ade80" fill-opacity="0.1"/>  <text x="522.0" y="192.0" font-family="Menlo, Consolas, monospace" font-size="11.5" xml:space="preserve"><tspan fill="#35c4d0">  &lt;/preConditions&gt;</tspan></text>  <text x="522.0" y="210.5" font-family="Menlo, Consolas, monospace" font-size="11.5" xml:space="preserve"><tspan fill="#e6ecf7"></tspan></text>  <text x="522.0" y="229.0" font-family="Menlo, Consolas, monospace" font-size="11.5" xml:space="preserve"><tspan fill="#35c4d0">  &lt;createTable</tspan><tspan fill="#a78bfa"> tableName=</tspan><tspan fill="#9ae6b4">"product_audit"</tspan><tspan fill="#35c4d0">&gt;</tspan></text>  <text x="522.0" y="247.5" font-family="Menlo, Consolas, monospace" font-size="11.5" xml:space="preserve"><tspan fill="#64748b">    ...</tspan></text>  <text x="522.0" y="266.0" font-family="Menlo, Consolas, monospace" font-size="11.5" xml:space="preserve"><tspan fill="#35c4d0">  &lt;/createTable&gt;</tspan></text>  <text x="522.0" y="284.5" font-family="Menlo, Consolas, monospace" font-size="11.5" xml:space="preserve"><tspan fill="#e6ecf7"></tspan></text>  <rect x="516.0" y="289.68" width="456.0" height="18.5" rx="3.0" fill="#4ade80" fill-opacity="0.1"/>  <text x="522.0" y="303.0" font-family="Menlo, Consolas, monospace" font-size="11.5" xml:space="preserve"><tspan fill="#35c4d0">  &lt;rollback&gt;</tspan></text>  <rect x="516.0" y="308.18" width="456.0" height="18.5" rx="3.0" fill="#4ade80" fill-opacity="0.1"/>  <text x="522.0" y="321.5" font-family="Menlo, Consolas, monospace" font-size="11.5" xml:space="preserve"><tspan fill="#35c4d0">    &lt;dropTable</tspan><tspan fill="#a78bfa"> tableName=</tspan><tspan fill="#9ae6b4">"product_audit"</tspan><tspan fill="#35c4d0">/&gt;</tspan></text>  <rect x="516.0" y="326.68" width="456.0" height="18.5" rx="3.0" fill="#4ade80" fill-opacity="0.1"/>  <text x="522.0" y="340.0" font-family="Menlo, Consolas, monospace" font-size="11.5" xml:space="preserve"><tspan fill="#35c4d0">  &lt;/rollback&gt;</tspan></text>
+
+  <text x="500.0" y="396.0" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="13.0"
+        fill="#94a3b8">Identical result in the database — but only one side can declare how to undo
+    itself.</text>
 </svg>

@@ -13,12 +13,18 @@ them recognisably one project.
 | --- | --- | --- | --- |
 | `banner-dzone.png` | 1200×628 | **convergence blueprint** — both real file stacks feeding one schema | [DZone](../articles/dzone-flyway-vs-liquibase.md) |
 | `banner-medium.png` | 1400×700 | **editorial** — centred serif, framed, magazine restraint | [Medium](../articles/medium-flyway-vs-liquibase.md) |
-| `banner-devto.png` | 1000×420 | **terminal** — a shell session running the real curl | [Dev.to](../articles/devto-flyway-vs-liquibase.md) |
+| `banner-devto.png` | 1000×420 | **diff** — the same migration in both formats, side by side | [Dev.to](../articles/devto-flyway-vs-liquibase.md) |
 | `banner-linkedin.png` | 1280×720 | **data card** — left-aligned headline, stat block | [LinkedIn](../articles/linkedin-flyway-vs-liquibase.md) |
 | `banner-substack.png` | 1200×600 | **typographic** — newsletter masthead, rules and whitespace | [Substack](../articles/substack-flyway-vs-liquibase.md) |
 
-![The Dev.to banner: a terminal window showing ./start.sh, the applied counts, and the comparison
-endpoint returning schemasEquivalent true](banner-devto.png)
+![The Dev.to banner: V4__add_product_audit_table.sql beside 004-add-product-audit-table.xml, with
+the preConditions and rollback blocks highlighted on the Liquibase side and the corresponding gaps
+noted on the Flyway side](banner-devto.png)
+
+The Dev.to banner puts the repository's sharpest comparison on the cover: `V4__add_product_audit_table.sql`
+beside `004-add-product-audit-table.xml`. Both create the same table, but the Liquibase side carries a
+`<preConditions>` guard and a `<rollback>` block — highlighted — and the Flyway side says plainly
+where they would go and why it cannot have them. Syntax colours come from the same palette.
 
 The DZone banner is the only one that draws the repository itself: the twelve filenames are read
 from `db/migration/` and `db/changelog/changes/`, the cylinder lists the four objects both engines

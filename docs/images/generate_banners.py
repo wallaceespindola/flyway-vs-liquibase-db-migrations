@@ -8,7 +8,7 @@ copies of the same image when the articles are seen together.
 
     dzone     convergence        both real file stacks feeding one schema
     medium    editorial          centred, quiet, magazine cover
-    devto     terminal           a shell session showing the real curl and its output
+    devto     diff               the same migration in both formats, side by side
     linkedin  data card          left-aligned headline with a stat block
     substack  typographic        minimal, rules and whitespace, newsletter masthead
 
@@ -61,7 +61,7 @@ class Banner:
 BANNERS = [
     Banner("dzone", 1200, 628, "convergence"),
     Banner("medium", 1400, 700, "editorial"),
-    Banner("devto", 1000, 420, "terminal"),
+    Banner("devto", 1000, 420, "diff"),
     Banner("linkedin", 1280, 720, "card"),
     Banner("substack", 1200, 600, "typographic"),
 ]
@@ -279,60 +279,109 @@ def style_editorial(w: int, h: int) -> str:
     return frame(w, h, body, bg)
 
 
-# ------------------------------------------------------------------------- devto: terminal window
+def style_diff(w: int, h: int) -> str:
+    """
+    The same migration in both formats, side by side.
 
-def style_terminal(w: int, h: int) -> str:
-    """A shell session. Dev.to readers are there to run the thing."""
+    Dev.to readers want the code, so the banner IS the code: V4__add_product_audit_table.sql next to
+    004-add-product-audit-table.xml, which is the sharpest single comparison in the repository. The
+    Liquibase pane carries a preConditions guard and a <rollback> block, both highlighted; the Flyway
+    pane has neither, and says so where they would go.
+    """
     s = min(w / 1000, h / 420)
     p = lambda v: round(v * s, 2)
 
-    mx, my = p(46), p(38)
-    tw, th = w - 2 * mx, h - 2 * my
-    bar = p(38)
-    line = p(30)
-    left = mx + p(26)
-    y0 = my + bar + p(40)
+    m, gap = p(20), p(16)
+    pane_w = (w - 2 * m - gap) / 2
+    pane_y, pane_h = p(66), p(292)
+    bar = p(28)
+    line_h = p(18.5)
+    code_x_pad = p(14)
+    code_y0 = pane_y + bar + p(24)
 
-    def row(i: int, spans: str) -> str:
-        # xml:space="preserve" is required: SVG otherwise collapses the whitespace at tspan
-        # boundaries, rendering "applied " + "6 migrations" as "applied6 migrations" and eating
-        # the leading indent on the JSON lines.
-        return (f'  <text x="{left}" y="{y0 + i * line}" font-family="{MONO}" '
-                f'font-size="{p(19)}" xml:space="preserve">{spans}</text>')
+    K, TAG, ATTR, STR, CMT = "#f2784b", "#35c4d0", VIOLET, "#9ae6b4", "#64748b"
 
-    rows = "\n".join([
-        row(0, f'<tspan fill="{OK}">$</tspan> <tspan fill="{TEXT}">./start.sh</tspan>'),
-        row(1, f'<tspan fill="{MUTED}">==&gt; Flyway applied </tspan>'
-               f'<tspan fill="{FLYWAY}">6 migrations</tspan>'),
-        row(2, f'<tspan fill="{MUTED}">==&gt; Liquibase applied </tspan>'
-               f'<tspan fill="{LIQUIBASE}">7 changesets</tspan>'),
-        row(3, f'<tspan fill="{OK}">$</tspan> <tspan fill="{TEXT}">curl -s localhost:8080/api/v1/comparison</tspan>'),
-        row(4, f'<tspan fill="{MUTED}">  "</tspan><tspan fill="{VIOLET}">schemasEquivalent</tspan>'
-               f'<tspan fill="{MUTED}">": </tspan><tspan fill="{OK}">true</tspan><tspan fill="{MUTED}">,</tspan>'),
-        row(5, f'<tspan fill="{MUTED}">  "</tspan><tspan fill="{VIOLET}">schemaDifferences</tspan>'
-               f'<tspan fill="{MUTED}">": []</tspan>'),
-    ])
+    # (segments, highlight) — segments are (text, colour) pairs. Real code, trimmed to fit.
+    flyway_code = [
+        ([("CREATE TABLE", K), (" product_audit (", TEXT)], None),
+        ([("  id", TEXT), ("           BIGINT", ATTR), (" AUTO_INCREMENT PK,", TEXT)], None),
+        ([("  product_id", TEXT), ("   BIGINT", ATTR), ("  NOT NULL,", TEXT)], None),
+        ([("  audit_action", TEXT), (" VARCHAR(20)", ATTR), (" NOT NULL,", TEXT)], None),
+        ([("  changed_by", TEXT), ("   VARCHAR(100)", ATTR), (" DEFAULT", K), (" 'system',", STR)], None),
+        ([("  changed_at", TEXT), ("   TIMESTAMP", ATTR), ("  NOT NULL", TEXT)], None),
+        ([(");", TEXT)], None),
+        ([("", TEXT)], None),
+        ([("-- No precondition. No guard.", CMT)], "miss"),
+        ([("", TEXT)], None),
+        ([("-- No rollback. Reverting means", CMT)], "miss"),
+        ([("-- a NEW forward migration.", CMT)], "miss"),
+        ([("-- undo is a paid Teams feature.", CMT)], "miss"),
+    ]
 
-    dots = "\n".join(
-        f'  <circle cx="{mx + p(26) + i * p(24)}" cy="{my + bar / 2}" r="{p(6.5)}" fill="{c}"/>'
-        for i, c in enumerate(("#ff5f57", "#febc2e", "#28c840")))
+    liquibase_code = [
+        ([("<changeSet", TAG), (" id=", ATTR), ('"004-add-product-audit-table"', STR)], None),
+        ([("            author=", ATTR), ('"wallaceespindola"', STR), (">", TAG)], None),
+        ([("  <preConditions", TAG), (" onFail=", ATTR), ('"MARK_RAN"', STR), (">", TAG)], "have"),
+        ([("    <tableExists", TAG), (" tableName=", ATTR), ('"product"', STR), ("/>", TAG)], "have"),
+        ([("  </preConditions>", TAG)], "have"),
+        ([("", TEXT)], None),
+        ([("  <createTable", TAG), (" tableName=", ATTR), ('"product_audit"', STR), (">", TAG)], None),
+        ([("    ...", CMT)], None),
+        ([("  </createTable>", TAG)], None),
+        ([("", TEXT)], None),
+        ([("  <rollback>", TAG)], "have"),
+        ([("    <dropTable", TAG), (" tableName=", ATTR), ('"product_audit"', STR), ("/>", TAG)], "have"),
+        ([("  </rollback>", TAG)], "have"),
+    ]
+
+    def pane(x: float, title: str, colour: str, lines: list, badge: str) -> str:
+        out = [f"""
+  <rect x="{x}" y="{pane_y}" width="{pane_w}" height="{pane_h}" rx="{p(9)}" fill="{BG_INSET}"
+        stroke="{BORDER}" stroke-width="{p(1.2)}"/>
+  <path d="M {x} {pane_y + p(9)} a {p(9)} {p(9)} 0 0 1 {p(9)} {-p(9)} h {pane_w - p(18)}
+           a {p(9)} {p(9)} 0 0 1 {p(9)} {p(9)} v {bar - p(9)} h {-pane_w} z" fill="{colour}"
+        fill-opacity="0.16"/>
+  <rect x="{x}" y="{pane_y}" width="{p(4)}" height="{pane_h}" rx="{p(2)}" fill="{colour}"/>
+  <text x="{x + code_x_pad}" y="{pane_y + bar * 0.68}" font-family="{MONO}" font-size="{p(12)}"
+        fill="{colour}" font-weight="700">{title}</text>
+  <text x="{x + pane_w - code_x_pad}" y="{pane_y + bar * 0.68}" text-anchor="end"
+        font-family="{SANS}" font-size="{p(11)}" fill="{MUTED}" letter-spacing="{p(1)}">{badge}</text>"""]
+
+        for i, (segs, mark) in enumerate(lines):
+            y = code_y0 + i * line_h
+            if mark:
+                tint, op = (OK, 0.10) if mark == "have" else (MUTED, 0.07)
+                out.append(f'  <rect x="{x + p(8)}" y="{y - line_h * 0.72}" width="{pane_w - p(16)}" '
+                           f'height="{line_h}" rx="{p(3)}" fill="{tint}" fill-opacity="{op}"/>')
+            # The XML pane's code contains literal < and >, which would otherwise be parsed as SVG
+            # markup and break the document.
+            spans = "".join(
+                f'<tspan fill="{c}">{t.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")}</tspan>'
+                for t, c in segs)
+            out.append(f'  <text x="{x + code_x_pad}" y="{y}" font-family="{MONO}" '
+                       f'font-size="{p(11.5)}" xml:space="preserve">{spans}</text>')
+        return "".join(out)
+
+    lx, rx_ = m, m + pane_w + gap
+    foot_y = h - p(24)
 
     body = f"""
-  <rect x="{mx}" y="{my}" width="{tw}" height="{th}" rx="{p(12)}" fill="{BG_INSET}"
-        stroke="{BORDER}" stroke-width="{p(1.5)}"/>
-  <path d="M {mx} {my + p(12)} a {p(12)} {p(12)} 0 0 1 {p(12)} {-p(12)} h {tw - p(24)}
-           a {p(12)} {p(12)} 0 0 1 {p(12)} {p(12)} v {bar - p(12)} h {-tw} z" fill="{BG_RAISED}"/>
-  <line x1="{mx}" y1="{my + bar}" x2="{mx + tw}" y2="{my + bar}" stroke="{BORDER}"
-        stroke-width="{p(1.5)}"/>
-{dots}
-  <text x="{mx + tw / 2}" y="{my + bar * 0.68}" text-anchor="middle" font-family="{MONO}"
-        font-size="{p(16)}" fill="{MUTED}">flyway-vs-liquibase-db-migrations</text>
-{rows}
-  <text x="{mx + tw - p(26)}" y="{my + th - p(28)}" text-anchor="end" font-family="{SANS}"
-        font-size="{p(26)}" font-weight="700">
-    <tspan fill="{FLYWAY}">Flyway</tspan><tspan fill="{MUTED}" dx="{p(9)}"
-      font-weight="400">vs</tspan><tspan fill="{LIQUIBASE}" dx="{p(9)}">Liquibase</tspan>
+  <text x="{m}" y="{p(38)}" font-family="{SANS}" font-size="{p(25)}" font-weight="700"
+        letter-spacing="{p(-0.4)}">
+    <tspan fill="{FLYWAY}">Flyway</tspan><tspan fill="{MUTED}" dx="{p(8)}" font-size="{p(17)}"
+      font-weight="400">vs</tspan><tspan fill="{LIQUIBASE}" dx="{p(8)}">Liquibase</tspan>
   </text>
+  <text x="{m + p(255)}" y="{p(38)}" font-family="{SANS}" font-size="{p(15)}" fill="{MUTED}">
+    the same migration, written twice</text>
+  <text x="{w - m}" y="{p(38)}" text-anchor="end" font-family="{MONO}" font-size="{p(13)}"
+        fill="{OK}">"schemasEquivalent": true</text>
+
+{pane(lx, "V4__add_product_audit_table.sql", FLYWAY, flyway_code, "SQL")}
+{pane(rx_, "004-add-product-audit-table.xml", LIQUIBASE, liquibase_code, "XML")}
+
+  <text x="{w / 2}" y="{foot_y}" text-anchor="middle" font-family="{SANS}" font-size="{p(13)}"
+        fill="{MUTED}">Identical result in the database — but only one side can declare how to undo
+    itself.</text>
 """
     return frame(w, h, body)
 
@@ -438,7 +487,7 @@ def style_typographic(w: int, h: int) -> str:
 STYLES = {
     "convergence": style_convergence,
     "editorial": style_editorial,
-    "terminal": style_terminal,
+    "diff": style_diff,
     "card": style_card,
     "typographic": style_typographic,
 }
