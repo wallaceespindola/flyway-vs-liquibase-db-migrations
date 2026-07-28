@@ -11,7 +11,7 @@ them recognisably one project.
 
 | File | Size | Style | Used by |
 | --- | --- | --- | --- |
-| `banner-dzone.png` | 1200×628 | **split panel** — the two engines face off across a divider | [DZone](../articles/dzone-flyway-vs-liquibase.md) |
+| `banner-dzone.png` | 1200×628 | **convergence blueprint** — both real file stacks feeding one schema | [DZone](../articles/dzone-flyway-vs-liquibase.md) |
 | `banner-medium.png` | 1400×700 | **editorial** — centred serif, framed, magazine restraint | [Medium](../articles/medium-flyway-vs-liquibase.md) |
 | `banner-devto.png` | 1000×420 | **terminal** — a shell session running the real curl | [Dev.to](../articles/devto-flyway-vs-liquibase.md) |
 | `banner-linkedin.png` | 1280×720 | **data card** — left-aligned headline, stat block | [LinkedIn](../articles/linkedin-flyway-vs-liquibase.md) |
@@ -19,6 +19,13 @@ them recognisably one project.
 
 ![The Dev.to banner: a terminal window showing ./start.sh, the applied counts, and the comparison
 endpoint returning schemasEquivalent true](banner-devto.png)
+
+The DZone banner is the only one that draws the repository itself: the twelve filenames are read
+from `db/migration/` and `db/changelog/changes/`, the cylinder lists the four objects both engines
+produce, and the accent bar on `005-add-product-active-flag.xml` is split in two because that single
+file carries two changesets — which is the entire reason the counts read 6 and 7. A generator test
+would be overkill, but if you rename a migration, update `FLYWAY_FILES` / `LIQUIBASE_FILES` in
+`generate_banners.py` or the banner starts lying.
 
 The palette is taken from the dashboard stylesheet (`src/main/resources/static/css/styles.css`) —
 slate background, Flyway orange `#f2784b`, Liquibase teal `#35c4d0` — so the articles and the running

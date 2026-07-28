@@ -94,48 +94,151 @@ def frame(w: int, h: int, body: str, bg_extra: str = "") -> str:
             f'  <rect width="{w}" height="{h}" fill="url(#bg)"/>\n{bg_extra}{body}</svg>\n')
 
 
-# --------------------------------------------------------------------------- dzone: split panel
+# ------------------------------------------------------------------- dzone: convergence blueprint
+
+# The real migration sets, so the banner shows the actual repository rather than a decoration.
+FLYWAY_FILES = [
+    "V1__create_category_table.sql",
+    "V2__create_product_table.sql",
+    "V3__seed_reference_data.sql",
+    "V4__add_product_audit_table.sql",
+    "V5__add_product_active_flag.sql",
+    "R__product_catalog_view.sql",
+]
+LIQUIBASE_FILES = [
+    "001-create-category-table.xml",
+    "002-create-product-table.yaml",
+    "003-seed-reference-data.sql",
+    "004-add-product-audit-table.xml",
+    "005-add-product-active-flag.xml",
+    "006-product-catalog-view.xml",
+]
+SCHEMA_OBJECTS = ["category", "product", "product_audit", "v_product_catalog"]
+
 
 def style_split(w: int, h: int) -> str:
-    """Two engines facing off across a central divider."""
+    """
+    Two file stacks converging on one database.
+
+    This is the project's actual thesis drawn out: six SQL scripts on the left, six changelog files
+    on the right, different formats and different counts, both feeding a single identical schema in
+    the middle. The filenames are the real ones from src/main/resources.
+    """
     s = min(w / 1200, h / 628)
     p = lambda v: round(v * s, 2)
-    mid = w / 2
+    cx = w / 2
 
-    def side(x0: float, x1: float, name: str, colour: str, model: str, count: str, anchor: str) -> str:
-        cx = (x0 + x1) / 2
-        return f"""
-  <text x="{cx}" y="{h * 0.34}" text-anchor="{anchor}" font-family="{SANS}" font-size="{p(76)}"
-        font-weight="700" fill="{colour}" letter-spacing="{p(-1.5)}">{name}</text>
-  <text x="{cx}" y="{h * 0.455}" text-anchor="{anchor}" font-family="{SANS}" font-size="{p(21)}"
-        fill="{MUTED}">{model}</text>
-  <text x="{cx}" y="{h * 0.65}" text-anchor="{anchor}" font-family="{MONO}" font-size="{p(58)}"
-        font-weight="700" fill="{colour}">{count}</text>
-  <text x="{cx}" y="{h * 0.725}" text-anchor="{anchor}" font-family="{SANS}" font-size="{p(19)}"
-        fill="{MUTED}" letter-spacing="{p(2)}">APPLIED</text>"""
+    card_w, card_h, gap = p(266), p(38), p(9)
+    stack_h = 6 * card_h + 5 * gap
+    stack_y = h * 0.235
+    mid_y = stack_y + stack_h / 2
 
-    bg = (f'  <rect x="0" y="0" width="{mid}" height="{h}" fill="{FLYWAY}" fill-opacity="0.07"/>\n'
-          f'  <rect x="{mid}" y="0" width="{mid}" height="{h}" fill="{LIQUIBASE}" fill-opacity="0.07"/>\n'
-          f'  <ellipse cx="{p(180)}" cy="{p(90)}" rx="{p(520)}" ry="{p(360)}" fill="url(#glowL)"/>\n'
-          f'  <ellipse cx="{w - p(180)}" cy="{h - p(90)}" rx="{p(520)}" ry="{p(360)}" fill="url(#glowR)"/>\n')
+    left_x, right_x = p(34), w - p(34) - card_w
+
+    def stack(x: float, files: list[str], colour: str) -> str:
+        out = []
+        for i, name in enumerate(files):
+            y = stack_y + i * (card_h + gap)
+            # 005 is the one file carrying two changesets. Its accent bar is split in two to show
+            # that without a badge, which would overlap the filename — the card is already only just
+            # wide enough for it.
+            if name.startswith("005"):
+                seg = (card_h - p(5)) / 2
+                accent = (
+                    f'  <rect x="{x}" y="{y}" width="{p(4)}" height="{seg}" rx="{p(2)}" fill="{colour}"/>\n'
+                    f'  <rect x="{x}" y="{y + seg + p(5)}" width="{p(4)}" height="{seg}" rx="{p(2)}" '
+                    f'fill="{colour}"/>')
+            else:
+                accent = f'  <rect x="{x}" y="{y}" width="{p(4)}" height="{card_h}" rx="{p(2)}" fill="{colour}"/>'
+
+            out.append(f"""
+  <rect x="{x}" y="{y}" width="{card_w}" height="{card_h}" rx="{p(6)}" fill="{BG_INSET}"
+        stroke="{BORDER}" stroke-width="{p(1)}"/>
+{accent}
+  <text x="{x + p(18)}" y="{y + card_h * 0.66}" font-family="{MONO}" font-size="{p(13)}"
+        fill="{TEXT}" opacity="0.92">{name}</text>""")
+        return "".join(out)
+
+    # Database cylinder holding the schema both engines produced.
+    rx, ry = p(112), p(26)
+    top_y = stack_y + p(18)
+    bot_y = stack_y + stack_h - p(18)
+
+    objects = "".join(
+        f"""
+  <text x="{cx}" y="{top_y + p(62) + i * p(34)}" text-anchor="middle" font-family="{MONO}"
+        font-size="{p(15)}" fill="{TEXT}" opacity="0.9">{o}</text>"""
+        for i, o in enumerate(SCHEMA_OBJECTS))
+
+    def arrow(x0: float, x1: float, colour: str) -> str:
+        ctrl = (x0 + x1) / 2
+        return (f'  <path d="M {x0} {mid_y} C {ctrl} {mid_y} {ctrl} {mid_y} {x1} {mid_y}" '
+                f'fill="none" stroke="{colour}" stroke-width="{p(2)}" stroke-opacity="0.7" '
+                f'marker-end="url(#head-{"l" if colour == FLYWAY else "r"})"/>')
+
+    markers = f"""
+    <marker id="head-l" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="{p(7)}"
+            markerHeight="{p(7)}" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="{FLYWAY}"/></marker>
+    <marker id="head-r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="{p(7)}"
+            markerHeight="{p(7)}" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="{LIQUIBASE}"/></marker>"""
+
+    bar_y, bar_h = h - p(78), p(46)
 
     body = f"""
-  <rect x="0" y="0" width="{w}" height="{p(6)}" fill="url(#rule)"/>
-  <text x="{mid}" y="{h * 0.145}" text-anchor="middle" font-family="{SANS}" font-size="{p(20)}"
-        fill="{MUTED}" letter-spacing="{p(6)}" font-weight="600">SAME SCHEMA, BUILT TWICE</text>
-{side(0, mid, "Flyway", FLYWAY, "Versioned SQL scripts", "6", "middle")}
-{side(mid, w, "Liquibase", LIQUIBASE, "Changesets in a changelog", "7", "middle")}
-  <line x1="{mid}" y1="{h * 0.20}" x2="{mid}" y2="{h * 0.78}" stroke="{BORDER}"
-        stroke-width="{p(2)}"/>
-  <circle cx="{mid}" cy="{h * 0.49}" r="{p(34)}" fill="{BG}" stroke="{BORDER}" stroke-width="{p(2)}"/>
-  <text x="{mid}" y="{h * 0.49 + p(9)}" text-anchor="middle" font-family="{SERIF}"
-        font-size="{p(26)}" fill="{MUTED}" font-style="italic">vs</text>
-  <text x="{mid}" y="{h * 0.90}" text-anchor="middle" font-family="{MONO}" font-size="{p(24)}"
+  <defs>{markers}
+  </defs>
+
+  <rect x="0" y="0" width="{w}" height="{p(5)}" fill="url(#rule)"/>
+
+  <text x="{cx}" y="{p(52)}" text-anchor="middle" font-family="{SANS}" font-size="{p(38)}"
+        font-weight="700" letter-spacing="{p(-0.5)}">
+    <tspan fill="{FLYWAY}">Flyway</tspan><tspan fill="{MUTED}" dx="{p(11)}" font-size="{p(24)}"
+      font-weight="400">vs</tspan><tspan fill="{LIQUIBASE}" dx="{p(11)}">Liquibase</tspan>
+  </text>
+  <text x="{cx}" y="{p(80)}" text-anchor="middle" font-family="{SANS}" font-size="{p(17)}"
+        fill="{MUTED}">Different files. Different counts. One identical schema.</text>
+
+  <text x="{left_x}" y="{stack_y - p(14)}" font-family="{MONO}" font-size="{p(13)}" fill="{FLYWAY}"
+        letter-spacing="{p(1)}">db/migration/ — 6 applied</text>
+  <text x="{right_x + card_w}" y="{stack_y - p(14)}" text-anchor="end" font-family="{MONO}"
+        font-size="{p(13)}" fill="{LIQUIBASE}" letter-spacing="{p(1)}">db/changelog/ — 7 applied</text>
+
+{stack(left_x, FLYWAY_FILES, FLYWAY)}
+{stack(right_x, LIQUIBASE_FILES, LIQUIBASE)}
+
+{arrow(left_x + card_w + p(14), cx - rx - p(16), FLYWAY)}
+{arrow(right_x - p(14), cx + rx + p(16), LIQUIBASE)}
+
+  <path d="M {cx - rx} {top_y} A {rx} {ry} 0 0 1 {cx + rx} {top_y}
+           L {cx + rx} {bot_y} A {rx} {ry} 0 0 1 {cx - rx} {bot_y} Z"
+        fill="{BG_RAISED}" fill-opacity="0.92" stroke="{BORDER}" stroke-width="{p(1.5)}"/>
+  <ellipse cx="{cx}" cy="{top_y}" rx="{rx}" ry="{ry}" fill="{BG_INSET}" stroke="{BORDER}"
+           stroke-width="{p(1.5)}"/>
+  <text x="{cx}" y="{top_y + p(6)}" text-anchor="middle" font-family="{SANS}" font-size="{p(12)}"
+        fill="{MUTED}" letter-spacing="{p(2)}">SCHEMA</text>
+{objects}
+  <text x="{cx}" y="{bot_y - p(16)}" text-anchor="middle" font-family="{SANS}" font-size="{p(12)}"
+        fill="{MUTED}">3 tables · 1 view · 27 columns</text>
+
+  <!-- Fills the band under the stacks and answers the question the two counts provoke. -->
+  <text x="{cx}" y="{stack_y + stack_h + p(40)}" text-anchor="middle" font-family="{SANS}"
+        font-size="{p(16)}" fill="{MUTED}">Six files each — but <tspan fill="{LIQUIBASE}"
+      font-family="{MONO}" font-size="{p(14)}">005-add-product-active-flag.xml</tspan> holds two
+    changesets,</text>
+  <text x="{cx}" y="{stack_y + stack_h + p(64)}" text-anchor="middle" font-family="{SANS}"
+        font-size="{p(16)}" fill="{MUTED}">splitting the column add from the backfill. That is the
+    whole of 6 vs 7.</text>
+
+  <rect x="{p(34)}" y="{bar_y}" width="{w - p(68)}" height="{bar_h}" rx="{p(10)}"
+        fill="{OK}" fill-opacity="0.08" stroke="{OK}" stroke-opacity="0.45" stroke-width="{p(1.2)}"/>
+  <path d="M {p(74)} {bar_y + bar_h / 2} l {p(9)} {p(10)} l {p(18)} {-p(20)}" fill="none"
+        stroke="{OK}" stroke-width="{p(3)}" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="{p(118)}" y="{bar_y + bar_h * 0.64}" font-family="{MONO}" font-size="{p(19)}"
         fill="{OK}">"schemasEquivalent": true</text>
-  <text x="{mid}" y="{h * 0.955}" text-anchor="middle" font-family="{SANS}" font-size="{p(17)}"
-        fill="{MUTED}">zero structural differences</text>
+  <text x="{w - p(58)}" y="{bar_y + bar_h * 0.64}" text-anchor="end" font-family="{SANS}"
+        font-size="{p(16)}" fill="{MUTED}">verified at runtime, not asserted in prose</text>
 """
-    return frame(w, h, body, bg)
+    return frame(w, h, body)
 
 
 # ----------------------------------------------------------------------- medium: editorial cover

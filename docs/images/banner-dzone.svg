@@ -19,39 +19,130 @@
     </radialGradient>
   </defs>
   <rect width="1200" height="628" fill="url(#bg)"/>
-  <rect x="0" y="0" width="600.0" height="628" fill="#f2784b" fill-opacity="0.07"/>
-  <rect x="600.0" y="0" width="600.0" height="628" fill="#35c4d0" fill-opacity="0.07"/>
-  <ellipse cx="180.0" cy="90.0" rx="520.0" ry="360.0" fill="url(#glowL)"/>
-  <ellipse cx="1020.0" cy="538.0" rx="520.0" ry="360.0" fill="url(#glowR)"/>
 
-  <rect x="0" y="0" width="1200" height="6.0" fill="url(#rule)"/>
-  <text x="600.0" y="91.05999999999999" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="20.0"
-        fill="#94a3b8" letter-spacing="6.0" font-weight="600">SAME SCHEMA, BUILT TWICE</text>
+  <defs>
+    <marker id="head-l" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.0"
+            markerHeight="7.0" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#f2784b"/></marker>
+    <marker id="head-r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7.0"
+            markerHeight="7.0" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#35c4d0"/></marker>
+  </defs>
 
-  <text x="300.0" y="213.52" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="76.0"
-        font-weight="700" fill="#f2784b" letter-spacing="-1.5">Flyway</text>
-  <text x="300.0" y="285.74" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="21.0"
-        fill="#94a3b8">Versioned SQL scripts</text>
-  <text x="300.0" y="408.2" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="58.0"
-        font-weight="700" fill="#f2784b">6</text>
-  <text x="300.0" y="455.3" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="19.0"
-        fill="#94a3b8" letter-spacing="2.0">APPLIED</text>
+  <rect x="0" y="0" width="1200" height="5.0" fill="url(#rule)"/>
 
-  <text x="900.0" y="213.52" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="76.0"
-        font-weight="700" fill="#35c4d0" letter-spacing="-1.5">Liquibase</text>
-  <text x="900.0" y="285.74" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="21.0"
-        fill="#94a3b8">Changesets in a changelog</text>
-  <text x="900.0" y="408.2" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="58.0"
-        font-weight="700" fill="#35c4d0">7</text>
-  <text x="900.0" y="455.3" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="19.0"
-        fill="#94a3b8" letter-spacing="2.0">APPLIED</text>
-  <line x1="600.0" y1="125.60000000000001" x2="600.0" y2="489.84000000000003" stroke="#2a3650"
-        stroke-width="2.0"/>
-  <circle cx="600.0" cy="307.71999999999997" r="34.0" fill="#0f172a" stroke="#2a3650" stroke-width="2.0"/>
-  <text x="600.0" y="316.71999999999997" text-anchor="middle" font-family="Georgia, Times New Roman, serif"
-        font-size="26.0" fill="#94a3b8" font-style="italic">vs</text>
-  <text x="600.0" y="565.2" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="24.0"
+  <text x="600.0" y="52.0" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="38.0"
+        font-weight="700" letter-spacing="-0.5">
+    <tspan fill="#f2784b">Flyway</tspan><tspan fill="#94a3b8" dx="11.0" font-size="24.0"
+      font-weight="400">vs</tspan><tspan fill="#35c4d0" dx="11.0">Liquibase</tspan>
+  </text>
+  <text x="600.0" y="80.0" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17.0"
+        fill="#94a3b8">Different files. Different counts. One identical schema.</text>
+
+  <text x="34.0" y="133.57999999999998" font-family="Menlo, Consolas, monospace" font-size="13.0" fill="#f2784b"
+        letter-spacing="1.0">db/migration/ — 6 applied</text>
+  <text x="1166.0" y="133.57999999999998" text-anchor="end" font-family="Menlo, Consolas, monospace"
+        font-size="13.0" fill="#35c4d0" letter-spacing="1.0">db/changelog/ — 7 applied</text>
+
+
+  <rect x="34.0" y="147.57999999999998" width="266.0" height="38.0" rx="6.0" fill="#131c2e"
+        stroke="#2a3650" stroke-width="1.0"/>
+  <rect x="34.0" y="147.57999999999998" width="4.0" height="38.0" rx="2.0" fill="#f2784b"/>
+  <text x="52.0" y="172.66" font-family="Menlo, Consolas, monospace" font-size="13.0"
+        fill="#e6ecf7" opacity="0.92">V1__create_category_table.sql</text>
+  <rect x="34.0" y="194.57999999999998" width="266.0" height="38.0" rx="6.0" fill="#131c2e"
+        stroke="#2a3650" stroke-width="1.0"/>
+  <rect x="34.0" y="194.57999999999998" width="4.0" height="38.0" rx="2.0" fill="#f2784b"/>
+  <text x="52.0" y="219.66" font-family="Menlo, Consolas, monospace" font-size="13.0"
+        fill="#e6ecf7" opacity="0.92">V2__create_product_table.sql</text>
+  <rect x="34.0" y="241.57999999999998" width="266.0" height="38.0" rx="6.0" fill="#131c2e"
+        stroke="#2a3650" stroke-width="1.0"/>
+  <rect x="34.0" y="241.57999999999998" width="4.0" height="38.0" rx="2.0" fill="#f2784b"/>
+  <text x="52.0" y="266.65999999999997" font-family="Menlo, Consolas, monospace" font-size="13.0"
+        fill="#e6ecf7" opacity="0.92">V3__seed_reference_data.sql</text>
+  <rect x="34.0" y="288.58" width="266.0" height="38.0" rx="6.0" fill="#131c2e"
+        stroke="#2a3650" stroke-width="1.0"/>
+  <rect x="34.0" y="288.58" width="4.0" height="38.0" rx="2.0" fill="#f2784b"/>
+  <text x="52.0" y="313.65999999999997" font-family="Menlo, Consolas, monospace" font-size="13.0"
+        fill="#e6ecf7" opacity="0.92">V4__add_product_audit_table.sql</text>
+  <rect x="34.0" y="335.58" width="266.0" height="38.0" rx="6.0" fill="#131c2e"
+        stroke="#2a3650" stroke-width="1.0"/>
+  <rect x="34.0" y="335.58" width="4.0" height="38.0" rx="2.0" fill="#f2784b"/>
+  <text x="52.0" y="360.65999999999997" font-family="Menlo, Consolas, monospace" font-size="13.0"
+        fill="#e6ecf7" opacity="0.92">V5__add_product_active_flag.sql</text>
+  <rect x="34.0" y="382.58" width="266.0" height="38.0" rx="6.0" fill="#131c2e"
+        stroke="#2a3650" stroke-width="1.0"/>
+  <rect x="34.0" y="382.58" width="4.0" height="38.0" rx="2.0" fill="#f2784b"/>
+  <text x="52.0" y="407.65999999999997" font-family="Menlo, Consolas, monospace" font-size="13.0"
+        fill="#e6ecf7" opacity="0.92">R__product_catalog_view.sql</text>
+
+  <rect x="900.0" y="147.57999999999998" width="266.0" height="38.0" rx="6.0" fill="#131c2e"
+        stroke="#2a3650" stroke-width="1.0"/>
+  <rect x="900.0" y="147.57999999999998" width="4.0" height="38.0" rx="2.0" fill="#35c4d0"/>
+  <text x="918.0" y="172.66" font-family="Menlo, Consolas, monospace" font-size="13.0"
+        fill="#e6ecf7" opacity="0.92">001-create-category-table.xml</text>
+  <rect x="900.0" y="194.57999999999998" width="266.0" height="38.0" rx="6.0" fill="#131c2e"
+        stroke="#2a3650" stroke-width="1.0"/>
+  <rect x="900.0" y="194.57999999999998" width="4.0" height="38.0" rx="2.0" fill="#35c4d0"/>
+  <text x="918.0" y="219.66" font-family="Menlo, Consolas, monospace" font-size="13.0"
+        fill="#e6ecf7" opacity="0.92">002-create-product-table.yaml</text>
+  <rect x="900.0" y="241.57999999999998" width="266.0" height="38.0" rx="6.0" fill="#131c2e"
+        stroke="#2a3650" stroke-width="1.0"/>
+  <rect x="900.0" y="241.57999999999998" width="4.0" height="38.0" rx="2.0" fill="#35c4d0"/>
+  <text x="918.0" y="266.65999999999997" font-family="Menlo, Consolas, monospace" font-size="13.0"
+        fill="#e6ecf7" opacity="0.92">003-seed-reference-data.sql</text>
+  <rect x="900.0" y="288.58" width="266.0" height="38.0" rx="6.0" fill="#131c2e"
+        stroke="#2a3650" stroke-width="1.0"/>
+  <rect x="900.0" y="288.58" width="4.0" height="38.0" rx="2.0" fill="#35c4d0"/>
+  <text x="918.0" y="313.65999999999997" font-family="Menlo, Consolas, monospace" font-size="13.0"
+        fill="#e6ecf7" opacity="0.92">004-add-product-audit-table.xml</text>
+  <rect x="900.0" y="335.58" width="266.0" height="38.0" rx="6.0" fill="#131c2e"
+        stroke="#2a3650" stroke-width="1.0"/>
+  <rect x="900.0" y="335.58" width="4.0" height="16.5" rx="2.0" fill="#35c4d0"/>
+  <rect x="900.0" y="357.08" width="4.0" height="16.5" rx="2.0" fill="#35c4d0"/>
+  <text x="918.0" y="360.65999999999997" font-family="Menlo, Consolas, monospace" font-size="13.0"
+        fill="#e6ecf7" opacity="0.92">005-add-product-active-flag.xml</text>
+  <rect x="900.0" y="382.58" width="266.0" height="38.0" rx="6.0" fill="#131c2e"
+        stroke="#2a3650" stroke-width="1.0"/>
+  <rect x="900.0" y="382.58" width="4.0" height="38.0" rx="2.0" fill="#35c4d0"/>
+  <text x="918.0" y="407.65999999999997" font-family="Menlo, Consolas, monospace" font-size="13.0"
+        fill="#e6ecf7" opacity="0.92">006-product-catalog-view.xml</text>
+
+  <path d="M 314.0 284.08 C 393.0 284.08 393.0 284.08 472.0 284.08" fill="none" stroke="#f2784b" stroke-width="2.0" stroke-opacity="0.7" marker-end="url(#head-l)"/>
+  <path d="M 886.0 284.08 C 807.0 284.08 807.0 284.08 728.0 284.08" fill="none" stroke="#35c4d0" stroke-width="2.0" stroke-opacity="0.7" marker-end="url(#head-r)"/>
+
+  <path d="M 488.0 165.57999999999998 A 112.0 26.0 0 0 1 712.0 165.57999999999998
+           L 712.0 402.58 A 112.0 26.0 0 0 1 488.0 402.58 Z"
+        fill="#1a2337" fill-opacity="0.92" stroke="#2a3650" stroke-width="1.5"/>
+  <ellipse cx="600.0" cy="165.57999999999998" rx="112.0" ry="26.0" fill="#131c2e" stroke="#2a3650"
+           stroke-width="1.5"/>
+  <text x="600.0" y="171.57999999999998" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.0"
+        fill="#94a3b8" letter-spacing="2.0">SCHEMA</text>
+
+  <text x="600.0" y="227.57999999999998" text-anchor="middle" font-family="Menlo, Consolas, monospace"
+        font-size="15.0" fill="#e6ecf7" opacity="0.9">category</text>
+  <text x="600.0" y="261.58" text-anchor="middle" font-family="Menlo, Consolas, monospace"
+        font-size="15.0" fill="#e6ecf7" opacity="0.9">product</text>
+  <text x="600.0" y="295.58" text-anchor="middle" font-family="Menlo, Consolas, monospace"
+        font-size="15.0" fill="#e6ecf7" opacity="0.9">product_audit</text>
+  <text x="600.0" y="329.58" text-anchor="middle" font-family="Menlo, Consolas, monospace"
+        font-size="15.0" fill="#e6ecf7" opacity="0.9">v_product_catalog</text>
+  <text x="600.0" y="386.58" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="12.0"
+        fill="#94a3b8">3 tables · 1 view · 27 columns</text>
+
+  <!-- Fills the band under the stacks and answers the question the two counts provoke. -->
+  <text x="600.0" y="460.58" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+        font-size="16.0" fill="#94a3b8">Six files each — but <tspan fill="#35c4d0"
+      font-family="Menlo, Consolas, monospace" font-size="14.0">005-add-product-active-flag.xml</tspan> holds two
+    changesets,</text>
+  <text x="600.0" y="484.58" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+        font-size="16.0" fill="#94a3b8">splitting the column add from the backfill. That is the
+    whole of 6 vs 7.</text>
+
+  <rect x="34.0" y="550.0" width="1132.0" height="46.0" rx="10.0"
+        fill="#4ade80" fill-opacity="0.08" stroke="#4ade80" stroke-opacity="0.45" stroke-width="1.2"/>
+  <path d="M 74.0 573.0 l 9.0 10.0 l 18.0 -20.0" fill="none"
+        stroke="#4ade80" stroke-width="3.0" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="118.0" y="579.44" font-family="Menlo, Consolas, monospace" font-size="19.0"
         fill="#4ade80">"schemasEquivalent": true</text>
-  <text x="600.0" y="599.74" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17.0"
-        fill="#94a3b8">zero structural differences</text>
+  <text x="1142.0" y="579.44" text-anchor="end" font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
+        font-size="16.0" fill="#94a3b8">verified at runtime, not asserted in prose</text>
 </svg>
