@@ -6,6 +6,10 @@ tags: java, database, springboot, devops
 cover_image: https://raw.githubusercontent.com/wallaceespindola/flyway-vs-liquibase-db-migrations/main/docs/images/banner-devto.png
 ---
 
+# Flyway vs Liquibase: I Ran Both Against the Same Schema So You Don't Have To
+
+![Flyway vs Liquibase — the same schema built twice by two migration engines, 6 migrations against 7 changesets, with a zero-difference result](https://raw.githubusercontent.com/wallaceespindola/flyway-vs-liquibase-db-migrations/main/docs/images/banner-devto.png)
+
 Most "Flyway vs Liquibase" articles are opinion pieces. This one comes with a repo you can clone and a running app that proves its own claims — an actual side-by-side comparison instead of a blog post asking you to trust it.
 
 ## What I built

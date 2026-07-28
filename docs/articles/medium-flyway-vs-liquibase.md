@@ -4,6 +4,9 @@ subtitle: "A Spring Boot experiment that settles the schema question and surface
 tags: [software-engineering, spring-boot, java, databases, devops]
 ---
 
+
+# I Built the Same Database Schema Twice — With Flyway and With Liquibase — Then Diffed the Result
+
 ![Flyway vs Liquibase — the same schema built twice by two migration engines, 6 migrations against 7 changesets, with a zero-difference result](https://raw.githubusercontent.com/wallaceespindola/flyway-vs-liquibase-db-migrations/main/docs/images/banner-medium.png)
 ## The Question I Got Tired of Answering With Opinions
 

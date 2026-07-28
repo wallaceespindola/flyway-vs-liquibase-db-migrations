@@ -10,57 +10,57 @@
       <stop offset="100%" stop-color="#35c4d0"/>
     </linearGradient>
     <radialGradient id="glowL" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0%" stop-color="#f2784b" stop-opacity="0.26"/>
-      <stop offset="55%" stop-color="#f2784b" stop-opacity="0.09"/>
+      <stop offset="0%" stop-color="#f2784b" stop-opacity="0.24"/>
       <stop offset="100%" stop-color="#f2784b" stop-opacity="0"/>
     </radialGradient>
     <radialGradient id="glowR" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0%" stop-color="#35c4d0" stop-opacity="0.26"/>
-      <stop offset="55%" stop-color="#35c4d0" stop-opacity="0.09"/>
+      <stop offset="0%" stop-color="#35c4d0" stop-opacity="0.24"/>
       <stop offset="100%" stop-color="#35c4d0" stop-opacity="0"/>
     </radialGradient>
   </defs>
-
   <rect width="1280" height="720" fill="url(#bg)"/>
-  <ellipse cx="160.0" cy="128.0" rx="597.33" ry="458.67" fill="url(#glowL)"/>
-  <ellipse cx="1120.0" cy="602.67" rx="597.33" ry="458.67" fill="url(#glowR)"/>
+  <ellipse cx="120.0" cy="640.0" rx="560.0" ry="430.0" fill="url(#glowL)"/>
+  <ellipse cx="1160.0" cy="80.0" rx="560.0" ry="430.0" fill="url(#glowR)"/>
 
-  <!-- accent edges: Flyway left, Liquibase right -->
-  <rect x="0" y="0" width="7.47" height="720" fill="#f2784b"/>
-  <rect x="1272.53" y="0" width="7.47" height="720" fill="#35c4d0"/>
+  <rect x="0" y="0" width="10.0" height="720" fill="url(#rule)"/>
 
-  <text x="640.0" y="161.6" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
-        font-size="22.4" fill="#94a3b8" letter-spacing="5.33"
-        font-weight="600">LINKEDIN</text>
+  <text x="84.0" y="158.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="19.0" fill="#94a3b8"
+        letter-spacing="5.0" font-weight="600">MIGRATION TOOLING</text>
 
-  <text x="640.0" y="310.93" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
-        font-size="110.93" font-weight="700" letter-spacing="-2.13">
-    <tspan fill="#f2784b">Flyway</tspan><tspan fill="#94a3b8" dx="27.73"
-      font-size="55.47" font-weight="400">vs</tspan><tspan fill="#35c4d0"
-      dx="27.73">Liquibase</tspan>
+  <text x="84.0" y="262.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="70.0" font-weight="700"
+        letter-spacing="-1.5" fill="#f2784b">Flyway</text>
+  <text x="84.0" y="342.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="70.0" font-weight="700"
+        letter-spacing="-1.5">
+    <tspan fill="#94a3b8" font-size="40.0" font-weight="400">vs</tspan><tspan
+      fill="#35c4d0" dx="16.0">Liquibase</tspan>
   </text>
 
-  <rect x="480.0" y="381.33" width="320.0" height="4.27" rx="2.13"
+  <!-- A rect, not a line: a gradient stroke on a horizontal line has a zero-height object
+       bounding box, so url(#rule) cannot resolve and the rule renders invisible. -->
+  <rect x="84.0" y="390.40000000000003" width="120.0" height="5.0" rx="2.5"
         fill="url(#rule)"/>
 
-  <text x="640.0" y="438.93" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
-        font-size="28.8" fill="#e6ecf7" opacity="0.92">What actually differs, and how to choose.</text>
+  <text x="84.0" y="464.40000000000003" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="26.0" fill="#e6ecf7">Same schema. Two engines.</text>
+  <text x="84.0" y="507.59999999999997" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="26.0" fill="#e6ecf7">What actually differs.</text>
 
-  <!-- applied-count chips, the two real numbers from the app -->
-  <g>
-    <rect x="420.265" y="515.73" width="209.07" height="53.33" rx="26.67"
-          fill="#f2784b" fill-opacity="0.13" stroke="#f2784b" stroke-opacity="0.55"
-          stroke-width="1.6"/>
-    <text x="524.8" y="550.9278" text-anchor="middle"
-          font-family="Menlo, Consolas, monospace" font-size="22.4" fill="#f2784b">6 migrations</text>
+  <rect x="850.0" y="216.0" width="346.0" height="300.0" rx="14.0"
+        fill="#1a2337" fill-opacity="0.85" stroke="#2a3650" stroke-width="1.5"/>
 
-    <rect x="650.665" y="515.73" width="209.07" height="53.33" rx="26.67"
-          fill="#35c4d0" fill-opacity="0.13" stroke="#35c4d0" stroke-opacity="0.55"
-          stroke-width="1.6"/>
-    <text x="755.1999999999999" y="550.9278" text-anchor="middle"
-          font-family="Menlo, Consolas, monospace" font-size="22.4" fill="#35c4d0">7 changesets</text>
-  </g>
+  <text x="878.0" y="290.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="19.0"
+        fill="#94a3b8">Flyway migrations</text>
+  <text x="1168.0" y="290.0" text-anchor="end" font-family="Menlo, Consolas, monospace"
+        font-size="40.0" font-weight="700" fill="#f2784b">6</text>
+  <line x1="878.0" y1="316.0" x2="1168.0" y2="316.0"
+        stroke="#2a3650" stroke-width="1.0"/>
 
-  <text x="640.0" y="679.47" text-anchor="middle" font-family="Menlo, Consolas, monospace"
-        font-size="21.33" fill="#4ade80" opacity="0.9">"schemasEquivalent": true</text>
+  <text x="878.0" y="386.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="19.0"
+        fill="#94a3b8">Liquibase changesets</text>
+  <text x="1168.0" y="386.0" text-anchor="end" font-family="Menlo, Consolas, monospace"
+        font-size="40.0" font-weight="700" fill="#35c4d0">7</text>
+  <line x1="878.0" y1="412.0" x2="1168.0" y2="412.0"
+        stroke="#2a3650" stroke-width="1.0"/>
+  <text x="878.0" y="470.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="19.0"
+        fill="#94a3b8">Schema differences</text>
+  <text x="1168.0" y="470.0" text-anchor="end"
+        font-family="Menlo, Consolas, monospace" font-size="40.0" font-weight="700" fill="#4ade80">0</text>
 </svg>

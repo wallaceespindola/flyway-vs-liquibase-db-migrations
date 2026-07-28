@@ -5,6 +5,9 @@ estimated-read-time: "12 minutes"
 audience: "Enterprise Java / Spring Boot developers evaluating a migration tool"
 ---
 
+
+# Flyway vs Liquibase: What Actually Differs When You Build the Same Schema Twice
+
 ![Flyway vs Liquibase — the same schema built twice by two migration engines, 6 migrations against 7 changesets, with a zero-difference result](https://raw.githubusercontent.com/wallaceespindola/flyway-vs-liquibase-db-migrations/main/docs/images/banner-dzone.png)
 ## The Problem With Most Flyway vs Liquibase Comparisons
 

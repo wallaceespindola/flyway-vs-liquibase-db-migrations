@@ -1,3 +1,11 @@
+---
+title: "Flyway vs Liquibase: Same Schema, Two Engines, and One Number That Surprised Me"
+platform: LinkedIn Pulse
+tags: [java, spring-boot, database, devops, architecture]
+---
+
+# Flyway vs Liquibase: Same Schema, Two Engines, and One Number That Surprised Me
+
 ![Flyway vs Liquibase — the same schema built twice by two migration engines, 6 migrations against 7 changesets, with a zero-difference result](https://raw.githubusercontent.com/wallaceespindola/flyway-vs-liquibase-db-migrations/main/docs/images/banner-linkedin.png)
 
 I ran Flyway and Liquibase against two identical schemas in the same app. One number surprised me. The other one didn't.

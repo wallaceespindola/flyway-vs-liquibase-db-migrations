@@ -1,3 +1,9 @@
+---
+title: "I Made Flyway and Liquibase Prove It, in the Same Application"
+platform: Substack
+tags: [java, spring-boot, database, devops]
+---
+
 **Suggested subject line:** I put Flyway and Liquibase in the same app and made them prove it
 
 ---
@@ -5,6 +11,8 @@
 *Preview text: Not another opinion piece. I cloned my own repo, ran both migration engines against identical H2 databases, and pasted the actual files and the actual JSON below. Copy-paste along if you want.*
 
 ---
+
+# I Made Flyway and Liquibase Prove It, in the Same Application
 
 ![Flyway vs Liquibase — the same schema built twice by two migration engines, 6 migrations against 7 changesets, with a zero-difference result](https://raw.githubusercontent.com/wallaceespindola/flyway-vs-liquibase-db-migrations/main/docs/images/banner-substack.png)
 
