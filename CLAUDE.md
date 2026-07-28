@@ -107,6 +107,11 @@ and every numeric interpolation through `num()`. That is the single XSS choke po
 ## Conventions
 
 - Java 21, Spring Boot 3.4.2, plain JDBC (no JPA). Max line length 120.
+- Engine versions come from the Spring Boot BOM, not from `<properties>`: **Flyway 10.20.1**,
+  **Liquibase 4.29.2**, **H2 2.3.232**. Leave them unpinned — letting the BOM pick both keeps the
+  comparison fair, and the README badges state these numbers, so re-run
+  `mvn dependency:list | grep -E 'flyway-core|liquibase-core|h2'` and update the badges if the
+  Spring Boot version ever moves.
 - DTOs are **records**; services and controllers use **Lombok** (`@Slf4j`, `@RequiredArgsConstructor`).
 - Every REST response is wrapped in `ApiResponse<T>` with a server `timestamp`. Jackson keeps nulls on
   purpose — `"executionTimeMs": null` for Liquibase is a *finding*, not an absence to hide.

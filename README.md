@@ -3,7 +3,13 @@
 [![CI](https://github.com/wallaceespindola/flyway-vs-liquibase-db-migrations/actions/workflows/ci.yml/badge.svg)](https://github.com/wallaceespindola/flyway-vs-liquibase-db-migrations/actions/workflows/ci.yml)
 [![Java 21](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.org/projects/jdk/21/)
 [![Spring Boot 3.4](https://img.shields.io/badge/Spring%20Boot-3.4.2-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![Flyway 10.20.1](https://img.shields.io/badge/Flyway-10.20.1-CC0000.svg)](https://documentation.red-gate.com/flyway)
+[![Liquibase 4.29.2](https://img.shields.io/badge/Liquibase-4.29.2-2962FF.svg)](https://docs.liquibase.com/)
+[![H2 2.3.232](https://img.shields.io/badge/H2-2.3.232-0000BB.svg)](https://www.h2database.com/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+
+> Both engine versions come from the Spring Boot 3.4.2 dependency BOM rather than being pinned here,
+> so neither tool gets an unfair version advantage in the comparison.
 
 Most Flyway-vs-Liquibase comparisons are opinion pieces. This one is an application.
 
