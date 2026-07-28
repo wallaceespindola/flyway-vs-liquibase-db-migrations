@@ -99,9 +99,9 @@ classDiagram
     }
 
     ApiResponse ..> ComparisonReport : data of GET /api/v1/comparison
-    ApiResponse ..> MigrationStatusReport : data of GET /api/v1/migrations/:engine
-    ApiResponse ..> SchemaSnapshot : data of GET /api/v1/migrations/:engine/schema
-    ApiResponse ..> ProductView : data of GET /api/v1/catalog/:engine
+    ApiResponse ..> MigrationStatusReport : data of GET /api/v1/migrations/{engine}
+    ApiResponse ..> SchemaSnapshot : data of GET /api/v1/migrations/{engine}/schema
+    ApiResponse ..> ProductView : data of GET /api/v1/catalog/{engine}
     ApiResponse ..> FeatureComparison : data of GET /api/v1/comparison/features
 
     ComparisonReport *-- MigrationStatusReport : flyway and liquibase
