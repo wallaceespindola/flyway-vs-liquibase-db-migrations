@@ -12,9 +12,9 @@ I ran Flyway and Liquibase against two identical schemas in the same app. One nu
 
 Most "Flyway vs Liquibase" posts are opinions dressed up as comparisons. I built a Spring Boot 3.4.2 app on Java 21 instead: two independent H2 databases, one migrated by Flyway, one by Liquibase, both targeting the identical logical schema, both wired through explicit `@Configuration` beans so nothing is hidden by autoconfiguration.
 
-**The number that didn't surprise me:** `GET /api/v1/comparison` returns `schemasEquivalent: true` with zero structural differences. Same tables, same columns, same view, built by two tools that never talked to each other.
+The number that didn't surprise me: `GET /api/v1/comparison` returns `schemasEquivalent: true` with zero structural differences. Same tables, same columns, same view, built by two tools that never talked to each other.
 
-**The number that did:** Flyway applied 6 migrations. Liquibase applied 7. Same schema, different count. Here's the actual response:
+The one that did: Flyway applied 6 migrations. Liquibase applied 7. Same schema, different count. This is the actual response:
 
 ```json
 {
@@ -25,11 +25,9 @@ Most "Flyway vs Liquibase" posts are opinions dressed up as comparisons. I built
 }
 ```
 
-Here's why the count differs, straight from the actual migration files.
-
 ## Why 6 vs 7
 
-Flyway's `V5` does a column addition and a data backfill in one script — one migration, two concerns bundled together. Liquibase splits the same logical change into two independently labeled changesets:
+Flyway's `V5` does a column addition and a data backfill in one script, two concerns bundled into one migration. Liquibase splits the same logical change into two independently labeled changesets:
 
 ```xml
 <!-- changes/005-add-product-active-flag.xml -->
@@ -49,7 +47,7 @@ Flyway's `V5` does a column addition and a data backfill in one script — one m
 </changeSet>
 ```
 
-`005` is labeled `schema-evolution`, `005b` is labeled `data-backfill`. A pipeline can filter and run them independently — ship the column everywhere, hold the backfill for a maintenance window. That's the entire reason the applied count differs. It's a modeling choice, not a discrepancy.
+`005` is labeled `schema-evolution`, `005b` is labeled `data-backfill`. A pipeline can filter on those labels and run them independently: ship the column everywhere, hold the backfill for a maintenance window. That split accounts for the whole difference in the applied counts. Nothing went wrong; the tools just model the same change at different granularities.
 
 ## The comparison that actually matters: rollback
 
@@ -84,7 +82,7 @@ The Liquibase changeset that builds the same table carries a precondition guard 
 </changeSet>
 ```
 
-`liquibase rollbackCount 1` is a real, tested command against that changeset. Flyway's `undo` exists, but it's a paid Flyway Teams feature — Community users revert by writing a new forward migration, exactly like the comment in `V4` says.
+`liquibase rollbackCount 1` is a tested command against that changeset. Flyway has `undo`, but it sits behind the paid Teams tier. On Community you revert by writing a new forward migration, exactly like the comment in `V4` says.
 
 ## The decision, compressed
 
@@ -97,18 +95,13 @@ The Liquibase changeset that builds the same table carries a precondition guard 
 | Need per-changeset author/context/label tracked in the DB itself | Not tracked | Tracked (`AUTHOR`, `CONTEXTS`, `LABELS` columns) |
 | Need per-migration execution time recorded | Yes | No — `DATABASECHANGELOG` has no duration column |
 
-Neither tool loses on schema correctness — both produced identical structures in this project. What you're actually picking is a rollback story, a merge-conflict failure mode, and a bookkeeping model.
+Neither tool loses on schema correctness; both produced identical structures in this project. What you are really picking is a rollback story, a merge-conflict failure mode, and a bookkeeping model.
 
-The full repo — both migration trees, the live comparison endpoint, and an 18-row feature matrix generated from running code — is at [github.com/wallaceespindola/flyway-vs-liquibase-db-migrations](https://github.com/wallaceespindola/flyway-vs-liquibase-db-migrations).
+The full repo, with both migration trees, the live comparison endpoint and an 18-row feature matrix generated from running code, is at [github.com/wallaceespindola/flyway-vs-liquibase-db-migrations](https://github.com/wallaceespindola/flyway-vs-liquibase-db-migrations).
 
-Does your team treat rollback as a supported operation, or as "write a new migration and hope"? Let me know your thoughts in the comments.
+Does your team treat rollback as a supported operation, or as "write a new migration and hope"? I would genuinely like to hear how that has worked out for you in production.
 
 ---
 
 Wallace Espindola, Senior Software Engineer & Solution Architect
-GitHub: https://github.com/wallaceespindola/
-LinkedIn: https://www.linkedin.com/in/wallaceespindola/
-
-Need more tech insights?
-Check out my GitHub, LinkedIn, and Speaker Deck.
-Happy coding!
+GitHub: https://github.com/wallaceespindola/ · LinkedIn: https://www.linkedin.com/in/wallaceespindola/

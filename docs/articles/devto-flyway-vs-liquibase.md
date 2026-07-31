@@ -10,14 +10,14 @@ cover_image: https://raw.githubusercontent.com/wallaceespindola/flyway-vs-liquib
 
 ![Flyway vs Liquibase — the same schema built twice by two migration engines, 6 migrations against 7 changesets, with a zero-difference result](https://raw.githubusercontent.com/wallaceespindola/flyway-vs-liquibase-db-migrations/main/docs/images/banner-devto.png)
 
-Most "Flyway vs Liquibase" articles are opinion pieces. This one comes with a repo you can clone and a running app that proves its own claims — an actual side-by-side comparison instead of a blog post asking you to trust it.
+Most "Flyway vs Liquibase" articles are opinion pieces. This one comes with a repo you can clone and a running app that proves its own claims, so you can check every number below instead of trusting me.
 
 ## What I built
 
 A Spring Boot 3.4.2 app on Java 21 that stands up **two independent H2 file databases** with an identical logical schema. One gets migrated by Flyway, the other by Liquibase, and both are wired explicitly through their own `@Configuration` class instead of relying on Spring Boot's auto-configuration to hide what each tool does at startup.
 
 ```java
-// FlywayConfig.java — three method calls, and Flyway is done
+// FlywayConfig.java — a DataSource, a location, and Flyway is running
 @Bean(name = "flyway", initMethod = "migrate")
 public Flyway flyway(@Qualifier(DATA_SOURCE) DataSource dataSource) {
     return Flyway.configure()
@@ -45,7 +45,7 @@ public SpringLiquibase liquibase(@Qualifier(DATA_SOURCE) DataSource dataSource) 
 }
 ```
 
-That contrast in bean size is the whole Flyway pitch in one glance: fewer knobs, less ceremony. Liquibase's extra setup buys you contexts, a configurable default schema, and — as you'll see below — rollback and richer audit data.
+That contrast in bean size is the whole Flyway pitch in one glance: fewer knobs, less ceremony. Liquibase's extra setup buys you contexts, a configurable default schema, and (as you'll see below) rollback and richer audit data.
 
 ## Clone it and run it yourself
 
@@ -76,7 +76,7 @@ V5__add_product_active_flag.sql
 R__product_catalog_view.sql
 ```
 
-Flyway migrations are plain SQL in the target database's dialect — no abstraction layer. `V1` looks exactly like what you'd hand-write against H2:
+Flyway migrations are plain SQL in the target database's dialect, no abstraction layer. `V1` looks exactly like what you'd hand-write against H2:
 
 ```sql
 -- V1__create_category_table.sql
@@ -92,11 +92,11 @@ CREATE TABLE category
 CREATE INDEX idx_category_name ON category (name);
 ```
 
-The `R__` prefix is Flyway's repeatable migration convention — this script re-runs automatically whenever its checksum changes, which is how the app keeps `v_product_catalog` in sync without bumping a version number every time the view definition changes.
+The `R__` prefix is Flyway's repeatable migration convention. The script re-runs automatically whenever its checksum changes, which is how the app keeps `v_product_catalog` in sync without bumping a version number every time the view definition changes.
 
 ## What Liquibase actually migrated
 
-Liquibase needs an explicit master changelog, because unlike Flyway it doesn't discover files by naming convention — it composes the changelog from an include list you write yourself:
+Liquibase needs an explicit master changelog. Unlike Flyway, it doesn't discover files by naming convention; you compose the changelog from an include list you write yourself:
 
 ```yaml
 # db.changelog-master.yaml
@@ -115,9 +115,9 @@ databaseChangeLog:
       file: db/changelog/changes/006-product-catalog-view.xml
 ```
 
-001 through 006 apply seven changesets in total, because 005 actually contains two: `005-add-product-active-flag` and `005b-backfill-product-active-flag`. That file mixes XML, YAML and raw SQL across the six included files, on purpose, to prove all three formats are first-class citizens in the same changelog.
+001 through 006 apply seven changesets in total, because 005 contains two: `005-add-product-active-flag` and `005b-backfill-product-active-flag`. The include list also mixes XML, YAML and raw SQL across its six files on purpose, to prove all three formats are first-class citizens in the same changelog.
 
-Changeset 004 is the one with no Flyway equivalent at all — a precondition that guards the change, plus an explicit rollback block:
+Changeset 004 is the one with no Flyway equivalent at all: a precondition that guards the change, plus an explicit rollback block.
 
 ```xml
 <changeSet id="004-add-product-audit-table" author="wallaceespindola" context="demo">
@@ -143,7 +143,7 @@ Changeset 004 is the one with no Flyway equivalent at all — a precondition tha
 </changeSet>
 ```
 
-Compare that to Flyway's `V4__add_product_audit_table.sql`, which creates the same table with no rollback at all — the comment in that file says it outright: reverting it means writing `V6__drop_product_audit_table.sql` by hand.
+Compare that to Flyway's `V4__add_product_audit_table.sql`, which creates the same table with no rollback. The comment in that file says it outright: reverting it means writing `V6__drop_product_audit_table.sql` by hand.
 
 ## The comparison endpoint
 
@@ -184,7 +184,7 @@ Compare that to Flyway's `V4__add_product_audit_table.sql`, which creates the sa
           "identifier": "001-create-category-table::wallaceespindola",
           "description": "Create the category reference table",
           "author": "wallaceespindola",
-          "checksum": "8:3f...e2",
+          "checksum": "9:0d75bd8afd86057e8d2484d044a2f1ca",
           "executionTimeMs": null,
           "status": "EXECUTED"
         }
@@ -205,11 +205,11 @@ Compare that to Flyway's `V4__add_product_audit_table.sql`, which creates the sa
 }
 ```
 
-(Trimmed for length — the real response has all 6 Flyway migrations, all 7 Liquibase changesets, and all 18 feature matrix rows.)
+(Trimmed for length: the real response has all 6 Flyway migrations, all 7 Liquibase changesets, and all 18 feature matrix rows.)
 
-Two fields prove the sharpest technical findings by their presence, not by prose: Flyway's `executionTimeMs` is `8`, Liquibase's is `null` — Liquibase genuinely does not persist per-changeset duration. And Flyway's `author` is hardcoded to `"n/a"` because Flyway Community never asks who wrote a migration, while Liquibase's `author` attribute is mandatory on every changeset.
+Two fields in that JSON carry the sharpest technical findings. Flyway's `executionTimeMs` holds a millisecond value (`2` on my machine) while Liquibase's is `null`, because Liquibase does not persist per-changeset duration anywhere. And Flyway's `author` reads `"n/a"` because Flyway Community never asks who wrote a migration, while Liquibase's `author` attribute is mandatory on every changeset.
 
-`schemasEquivalent: true` and an empty `schemaDifferences` array is the actual headline: both tools, run independently, produced the identical business schema — same tables, same columns, same view. The 18-row `featureMatrix` is what actually separates them, and you can hit it standalone at `GET /api/v1/comparison/features` if you don't need the schema data.
+`schemasEquivalent: true` with an empty `schemaDifferences` array is the headline: both tools, run independently, produced the identical business schema. Same tables, same columns, same view. The 18-row `featureMatrix` is what separates them, and you can hit it standalone at `GET /api/v1/comparison/features` if you don't need the schema data.
 
 ## Other endpoints worth poking at
 
@@ -225,7 +225,7 @@ curl -s http://localhost:8080/api/v1/migrations/flyway/schema | jq
 curl -s http://localhost:8080/api/v1/catalog/liquibase | jq
 ```
 
-`/api/v1/catalog/{engine}` reads through `v_product_catalog` — the view created by `R__product_catalog_view.sql` on the Flyway side and by the `runOnChange="true"` changeset 006 on the Liquibase side. Same query, same result set, two different mechanisms for "redefine this view whenever it changes":
+`/api/v1/catalog/{engine}` reads through `v_product_catalog`, the view created by `R__product_catalog_view.sql` on the Flyway side and by the `runOnChange="true"` changeset 006 on the Liquibase side. Same query, same result set, two different mechanisms for "redefine this view whenever it changes":
 
 ```xml
 <!-- changes/006-product-catalog-view.xml -->
@@ -244,9 +244,9 @@ curl -s http://localhost:8080/api/v1/catalog/liquibase | jq
 </changeSet>
 ```
 
-## Reading history: the one place the tools genuinely diverge in code
+## Reading history: the one place the tools diverge in code
 
-Flyway's `FlywayHistoryService` doesn't touch SQL at all — it calls `flyway.info()` and gets structured `MigrationInfo` objects back, applied and pending, already ordered:
+Flyway's `FlywayHistoryService` doesn't touch SQL at all. It calls `flyway.info()` and gets structured `MigrationInfo` objects back, applied and pending, already ordered:
 
 ```java
 MigrationInfo[] all = flyway.info().all();
@@ -268,15 +268,15 @@ private static final String HISTORY_QUERY = """
     """;
 ```
 
-That's not a workaround I invented for this project — it's the standard way to read Liquibase status when you're embedding it in an application rather than shelling out to the CLI. Liquibase simply doesn't ship a lightweight, read-only status API the way Flyway does. In exchange, the table you're forced to query directly carries a lot more columns: author, contexts, labels, deployment id — all things Flyway's bookkeeping table doesn't record at all.
+I didn't invent that query as a workaround for this project; it's the standard way to read Liquibase status when you're embedding the engine in an application rather than shelling out to the CLI. Liquibase doesn't ship a lightweight, read-only status API the way Flyway does. In exchange, the table you end up querying carries far more columns: author, contexts, labels, deployment id. Flyway's bookkeeping table records none of those.
 
 ## Trade-offs worth knowing before you pick one
 
-Flyway's version numbers make merge conflicts loud. Two branches both writing `V6__something.sql` fails validation immediately and obviously. Liquibase's failure mode is quieter: two engineers each adding a line to the master changelog's include list can merge cleanly in git and only break — wrong order, duplicate changeset — when someone actually runs it.
+Flyway's version numbers make merge conflicts loud. Two branches both writing `V6__something.sql` fails validation immediately and obviously. Liquibase's failure mode is quieter: two engineers each adding a line to the master changelog's include list can merge cleanly in git and only break (wrong order, duplicate changeset) when someone actually runs it.
 
-Flyway Community genuinely has no rollback. If you need `undo`, that's a paid Teams feature. Liquibase's rollback is open source and works out of the box, either auto-inferred or explicitly declared, as changeset 004 above shows.
+Flyway Community has no rollback. If you need `undo`, that's a paid Teams feature. Liquibase's rollback is open source and works out of the box, either auto-inferred or explicitly declared, as changeset 004 above shows.
 
-Neither tool does drift detection in the version this project uses on the Flyway side — Liquibase's `diff` and `diffChangeLog` commands compare two databases and generate the delta; Flyway Community has nothing comparable.
+Drift detection is Liquibase-only at this tier: its `diff` and `diffChangeLog` commands compare two databases and generate the delta, while Flyway Community has nothing comparable.
 
 ## Wrapping up
 
@@ -284,12 +284,9 @@ The repo has the full 18-row feature matrix served live at `/api/v1/comparison/f
 
 Clone it, run `mvn spring-boot:run`, and check the JSON yourself instead of taking my word for any of this.
 
-What's your approach? Drop it in the comments.
+Which tool did your team pick, and has the rollback story mattered in practice? I read the comments.
 
-Need more tech insights?
-Check out my GitHub, LinkedIn, and Speaker Deck.
-Happy coding!
+---
 
 Wallace Espindola
-GitHub: https://github.com/wallaceespindola/
-LinkedIn: https://www.linkedin.com/in/wallaceespindola/
+GitHub: https://github.com/wallaceespindola/ · LinkedIn: https://www.linkedin.com/in/wallaceespindola/
