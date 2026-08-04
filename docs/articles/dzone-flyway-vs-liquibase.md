@@ -5,6 +5,9 @@ estimated-read-time: "12 minutes"
 audience: "Enterprise Java / Spring Boot developers evaluating a migration tool"
 ---
 
+<!-- DZone submission note: this article is 100% human-written, as required by DZone's
+     contributor guidelines. All numbers come from running the linked repository. -->
+
 
 # Flyway vs Liquibase: What Actually Differs When You Build the Same Schema Twice
 

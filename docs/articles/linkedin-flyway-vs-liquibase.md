@@ -84,6 +84,18 @@ The Liquibase changeset that builds the same table carries a precondition guard 
 
 `liquibase rollbackCount 1` is a tested command against that changeset. Flyway has `undo`, but it sits behind the paid Teams tier. On Community you revert by writing a new forward migration, exactly like the comment in `V4` says.
 
+## What embedding both engines taught me
+
+The app doesn't shell out to either CLI. Both engines run embedded, and both expose their history over the same REST endpoint — which forced me to write the same feature twice and handed me a finding no comparison table had mentioned.
+
+On the Flyway side, the history service is three lines of intent: call `flyway.info()`, filter for applied migrations, map to a DTO. Structured objects, state and checksum included, no SQL anywhere.
+
+On the Liquibase side there's no read API to call. The service holds a `SELECT` against `DATABASECHANGELOG`, because querying the bookkeeping table directly is the standard way to read embedded Liquibase status. Inconvenient — until you look at what that table returns: `AUTHOR`, `CONTEXTS`, `LABELS`, `DEPLOYMENT_ID`. Flyway records none of those anywhere in the database. Its `author` field in my JSON literally reads `"n/a"`, because Flyway never asks who wrote a migration. Liquibase makes the author mandatory on every changeset.
+
+The trade runs the other way for timing. Flyway persists execution time per migration — `"executionTimeMs": 2` on my machine. Liquibase's table has no duration column at all, so that field is `null` on every Liquibase row, and I kept the nulls in the API response on purpose. The gap is the finding.
+
+So the bookkeeping choice is real: Flyway tells you *how fast* but not *who*; Liquibase tells you *who, where and under which label* but not *how long*. Neither table gives you both.
+
 ## The decision, compressed
 
 | Question | Flyway | Liquibase |
@@ -95,11 +107,11 @@ The Liquibase changeset that builds the same table carries a precondition guard 
 | Need per-changeset author/context/label tracked in the DB itself | Not tracked | Tracked (`AUTHOR`, `CONTEXTS`, `LABELS` columns) |
 | Need per-migration execution time recorded | Yes | No — `DATABASECHANGELOG` has no duration column |
 
-Neither tool loses on schema correctness; both produced identical structures in this project. What you are really picking is a rollback story, a merge-conflict failure mode, and a bookkeeping model.
+Neither tool loses on schema correctness; both produced identical structures in this project. What you are really picking is a rollback story, a merge-conflict failure mode, and a bookkeeping model. Those three rarely appear on the comparison slide that gets a tool chosen, and all three are what your team actually lives with for the following five years.
 
 The full repo, with both migration trees, the live comparison endpoint and an 18-row feature matrix generated from running code, is at [github.com/wallaceespindola/flyway-vs-liquibase-db-migrations](https://github.com/wallaceespindola/flyway-vs-liquibase-db-migrations).
 
-Does your team treat rollback as a supported operation, or as "write a new migration and hope"? I would genuinely like to hear how that has worked out for you in production.
+Does your team treat rollback as a supported operation, or as "write a new migration and hope"? And if you migrated from one of these tools to the other, what actually triggered the switch? I would genuinely like to hear how that has worked out for you in production.
 
 ---
 

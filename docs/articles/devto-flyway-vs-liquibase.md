@@ -4,6 +4,7 @@ published: false
 description: A Spring Boot 3.4 app that migrates two identical H2 databases with Flyway and Liquibase, then diffs the resulting schemas at runtime. Clone it, run it, see the numbers yourself.
 tags: java, database, springboot, devops
 cover_image: https://raw.githubusercontent.com/wallaceespindola/flyway-vs-liquibase-db-migrations/main/docs/images/banner-devto.png
+# canonical_url: <set to the primary published URL before cross-posting>
 ---
 
 # Flyway vs Liquibase: I Ran Both Against the Same Schema So You Don't Have To
@@ -17,7 +18,7 @@ Most "Flyway vs Liquibase" articles are opinion pieces. This one comes with a re
 A Spring Boot 3.4.2 app on Java 21 that stands up **two independent H2 file databases** with an identical logical schema. One gets migrated by Flyway, the other by Liquibase, and both are wired explicitly through their own `@Configuration` class instead of relying on Spring Boot's auto-configuration to hide what each tool does at startup.
 
 ```java
-// FlywayConfig.java — a DataSource, a location, and Flyway is running
+// FlywayConfig.java
 @Bean(name = "flyway", initMethod = "migrate")
 public Flyway flyway(@Qualifier(DATA_SOURCE) DataSource dataSource) {
     return Flyway.configure()
@@ -31,7 +32,7 @@ public Flyway flyway(@Qualifier(DATA_SOURCE) DataSource dataSource) {
 ```
 
 ```java
-// LiquibaseConfig.java — needs more knobs, buys more behavior
+// LiquibaseConfig.java
 @Bean("liquibase")
 public SpringLiquibase liquibase(@Qualifier(DATA_SOURCE) DataSource dataSource) {
     SpringLiquibase liquibase = new SpringLiquibase();
