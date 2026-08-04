@@ -269,7 +269,6 @@ src/main/resources/
 └── static/           The dashboard: index.html, css/styles.css, js/app.js
 
 docs/
-├── articles/      DZone, Medium, LinkedIn, Dev.to, Substack
 ├── diagrams/      Class, Component, Deployment, Sequence, Class model, ERD — PlantUML + Mermaid
 ├── presentation/  Markdown deck, PPTX, Google Slides script, reproducible generator
 └── specs/         PRD_Specs.md
@@ -320,7 +319,6 @@ a migration change that makes the two engines diverge fails the build.
 | Where | What |
 | --- | --- |
 | [`docs/diagrams/`](docs/diagrams/) | Class, Component, Deployment, Sequence, Class model and ERD — each in PlantUML and Mermaid |
-| [`docs/articles/`](docs/articles/) | Long-form write-ups for DZone, Medium, LinkedIn, Dev.to and Substack |
 | [`docs/presentation/`](docs/presentation/) | 24-slide deck as Markdown and PPTX, plus a delivery script |
 | [`docs/specs/PRD_Specs.md`](docs/specs/PRD_Specs.md) | The original requirements |
 
