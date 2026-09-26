@@ -1,3 +1,5 @@
+![Flyway vs Liquibase](docs/images/banner-devto.png)
+
 # Flyway vs Liquibase — Database Migrations Compared
 
 [![CI](https://github.com/wallaceespindola/flyway-vs-liquibase-db-migrations/actions/workflows/ci.yml/badge.svg)](https://github.com/wallaceespindola/flyway-vs-liquibase-db-migrations/actions/workflows/ci.yml)
