@@ -13,7 +13,7 @@ COPY src ./src
 RUN mvn -B -q -DskipTests package
 
 
-FROM eclipse-temurin:21-jre-alpine AS runtime
+FROM eclipse-temurin:24-jre-alpine AS runtime
 
 # Run as a non-root user.
 RUN addgroup -S app && adduser -S app -G app
