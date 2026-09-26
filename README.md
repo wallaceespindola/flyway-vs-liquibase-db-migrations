@@ -34,6 +34,22 @@ The headline result, produced by the app itself:
 Both tools land on an identical business schema. Everything that differs — bookkeeping, metadata,
 rollback support, ergonomics — is what the rest of this project is about.
 
+## Table of contents
+
+- [The dashboard](#the-dashboard)
+- [Quick start](#quick-start)
+- [The experiment](#the-experiment)
+- [What the comparison found](#what-the-comparison-found)
+- [Execution flow](#execution-flow)
+- [REST API](#rest-api)
+- [Project layout](#project-layout)
+- [Tech stack](#tech-stack)
+- [Development](#development)
+- [Running tests](#running-tests)
+- [Documentation](#documentation)
+- [Author](#author)
+- [License](#license)
+
 ## The dashboard
 
 ![The Flyway vs Liquibase comparison dashboard, showing zero structural differences between the two
@@ -88,7 +104,7 @@ Docker is optional.
 
 The design decision that makes an honest comparison possible: **each engine gets its own database.**
 
-```
+```text
                      ┌─────────────────────────┐
                      │  Spring Boot (one JVM)  │
                      └────────────┬────────────┘
@@ -256,7 +272,7 @@ curl -s localhost:8080/api/v1/migrations/liquibase | jq '.data.migrations[].iden
 
 ## Project layout
 
-```
+```text
 src/main/java/com/wallaceespindola/dbmigration/
 ├── config/       FlywayConfig, LiquibaseConfig, OpenApiConfig  — one DataSource + engine each
 ├── controller/   Migration, Comparison, Catalog, Health, GlobalExceptionHandler
@@ -281,6 +297,23 @@ service and controller boilerplate.
 
 ---
 
+## Tech stack
+
+| Area | Technology |
+| --- | --- |
+| Runtime | Java 21, Spring Boot 3.4.2 (web, jdbc, validation, actuator) |
+| Migrations | Flyway 10.20.1, Liquibase 4.29.2 (versions from the Spring Boot BOM) |
+| Database | H2 2.3.232, file-based (`./data/flywaydb`, `./data/liquibasedb`) |
+| API docs | springdoc-openapi 2.8.3 (Swagger UI) |
+| Frontend | Plain HTML, CSS and JavaScript served from `src/main/resources/static/` |
+| Boilerplate | Java records, Lombok |
+| Testing | JUnit 5, Mockito, MockMvc (`spring-boot-starter-test`), JaCoCo 0.8.12 |
+| Build and run | Maven, Make, Docker (`eclipse-temurin:21-jre-alpine`), Docker Compose, GitHub Actions |
+
+Runtime settings (port, H2 URLs, Liquibase contexts) are documented in [`.env.example`](.env.example).
+
+---
+
 ## Development
 
 ```bash
@@ -292,13 +325,35 @@ make clean-db      # delete both H2 databases so migrations re-run from scratch
 make api           # smoke-test a running instance and print the headline result
 ```
 
-Run a single test class or method:
+---
+
+## Running tests
+
+```bash
+make test          # mvn -B test
+make verify        # mvn -B verify: tests + JaCoCo gate (80% line coverage)
+make coverage      # same as verify, then prints the report path
+```
+
+Run a single test class, nested group or method. Test groups are JUnit 5 `@Nested` classes, so a method
+filter must name the nested class:
 
 ```bash
 mvn test -Dtest=ApplicationIntegrationTest
 mvn test -Dtest='ApplicationIntegrationTest$CentralClaim'
-mvn test -Dtest=ComparisonServiceTest#identicalSchemasHaveNoDifferences
+mvn test -Dtest='ComparisonServiceTest$Diff#identicalSchemasHaveNoDifferences'
 ```
+
+| Test class | Tests | Scope |
+| --- | --- | --- |
+| `ApplicationIntegrationTest` | 34 | Full context against both migrated H2 databases: central claim, REST API, dashboard, migrated data, per-engine history |
+| `MigrationEngineTest` | 15 | Engine name resolution |
+| `ComparisonServiceTest` | 12 | Schema diff algorithm and engine dispatch |
+| `LiquibaseHistoryServiceTest` | 8 | `DATABASECHANGELOG` row mapping |
+| `FeatureMatrixTest` | 7 | Feature matrix content |
+| `HealthControllerTest` | 4 | Health degradation |
+| `GlobalExceptionHandlerTest` | 3 | Error handling |
+| `ApiResponseTest` | 3 | Response envelope |
 
 **86 tests, 98.8% line coverage** (82.5% branch) against an 80% gate. The unit tests cover the diff
 algorithm, engine resolution, the `DATABASECHANGELOG` row mapping, health degradation and error
