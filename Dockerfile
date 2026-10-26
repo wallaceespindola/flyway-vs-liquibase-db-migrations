@@ -2,7 +2,7 @@
 # Multi-stage build: Maven builds the jar, a slim JRE runs it.
 # Author: Wallace Espindola
 
-FROM maven:3-eclipse-temurin-26 AS build
+FROM maven:3-eclipse-temurin-27 AS build
 WORKDIR /build
 
 # Copy the POM first so dependency resolution is cached independently of source changes.
