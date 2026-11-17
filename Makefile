@@ -6,7 +6,7 @@ JAR  := target/flyway-vs-liquibase-db-migrations.jar
 PORT ?= 8080
 
 .DEFAULT_GOAL := help
-.PHONY: help build test verify coverage run start stop restart clean clean-db package docker-build docker-up docker-down api
+.PHONY: help build test verify coverage run start stop restart clean clean-db package docker-build docker-up docker-down api diagrams lint links slides docs-check
 
 help: ## Show this help
 	@echo "Flyway vs Liquibase — available targets:"
@@ -61,3 +61,28 @@ api: ## Smoke-test the running API and print the headline result
 		print('differences:', d['schemaDifferences'] or 'none'); \
 		print('flyway applied:', d['flyway']['appliedCount']); \
 		print('liquibase applied:', d['liquibase']['appliedCount'])"
+
+# ---------- Docs: diagrams, Markdown lint, links, slides ----------
+PUML   := $(shell find docs -name '*.puml')
+MMD    := $(shell find docs -name '*.mmd')
+DECK   := docs/presentations/slides.md
+CHROME ?= /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+
+diagrams: ## Render every PlantUML and Mermaid source to PNG next to it
+	@for f in $(PUML); do plantuml -tpng "$$f"; done
+	@printf '{"executablePath":"%s"}' "$(CHROME)" > .puppeteer.json
+	@for f in $(MMD); do npx -y @mermaid-js/mermaid-cli -q -p .puppeteer.json -i "$$f" -o "$${f%.mmd}.png" -b white -s 2; done
+	@rm -f .puppeteer.json
+
+lint: ## Lint all Markdown
+	npx -y markdownlint-cli2 "**/*.md" "#node_modules" "#target"
+
+links: ## Check relative links between Markdown files (offline)
+	lychee --offline --no-progress --exclude-path target "**/*.md"
+
+slides: ## Export the Marp deck to PDF (Speaker Deck) and rebuild the editable PPTX
+	CHROME_PATH="$(CHROME)" npx -y @marp-team/marp-cli $(DECK) --pdf --allow-local-files \
+		-o docs/presentations/flyway-vs-liquibase-db-migrations.pdf </dev/null
+	uv run --with python-pptx --with pillow docs/presentations/build_pptx.py
+
+docs-check: lint links ## Run all docs checks
