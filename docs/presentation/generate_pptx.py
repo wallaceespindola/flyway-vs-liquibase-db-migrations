@@ -204,7 +204,7 @@ result at the end.
          space_after=6)
     para(tf, "github.com/wallaceespindola/flyway-vs-liquibase-db-migrations", 14, TEXT,
          space_after=18)
-    para(tf, "Spring Boot 3.4.2  ·  Java 21  ·  Maven  ·  H2  ·  plain JDBC", 14, MUTED)
+    para(tf, "Spring Boot 4.1.2  ·  Java 25  ·  Maven  ·  H2  ·  plain JDBC", 14, MUTED)
 
 
 def slide_problem(prs):
@@ -797,7 +797,7 @@ correct and more instructive.
 """)
     heading(s, "Architecture of the demo app")
     code(s, """
-DbMigrationComparisonApplication   (Spring Boot 3.4.2, Java 21, port 8080)
+DbMigrationComparisonApplication   (Spring Boot 4.1.2, Java 25, port 8080)
 |
 +-- FlywayConfig      -> flywayDataSource    -> Flyway.migrate()  -> flywayJdbcTemplate
 +-- LiquibaseConfig   -> liquibaseDataSource -> SpringLiquibase   -> liquibaseJdbcTemplate

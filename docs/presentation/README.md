@@ -59,7 +59,7 @@ The script writes `docs/presentation/flyway-vs-liquibase-deck.pptx`, reopens it,
 count and that every slide carries speaker notes, then prints the path, slide count and file size:
 
 ```
-.../flyway-vs-liquibase-deck.pptx  24 slides  108,587 bytes
+.../flyway-vs-liquibase-deck.pptx  24 slides  108,588 bytes
 ```
 
 ### Editing the deck

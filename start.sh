@@ -45,13 +45,13 @@ else
 fi
 
 if ! command -v java >/dev/null 2>&1; then
-    echo "ERROR: java not found on PATH. Java 21 or newer is required." >&2
+    echo "ERROR: java not found on PATH. Java 25 or newer is required." >&2
     exit 1
 fi
 
 JAVA_MAJOR="$(java -version 2>&1 | head -1 | sed -E 's/.*version "([0-9]+).*/\1/')"
-if [[ "$JAVA_MAJOR" =~ ^[0-9]+$ ]] && (( JAVA_MAJOR < 21 )); then
-    echo "ERROR: Java 21 or newer is required, found Java $JAVA_MAJOR." >&2
+if [[ "$JAVA_MAJOR" =~ ^[0-9]+$ ]] && (( JAVA_MAJOR < 25 )); then
+    echo "ERROR: Java 25 or newer is required, found Java $JAVA_MAJOR." >&2
     exit 1
 fi
 

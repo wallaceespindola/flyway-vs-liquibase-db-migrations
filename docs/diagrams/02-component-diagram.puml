@@ -13,7 +13,7 @@ node "Browser" as browser {
   component "Static dashboard\n(src/main/resources/static)" as dashboard
 }
 
-node "Spring Boot process (JVM 21)\nembedded Tomcat :8080" as app {
+node "Spring Boot process (JVM 25)\nembedded Tomcat :8080" as app {
 
   package "Web layer (@RestController)" {
     component "ComparisonController\nGET /api/v1/comparison\nGET /api/v1/comparison/features" as cmpCtrl

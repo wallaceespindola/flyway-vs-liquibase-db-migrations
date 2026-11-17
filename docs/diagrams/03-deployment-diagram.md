@@ -3,7 +3,7 @@
 A single JVM process. Embedded Tomcat on port 8080, two H2 file databases under `./data` relative to the working
 directory. No external database server, no network hop between the application and its storage.
 
-Source: `application.yml` (`app.datasource.*.url`, `server.port`), `pom.xml` (Spring Boot 3.4.2, Java 21)
+Source: `application.yml` (`app.datasource.*.url`, `server.port`), `pom.xml` (Spring Boot 4.1.2, Java 25)
 
 ```mermaid
 flowchart TB
@@ -14,9 +14,9 @@ flowchart TB
             h2c["H2 Console<br/>/h2-console"]
         end
 
-        subgraph jvm["JVM 21 — java -jar flyway-vs-liquibase-db-migrations.jar"]
+        subgraph jvm["JVM 25 — java -jar flyway-vs-liquibase-db-migrations.jar"]
             subgraph tomcat["Embedded Tomcat — :8080"]
-                subgraph ctx["Spring Boot 3.4.2 application context"]
+                subgraph ctx["Spring Boot 4.1.2 application context"]
                     api["REST API /api/v1/**"]
                     act["Actuator /actuator/**"]
                     flyway["Flyway engine"]
@@ -34,7 +34,7 @@ flowchart TB
     end
 
     subgraph docker["Docker container — Dockerfile + docker-compose.yml"]
-        image["eclipse-temurin:21-jre-alpine + application jar"]
+        image["eclipse-temurin:25-jre-alpine + application jar"]
         vol["/app/data volume"]
     end
 
@@ -60,7 +60,7 @@ Operational notes:
   while the application holds it.
 - `DB_CLOSE_DELAY=-1` keeps the in-JVM database open until the JVM exits.
 - Deleting `./data` resets both engines. Flyway then re-runs V1..V5 and R__; Liquibase re-runs all 7 changesets.
-- The Docker path is real: `Dockerfile` (multi-stage, non-root, `eclipse-temurin:21-jre-alpine-alpine` runtime) and
+- The Docker path is real: `Dockerfile` (multi-stage, non-root, `eclipse-temurin:25-jre-alpine` runtime) and
   `docker-compose.yml` are both at the repository root. Compose mounts `./data` as the named volume `h2-data`;
   without a volume both databases are lost on every container restart.
 

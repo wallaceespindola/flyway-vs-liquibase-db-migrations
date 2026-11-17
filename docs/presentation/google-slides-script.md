@@ -51,7 +51,7 @@ Each block is roughly 60–90 seconds at a normal speaking pace.
 "Flyway versus Liquibase. Both tools solve the same problem, both are mature, and most comparisons
 you will read online are written by someone who only ever used one of them.
 
-So I built something different. There is a Spring Boot application behind this talk — Java 21,
+So I built something different. There is a Spring Boot application behind this talk — Java 25,
 Maven, H2, plain JDBC — that opens *two* independent databases. Flyway migrates one, Liquibase
 migrates the other, and the application diffs the two resulting schemas at runtime and tells you
 whether they match.

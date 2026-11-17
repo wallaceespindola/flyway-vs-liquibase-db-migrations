@@ -8,7 +8,7 @@
 - LinkedIn: [linkedin.com/in/wallaceespindola](https://www.linkedin.com/in/wallaceespindola/)
 - Code: [github.com/wallaceespindola/flyway-vs-liquibase-db-migrations](https://github.com/wallaceespindola/flyway-vs-liquibase-db-migrations)
 
-Spring Boot 3.4.2 · Java 21 · Maven · H2 · plain JDBC
+Spring Boot 4.1.2 · Java 25 · Maven · H2 · plain JDBC
 
 <!--
 SPEAKER NOTES
@@ -595,7 +595,7 @@ decision matters more than which name you pick.
 ## Architecture of the demo app
 
 ```
-DbMigrationComparisonApplication  (Spring Boot 3.4.2, Java 21, port 8080)
+DbMigrationComparisonApplication  (Spring Boot 4.1.2, Java 25, port 8080)
 │
 ├── FlywayConfig      → flywayDataSource    → Flyway.migrate()   → flywayJdbcTemplate
 ├── LiquibaseConfig   → liquibaseDataSource → SpringLiquibase    → liquibaseJdbcTemplate

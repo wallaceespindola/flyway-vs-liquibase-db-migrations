@@ -8,7 +8,7 @@ spring:
   # dashboard can diff them 1:1.
   autoconfigure:
     exclude:
-      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration
 
   h2:
     console:
@@ -17,11 +17,11 @@ spring:
       settings:
         web-allow-others: false
 
+  # Jackson 3 (Spring Boot 4) writes java.time values as ISO-8601 strings by default.
   jackson:
     # Nulls are kept in responses on purpose: "Liquibase records no execution time" is a finding the
     # comparison should show explicitly, not hide by omitting the field.
-    serialization:
-      write-dates-as-timestamps: false
+    default-property-inclusion: always
 
   mvc:
     problemdetails:

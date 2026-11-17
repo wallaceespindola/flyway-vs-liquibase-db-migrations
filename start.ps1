@@ -46,7 +46,7 @@ function Resolve-Maven {
 }
 
 if (-not (Get-Command java -ErrorAction SilentlyContinue)) {
-    throw 'java not found on PATH. Java 21 or newer is required.'
+    throw 'java not found on PATH. Java 25 or newer is required.'
 }
 
 # `java -version` writes to stderr. Under Windows PowerShell 5.1, merging that with 2>&1 while
@@ -63,8 +63,8 @@ try {
 
 if ($versionLine -match 'version "(\d+)') {
     $javaMajor = [int]$Matches[1]
-    if ($javaMajor -lt 21) {
-        throw "Java 21 or newer is required, found Java $javaMajor."
+    if ($javaMajor -lt 25) {
+        throw "Java 25 or newer is required, found Java $javaMajor."
     }
 }
 

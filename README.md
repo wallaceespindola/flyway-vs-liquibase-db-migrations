@@ -3,14 +3,14 @@
 # Flyway vs Liquibase — Database Migrations Compared
 
 [![CI](https://github.com/wallaceespindola/flyway-vs-liquibase-db-migrations/actions/workflows/ci.yml/badge.svg)](https://github.com/wallaceespindola/flyway-vs-liquibase-db-migrations/actions/workflows/ci.yml)
-[![Java 21](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.org/projects/jdk/21/)
-[![Spring Boot 3.4](https://img.shields.io/badge/Spring%20Boot-3.4.2-brightgreen.svg)](https://spring.io/projects/spring-boot)
-[![Flyway 10.20.1](https://img.shields.io/badge/Flyway-10.20.1-CC0000.svg)](https://documentation.red-gate.com/flyway)
-[![Liquibase 4.29.2](https://img.shields.io/badge/Liquibase-4.29.2-2962FF.svg)](https://docs.liquibase.com/)
-[![H2 2.3.232](https://img.shields.io/badge/H2-2.3.232-0000BB.svg)](https://www.h2database.com/)
+[![Java 25](https://img.shields.io/badge/Java-25-orange.svg)](https://openjdk.org/projects/jdk/25/)
+[![Spring Boot 4.1](https://img.shields.io/badge/Spring%20Boot-4.1.2-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![Flyway 12.4.0](https://img.shields.io/badge/Flyway-12.4.0-CC0000.svg)](https://documentation.red-gate.com/flyway)
+[![Liquibase 5.0.4](https://img.shields.io/badge/Liquibase-5.0.4-2962FF.svg)](https://docs.liquibase.com/)
+[![H2 2.4.240](https://img.shields.io/badge/H2-2.4.240-0000BB.svg)](https://www.h2database.com/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
-> Both engine versions come from the Spring Boot 3.4.2 dependency BOM rather than being pinned here,
+> Both engine versions come from the Spring Boot 4.1.2 dependency BOM rather than being pinned here,
 > so neither tool gets an unfair version advantage in the comparison.
 
 Most Flyway-vs-Liquibase comparisons are opinion pieces. This one is an application.
@@ -95,7 +95,7 @@ To watch both engines migrate a clean database from scratch, add `--clean`:
 
 ### Requirements
 
-Java 21+ and Maven 3.9+. That is all — H2 is embedded, there is nothing external to provision.
+Java 25+ and Maven 3.9+. That is all — H2 is embedded, there is nothing external to provision.
 Docker is optional.
 
 ---
@@ -301,14 +301,14 @@ service and controller boilerplate.
 
 | Area | Technology |
 | --- | --- |
-| Runtime | Java 21, Spring Boot 3.4.2 (web, jdbc, validation, actuator) |
-| Migrations | Flyway 10.20.1, Liquibase 4.29.2 (versions from the Spring Boot BOM) |
-| Database | H2 2.3.232, file-based (`./data/flywaydb`, `./data/liquibasedb`) |
+| Runtime | Java 25, Spring Boot 4.1.2 (webmvc, jdbc, validation, actuator, h2console) |
+| Migrations | Flyway 12.4.0, Liquibase 5.0.4 (versions from the Spring Boot BOM) |
+| Database | H2 2.4.240, file-based (`./data/flywaydb`, `./data/liquibasedb`) |
 | API docs | springdoc-openapi 2.8.3 (Swagger UI) |
 | Frontend | Plain HTML, CSS and JavaScript served from `src/main/resources/static/` |
 | Boilerplate | Java records, Lombok |
 | Testing | JUnit 5, Mockito, MockMvc (`spring-boot-starter-test`), JaCoCo 0.8.12 |
-| Build and run | Maven, Make, Docker (`eclipse-temurin:21-jre-alpine`), Docker Compose, GitHub Actions |
+| Build and run | Maven, Make, Docker (`eclipse-temurin:25-jre-alpine`), Docker Compose, GitHub Actions |
 
 Runtime settings (port, H2 URLs, Liquibase contexts) are documented in [`.env.example`](.env.example).
 
@@ -365,8 +365,11 @@ report lands in `target/site/jacoco/index.html`.
 CI runs `mvn verify` and then boots the packaged jar and asserts `schemasEquivalent` is still true, so
 a migration change that makes the two engines diverge fails the build.
 
-> **Note:** Flyway logs `H2 2.3.232 is newer than this version of Flyway and support has not been
-> tested`. Both versions come from the Spring Boot 3.4.2 BOM and everything works; overriding either
+> **Note:** Liquibase 5.x (from the Spring Boot 4.1 BOM) ships under the Functional Source License
+> instead of Apache 2.0. Check it against your organisation's policy before adopting 5.x in production.
+
+> **Note:** Flyway logs `H2 2.4.240 is newer than this version of Flyway and support has not been
+> tested`. Both versions come from the Spring Boot 4.1.2 BOM and everything works; overriding either
 > one to silence the warning would take the project off Spring Boot's tested dependency set.
 
 ---

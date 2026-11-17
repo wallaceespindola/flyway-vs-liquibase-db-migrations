@@ -16,7 +16,7 @@ flowchart TB
         h2c["H2 Console<br/>/h2-console"]
     end
 
-    subgraph app["Spring Boot 3.4.2 process — JVM 21 — embedded Tomcat :8080"]
+    subgraph app["Spring Boot 4.1.2 process — JVM 25 — embedded Tomcat :8080"]
         subgraph web["Web layer @RestController"]
             cmpCtrl["ComparisonController<br/>GET /api/v1/comparison<br/>GET /api/v1/comparison/features"]
             migCtrl["MigrationController<br/>GET /api/v1/migrations<br/>GET /api/v1/migrations/engines<br/>GET /api/v1/migrations/{engine}<br/>GET /api/v1/migrations/{engine}/schema"]

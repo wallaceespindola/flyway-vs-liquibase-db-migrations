@@ -94,8 +94,13 @@ exact numbers, so update them together.
 - **Tests use `@ActiveProfiles("test")` with `application-test.yml`**, which overrides only the two
   JDBC URLs to in-memory H2. Do not add a `src/test/resources/application.yml` — a same-named file
   would shadow the main config entirely instead of merging.
-- Flyway logs a warning that H2 2.3.232 is newer than it has been tested against. Both versions come
-  from the Spring Boot 3.4.2 BOM and everything works; pinning either one takes the project off
+- **Spring Boot 4 moved auto-config into per-technology modules.** `DataSourceProperties` /
+  `DataSourceAutoConfiguration` live in `org.springframework.boot.jdbc.autoconfigure`, MockMvc test
+  support needs `spring-boot-starter-webmvc-test`, and the H2 console needs `spring-boot-h2console`.
+  Jackson is 3.x (`tools.jackson`): ISO dates are the default, so `write-dates-as-timestamps` no longer
+  binds — `spring.jackson.default-property-inclusion: always` keeps the nulls.
+- Flyway logs a warning that H2 2.4.240 is newer than it has been tested against. Both versions come
+  from the Spring Boot 4.1.2 BOM and everything works; pinning either one takes the project off
   Spring Boot's tested set.
 
 ## Frontend
@@ -106,9 +111,9 @@ and every numeric interpolation through `num()`. That is the single XSS choke po
 
 ## Conventions
 
-- Java 21, Spring Boot 3.4.2, plain JDBC (no JPA). Max line length 120.
-- Engine versions come from the Spring Boot BOM, not from `<properties>`: **Flyway 10.20.1**,
-  **Liquibase 4.29.2**, **H2 2.3.232**. Leave them unpinned — letting the BOM pick both keeps the
+- Java 25, Spring Boot 4.1.2, plain JDBC (no JPA). Max line length 120.
+- Engine versions come from the Spring Boot BOM, not from `<properties>`: **Flyway 12.4.0**,
+  **Liquibase 5.0.4**, **H2 2.4.240**. Leave them unpinned — letting the BOM pick both keeps the
   comparison fair, and the README badges state these numbers, so re-run
   `mvn dependency:list | grep -E 'flyway-core|liquibase-core|h2'` and update the badges if the
   Spring Boot version ever moves.

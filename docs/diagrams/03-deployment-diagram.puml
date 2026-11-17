@@ -11,9 +11,9 @@ node "Developer workstation" as host {
     artifact "H2 Console\n/h2-console" as h2c
   }
 
-  node "JVM 21 (single process)\njava -jar flyway-vs-liquibase-db-migrations.jar" as jvm {
+  node "JVM 25 (single process)\njava -jar flyway-vs-liquibase-db-migrations.jar" as jvm {
     node "Embedded Tomcat\nlistening on :8080" as tomcat {
-      artifact "Spring Boot 3.4.2 application context" as ctx {
+      artifact "Spring Boot 4.1.2 application context" as ctx {
         component "REST API /api/v1/**" as api
         component "Actuator /actuator/**" as act
         component "Flyway engine" as flyway
@@ -31,7 +31,7 @@ node "Developer workstation" as host {
 }
 
 node "Docker container\n(Dockerfile + docker-compose.yml)" as docker {
-  artifact "eclipse-temurin:21-jre-alpine\n+ application jar" as image
+  artifact "eclipse-temurin:25-jre-alpine\n+ application jar" as image
   folder "/app/data (volume)" as vol
 }
 
