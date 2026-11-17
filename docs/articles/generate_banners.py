@@ -500,8 +500,8 @@ def main() -> int:
         return 1
 
     for b in BANNERS:
-        svg_path = OUT_DIR / f"banner-{b.slug}.svg"
-        png_path = OUT_DIR / f"banner-{b.slug}.png"
+        svg_path = OUT_DIR / b.slug / "banner.svg"
+        png_path = OUT_DIR / b.slug / "banner.png"
 
         svg_path.write_text(STYLES[b.style](b.width, b.height), encoding="utf-8")
         subprocess.run(["rsvg-convert", "-w", str(b.width), "-h", str(b.height),

@@ -1,4 +1,4 @@
-![Flyway vs Liquibase](docs/images/banner-devto.png)
+![Flyway vs Liquibase](docs/articles/devto/banner.png)
 
 # Flyway vs Liquibase — Database Migrations Compared
 
@@ -379,7 +379,7 @@ a migration change that makes the two engines diverge fails the build.
 | Where | What |
 | --- | --- |
 | [`docs/diagrams/`](docs/diagrams/) | Class, Component, Deployment, Sequence, Class model and ERD — each in PlantUML and Mermaid |
-| [`docs/presentation/`](docs/presentation/) | 24-slide deck as Markdown and PPTX, plus a delivery script |
+| [`docs/presentations/`](docs/presentations/) | 24-slide deck as Markdown and PPTX, plus a delivery script |
 | [`docs/specs/PRD_Specs.md`](docs/specs/PRD_Specs.md) | The original requirements |
 
 ---

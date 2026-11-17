@@ -1,0 +1,133 @@
+@startuml erd
+' Business schema - identical in ./data/flywaydb and ./data/liquibasedb
+' Author: Wallace Espindola - https://github.com/wallaceespindola/
+' Source: db/migration/V1..V5 + R__ and db/changelog/changes/001..006
+
+hide circle
+skinparam linetype ortho
+
+entity "category" as category {
+  * id : BIGINT <<PK, AUTO_INCREMENT>>
+  --
+  * name : VARCHAR(100) <<uk_category_name>>
+  description : VARCHAR(500)
+  * created_at : TIMESTAMP <<default CURRENT_TIMESTAMP>>
+  --
+  index idx_category_name (name)
+}
+
+entity "product" as product {
+  * id : BIGINT <<PK, AUTO_INCREMENT>>
+  --
+  * sku : VARCHAR(50) <<uk_product_sku>>
+  * name : VARCHAR(200)
+  description : VARCHAR(1000)
+  * price : DECIMAL(12,2) <<ck_product_price_positive: price >= 0>>
+  * stock_quantity : INT <<default 0, ck_product_stock_non_negative>>
+  * category_id : BIGINT <<FK fk_product_category>>
+  * created_at : TIMESTAMP <<default CURRENT_TIMESTAMP>>
+  * updated_at : TIMESTAMP <<default CURRENT_TIMESTAMP>>
+  * active : BOOLEAN <<default TRUE, added by V5 / 005>>
+  --
+  index idx_product_category (category_id)
+  index idx_product_sku (sku)
+  index idx_product_active (active)
+}
+
+entity "product_audit" as audit {
+  * id : BIGINT <<PK, AUTO_INCREMENT>>
+  --
+  * product_id : BIGINT <<FK fk_product_audit_product>>
+  * audit_action : VARCHAR(20)
+  * changed_by : VARCHAR(100) <<default 'system'>>
+  * changed_at : TIMESTAMP <<default CURRENT_TIMESTAMP>>
+  --
+  index idx_product_audit_product (product_id)
+}
+
+entity "v_product_catalog" as catalog <<view>> {
+  product_id : BIGINT     -- product.id
+  sku : VARCHAR(50)       -- product.sku
+  product_name : VARCHAR(200)  -- product.name
+  price : DECIMAL(12,2)   -- product.price
+  stock_quantity : INT    -- product.stock_quantity
+  active : BOOLEAN        -- product.active
+  category_id : BIGINT    -- category.id
+  category_name : VARCHAR(100) -- category.name
+}
+
+category ||--o{ product : "category.id = product.category_id"
+product ||--o{ audit : "product.id = product_audit.product_id"
+product ||..|| catalog : "JOIN source"
+category ||..|| catalog : "JOIN source"
+
+note bottom of catalog
+  Flyway:    R__product_catalog_view.sql (CREATE OR REPLACE VIEW)
+  Liquibase: 006-product-catalog-view.xml (createView replaceIfExists,
+             runOnChange="true")
+  Both definitions are byte-for-byte equivalent in projection and join.
+end note
+
+@enduml
+
+@startuml erd-bookkeeping
+' Engine bookkeeping tables - the only structural difference between the two databases
+' Author: Wallace Espindola
+
+hide circle
+
+package "./data/flywaydb (Flyway)" {
+  entity "flyway_schema_history" as fw {
+    * installed_rank : INT <<PK>>
+    --
+    version : VARCHAR(50)
+    description : VARCHAR(200)
+    type : VARCHAR(20)
+    script : VARCHAR(1000)
+    checksum : INT
+    installed_by : VARCHAR(100)
+    installed_on : TIMESTAMP
+    execution_time : INT
+    success : BOOLEAN
+    --
+    6 rows: V1, V2, V3, V4, V5, R__product_catalog_view
+  }
+}
+
+package "./data/liquibasedb (Liquibase)" {
+  entity "DATABASECHANGELOG" as lb {
+    * ID : VARCHAR(255)
+    * AUTHOR : VARCHAR(255)
+    * FILENAME : VARCHAR(255)
+    --
+    DATEEXECUTED : TIMESTAMP
+    ORDEREXECUTED : INT
+    EXECTYPE : VARCHAR(10)
+    MD5SUM : VARCHAR(35)
+    DESCRIPTION : VARCHAR(255)
+    COMMENTS : VARCHAR(255)
+    TAG : VARCHAR(255)
+    LIQUIBASE : VARCHAR(20)
+    CONTEXTS : VARCHAR(255)
+    LABELS : VARCHAR(255)
+    DEPLOYMENT_ID : VARCHAR(10)
+    --
+    7 rows: 001, 002, 003, 004, 005, 005b, 006
+  }
+
+  entity "DATABASECHANGELOGLOCK" as lock {
+    * ID : INT <<PK>>
+    --
+    LOCKED : BOOLEAN
+    LOCKGRANTED : TIMESTAMP
+    LOCKEDBY : VARCHAR(255)
+  }
+}
+
+note bottom
+  SchemaInspectionService excludes FLYWAY_SCHEMA_HISTORY, DATABASECHANGELOG and
+  DATABASECHANGELOGLOCK from the business-schema comparison, which is why the
+  diff reports zero differences despite the bookkeeping being incompatible.
+end note
+
+@enduml

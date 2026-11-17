@@ -1,0 +1,25 @@
+flowchart LR
+    subgraph fw["Flyway: 6 applied"]
+        v1["V1 create category<br/>(SQL)"]
+        v2["V2 create product<br/>(SQL)"]
+        v3["V3 seed data<br/>(SQL)"]
+        v4["V4 audit table<br/>(SQL, no undo)"]
+        v5["V5 active flag + backfill<br/>(one script)"]
+        r["R__ catalog view<br/>(re-runs on checksum change)"]
+    end
+    subgraph lb["Liquibase: 7 applied"]
+        c1["001 create category<br/>(XML)"]
+        c2["002 create product<br/>(YAML)"]
+        c3["003 seed data<br/>(formatted SQL)"]
+        c4["004 audit table<br/>(preconditions + rollback)"]
+        c5["005 active flag<br/>(XML)"]
+        c5b["005b backfill<br/>(separate rollback)"]
+        c6["006 catalog view<br/>(runOnChange=true)"]
+    end
+    v1 --- c1
+    v2 --- c2
+    v3 --- c3
+    v4 --- c4
+    v5 --- c5
+    v5 --- c5b
+    r --- c6

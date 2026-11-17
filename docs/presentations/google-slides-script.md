@@ -14,7 +14,7 @@ Author: Wallace Espindola — [github.com/wallaceespindola](https://github.com/w
 **Option A — upload and open (keeps the deck as one unit)**
 
 1. Go to [drive.google.com](https://drive.google.com) and click **New → File upload**.
-2. Select `docs/presentation/flyway-vs-liquibase-deck.pptx`.
+2. Select `docs/presentations/flyway-vs-liquibase-deck.pptx`.
 3. When the upload finishes, right-click the file → **Open with → Google Slides**.
 4. Google Slides converts it in place. Use **File → Save as Google Slides** to keep an editable
    native copy; the original `.pptx` stays in Drive untouched.

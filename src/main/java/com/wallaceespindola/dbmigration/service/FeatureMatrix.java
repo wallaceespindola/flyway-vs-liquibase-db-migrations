@@ -36,7 +36,8 @@ public final class FeatureMatrix {
                     LIQUIBASE),
             new FeatureComparison(
                     "Rollback / undo",
-                    "Not in Community — reverting means writing a new forward migration. undo is a Teams feature",
+                    "Not in Community — reverting means writing a new forward migration. "
+                            + "undo is a paid Teams/Enterprise feature",
                     "Built in: auto-inferred for most changes, or declared with <rollback>",
                     LIQUIBASE),
             new FeatureComparison(
@@ -107,7 +108,8 @@ public final class FeatureMatrix {
             new FeatureComparison(
                     "Licensing of advanced features",
                     "undo, dry-run and drift detection are paid Teams/Enterprise features",
-                    "Core rollback and diff are open source; policy checks and flows are paid Pro",
+                    "Rollback and diff are free in Community (FSL source-available since 5.0); "
+                            + "policy checks and flows are paid Secure",
                     LIQUIBASE));
 
     private FeatureMatrix() {

@@ -126,9 +126,9 @@ and every numeric interpolation through `num()`. That is the single XSS choke po
 ## Documentation
 
 `docs/diagrams/` (PlantUML + Mermaid, six diagram types), `docs/articles/` (five platforms),
-`docs/presentation/` (Markdown deck + PPTX + `generate_pptx.py`), `docs/specs/PRD_Specs.md`.
+`docs/presentations/` (Markdown deck + PPTX + `generate_pptx.py`), `docs/specs/PRD_Specs.md`.
 
-Regenerate the deck with `python3 docs/presentation/generate_pptx.py` after editing slide content.
+Regenerate the deck with `python3 docs/presentations/generate_pptx.py` after editing slide content.
 
 When changing behaviour, the docs that make **specific factual claims** — the feature matrix, the
 applied counts, the diagram contents — need updating alongside the code.

@@ -1,0 +1,13 @@
+flowchart LR
+    subgraph app["Spring Boot 4.1 application (Java 25)"]
+        fc["FlywayConfig<br/>DataSource + Flyway bean<br/>initMethod = migrate"]
+        lc["LiquibaseConfig<br/>DataSource + SpringLiquibase bean"]
+        cs["ComparisonService<br/>reads INFORMATION_SCHEMA twice<br/>diffs tables, columns, views"]
+    end
+    fm["db/migration<br/>V1..V5 + R__<br/>6 SQL scripts"] --> fc
+    lm["db/changelog<br/>master YAML + 001..006<br/>XML, YAML, SQL: 7 changesets"] --> lc
+    fc --> fdb[("./data/flywaydb<br/>H2 file database")]
+    lc --> ldb[("./data/liquibasedb<br/>H2 file database")]
+    fdb --> cs
+    ldb --> cs
+    cs --> api["GET /api/v1/comparison<br/>schemasEquivalent: true"]

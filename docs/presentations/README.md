@@ -52,10 +52,10 @@ Requires Python 3 and [`python-pptx`](https://python-pptx.readthedocs.io/):
 
 ```bash
 pip install python-pptx          # if not already installed
-python3 docs/presentation/generate_pptx.py
+python3 docs/presentations/generate_pptx.py
 ```
 
-The script writes `docs/presentation/flyway-vs-liquibase-deck.pptx`, reopens it, asserts the slide
+The script writes `docs/presentations/flyway-vs-liquibase-deck.pptx`, reopens it, asserts the slide
 count and that every slide carries speaker notes, then prints the path, slide count and file size:
 
 ```

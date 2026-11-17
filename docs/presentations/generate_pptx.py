@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate flyway-vs-liquibase-deck.pptx from the content of flyway-vs-liquibase-slides.md.
 
-Run:  python3 docs/presentation/generate_pptx.py
+Run:  python3 docs/presentations/generate_pptx.py
 
 Every fact in this deck comes from the repository it lives in. Nothing is invented.
 
