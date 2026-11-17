@@ -366,10 +366,12 @@ CI runs `mvn verify` and then boots the packaged jar and asserts `schemasEquival
 a migration change that makes the two engines diverge fails the build.
 
 > **Note:** Liquibase 5.x (from the Spring Boot 4.1 BOM) ships under the Functional Source License
-> instead of Apache 2.0. Check it against your organisation's policy before adopting 5.x in production.
-
-> **Note:** Flyway logs `H2 2.4.240 is newer than this version of Flyway and support has not been
-> tested`. Both versions come from the Spring Boot 4.1.2 BOM and everything works; overriding either
+> instead of Apache 2.0 ([FSL-1.1-ALv2](https://www.liquibase.com/blog/liquibase-community-for-the-future-fsl),
+> source-available, converting to Apache 2.0 after two years). Check it against your organisation's
+> policy before adopting 5.x in production.
+>
+> **Note:** Flyway logs `Using H2 2.4.240 which is newer than the version Flyway has been verified
+> with`. Both versions come from the Spring Boot 4.1.2 BOM and everything works; overriding either
 > one to silence the warning would take the project off Spring Boot's tested dependency set.
 
 ---

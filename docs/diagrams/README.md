@@ -69,4 +69,4 @@ migration script, update the corresponding `.puml` and `.md` in the same commit.
 ---
 
 Author: Wallace Espindola — [github.com/wallaceespindola](https://github.com/wallaceespindola/) ·
-[linkedin.com/in/wallaceespindola](https://www.linkedin.com/in/wallaceespindola/) · wallace.espindola@gmail.com
+[linkedin.com/in/wallaceespindola](https://www.linkedin.com/in/wallaceespindola/) · <wallace.espindola@gmail.com>

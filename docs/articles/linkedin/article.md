@@ -1,44 +1,54 @@
 ---
-title: "Flyway vs Liquibase: Same Schema, Two Engines, and One Number That Surprised Me"
-platform: LinkedIn Pulse
-tags: [java, spring-boot, database, devops, architecture]
+author: Wallace Espindola
+linkedin: https://www.linkedin.com/in/wallaceespindola/
+github: https://github.com/wallaceespindola/
+description: What a tech lead decides when choosing between Flyway and Liquibase, from rollback policy and audit needs to the Liquibase 5 license change.
 ---
 
-# Flyway vs Liquibase: Same Schema, Two Engines, and One Number That Surprised Me
+# Your migration tool is a governance decision. Make it on purpose
 
-![Flyway vs Liquibase — the same schema built twice by two migration engines, 6 migrations against 7 changesets, with a zero-difference result](https://raw.githubusercontent.com/wallaceespindola/flyway-vs-liquibase-db-migrations/main/docs/images/banner-linkedin.png)
+![Abstract banner for a leadership article on choosing between Flyway and Liquibase](banner.png)
 
-I ran Flyway and Liquibase against two identical schemas in the same app. One number surprised me. The other one didn't.
+Most teams pick a database migration tool once, early, and then live with it for the life of the service. The choice usually comes down to whoever set up the first project, or a comparison slide that says Flyway is simpler and Liquibase is more powerful. Neither is a decision a tech lead would sign off on for anything else that lasts that long.
 
-Most "Flyway vs Liquibase" posts are opinions dressed up as comparisons. I built a Spring Boot 3.4.2 app on Java 21 instead: two independent H2 databases, one migrated by Flyway, one by Liquibase, both targeting the identical logical schema, both wired through explicit `@Configuration` beans so nothing is hidden by autoconfiguration.
+I wanted a better basis, so I built a small Spring Boot 4.1.2 application on Java 25 that creates the same schema twice: once with Flyway, once with Liquibase, each in its own H2 database. An endpoint then reads both schemas back and reports whether they match. The code is on GitHub: [flyway-vs-liquibase-db-migrations](https://github.com/wallaceespindola/flyway-vs-liquibase-db-migrations). This article isn't about the code. It's about the decisions a lead makes when choosing between the two, and what the experiment says about each one.
 
-The number that didn't surprise me: `GET /api/v1/comparison` returns `schemasEquivalent: true` with zero structural differences. Same tables, same columns, same view, built by two tools that never talked to each other.
+## Correctness is not the decision
 
-The one that did: Flyway applied 6 migrations. Liquibase applied 7. Same schema, different count. This is the actual response:
+The first result settles the question people tend to argue about. `GET /api/v1/comparison` returns `schemasEquivalent: true` with zero structural differences in tables, columns and views. Two tools that never talk to each other built the same database.
 
-```json
-{
-  "schemasEquivalent": true,
-  "schemaDifferences": [],
-  "flyway":    { "appliedCount": 6, "historyTable": "flyway_schema_history" },
-  "liquibase": { "appliedCount": 7, "historyTable": "DATABASECHANGELOG" }
-}
-```
+![Two config classes, FlywayConfig and LiquibaseConfig, each migrating its own H2 file database, with ComparisonService reading both schemas and serving the result at GET /api/v1/comparison](diagrams/two-engines-overview.png)
 
-## Why 6 vs 7
+So you can take "which tool gets the schema right" off the table. Both do. What's left are choices about how your team works, what you need to audit and what licenses you accept. Those are lead decisions, and they deserve to be written down.
 
-Flyway's `V5` does a column addition and a data backfill in one script, two concerns bundled into one migration. Liquibase splits the same logical change into two independently labeled changesets:
+## Decision 1: your rollback policy
+
+This is the one with the biggest operational effect. Flyway Community has no undo. To revert a change you write a new forward migration. Undo migrations exist only in Flyway's [paid editions](https://documentation.red-gate.com/fd/feature-summary-165740620.html). Liquibase includes rollback for free: most changes get it automatically, and the rest declare it in a `rollback` block, so `liquibase rollbackCount 1` is a command you can rehearse in staging.
+
+So the lead's first question is "what is our rollback policy", and the tool follows from the answer:
+
+- **Forward-only by design:** many teams use expand and contract and never roll schema changes back in production. Flyway Community fits this well, and its lack of undo costs little.
+- **Rollback as a tested runbook step:** if your release process or your auditors expect a rehearsed "put it back" command, Liquibase gives it to you without buying anything.
+
+If you can't answer this question today, that's worth fixing before choosing a tool.
+
+## Decision 2: what you need to audit
+
+The two tools keep very different history tables, and the experiment made the gap visible. Flyway records version, description, checksum and execution time in `flyway_schema_history`. Liquibase's `DATABASECHANGELOG` records author, contexts, labels, deployment ID and execution type, but no duration at all. The app's API returns `"executionTimeMs": null` for every Liquibase row and `"author": "n/a"` for every Flyway row, because those values don't exist.
+
+So ask what your audit and incident reviews need:
+
+- **"Who wrote this change, and for which environment?"** Liquibase keeps the answer in the database. With Flyway it lives in version control.
+- **"How long did each migration take?"** Flyway records it. Liquibase doesn't.
+
+There's also a practical twist for teams that build internal dashboards. Flyway has an embedded read API, `flyway.info()`. Liquibase has no equivalent, so the app reads its history with a plain `SELECT` against `DATABASECHANGELOG`. It's a small thing, but know it before someone promises a status page.
+
+## Decision 3: how much control per change you want
+
+Liquibase lets each change carry its own conditions. In the project, Flyway's `V5` adds a column and backfills it in one script. Liquibase splits the same change into two changesets, `005` labeled `schema-evolution` and `005b` labeled `data-backfill`, which is why Flyway reports 6 applied migrations and Liquibase reports 7. Here's the backfill changeset, trimmed from the repo (its rollback block is left out):
 
 ```xml
-<!-- changes/005-add-product-active-flag.xml -->
-<changeSet id="005-add-product-active-flag" author="wallaceespindola"
-           labels="schema-evolution">
-    <addColumn tableName="product">
-        <column name="active" type="BOOLEAN" defaultValueBoolean="true"/>
-    </addColumn>
-</changeSet>
-
-<changeSet id="005b-backfill-product-active-flag" author="wallaceespindola"
+<changeSet id="005b-backfill-product-active-flag" author="wallaceespindola" context="demo"
            labels="data-backfill">
     <update tableName="product">
         <column name="active" valueBoolean="false"/>
@@ -47,73 +57,50 @@ Flyway's `V5` does a column addition and a data backfill in one script, two conc
 </changeSet>
 ```
 
-`005` is labeled `schema-evolution`, `005b` is labeled `data-backfill`. A pipeline can filter on those labels and run them independently: ship the column everywhere, hold the backfill for a maintenance window. That split accounts for the whole difference in the applied counts. Nothing went wrong; the tools just model the same change at different granularities.
+With that split, a pipeline can ship the column everywhere and hold the backfill for a maintenance window. Preconditions add another layer: a changeset can check that a table exists and skip itself instead of failing the deploy.
 
-## The comparison that actually matters: rollback
+That control has a cost. Reviewers have to learn the changeset model and the tag vocabulary, while a Flyway migration is plain SQL that any reviewer can read. Ask whether your team will use per-change control often enough to pay for it.
 
-Flyway's `V4` adds an audit table. Look at what's missing:
+## Decision 4: the license you accept
 
-```sql
--- V4__add_product_audit_table.sql
--- Note what is NOT here: a rollback. Flyway Community has no undo — reverting means
--- writing a new forward migration (V6__drop_product_audit_table.sql).
-CREATE TABLE product_audit
-(
-    id           BIGINT AUTO_INCREMENT PRIMARY KEY,
-    product_id   BIGINT NOT NULL,
-    audit_action VARCHAR(20) NOT NULL,
-    CONSTRAINT fk_product_audit_product FOREIGN KEY (product_id) REFERENCES product (id)
-);
-```
+This one is new, and I think it's the decision most teams haven't made consciously yet.
 
-The Liquibase changeset that builds the same table carries a precondition guard and a real rollback:
+With version 5.0, [announced on September 30, 2025](https://www.liquibase.com/blog/liquibase-community-for-the-future-fsl), Liquibase moved its Community edition from Apache 2.0 to the Functional Source License (FSL-1.1-ALv2). Each release converts to Apache 2.0 after two years. Liquibase's own FAQ calls it "source available", not OSI open source. The commercial product, formerly Pro, is now Liquibase Secure, and contributors now sign a CLA. The [5.0 release notes](https://docs.liquibase.com/community/release-notes/5-0) have the details.
 
-```xml
-<!-- changes/004-add-product-audit-table.xml -->
-<changeSet id="004-add-product-audit-table" author="wallaceespindola">
-    <preConditions onFail="MARK_RAN" onFailMessage="product table missing">
-        <tableExists tableName="product"/>
-    </preConditions>
-    <!-- createTable / createIndex / sql insert omitted, same shape as the SQL above -->
-    <rollback>
-        <dropIndex tableName="product_audit" indexName="idx_product_audit_product"/>
-        <dropTable tableName="product_audit"/>
-    </rollback>
-</changeSet>
-```
+This matters for a lead because it can change silently. Spring Boot 4.1's dependency management brings in Liquibase 5.0.4, so a routine framework upgrade moves you onto the FSL. For most teams using Liquibase inside their own services, I don't expect a practical problem. But some organizations allow only OSI-approved licenses, and some have open source program offices that want to see every license change. Someone on the team should make that call before the upgrade lands.
 
-`liquibase rollbackCount 1` is a tested command against that changeset. Flyway has `undo`, but it sits behind the paid Teams tier. On Community you revert by writing a new forward migration, exactly like the comment in `V4` says.
+What I'd put in front of the team:
 
-## What embedding both engines taught me
+- **Check the policy:** does your organization accept source-available licenses for build and runtime dependencies?
+- **Record the decision:** a short architecture decision record saying which Liquibase version line you use and why.
+- **Compare like with like:** Flyway's undo, dry runs and drift detection are in paid editions. Liquibase's rollback and diff are free under the FSL. "Free" means a different set of features on each side.
 
-The app doesn't shell out to either CLI. Both engines run embedded, and both expose their history over the same REST endpoint — which forced me to write the same feature twice and handed me a finding no comparison table had mentioned.
+## Decision 5: who owns the merge risk
 
-On the Flyway side, the history service is three lines of intent: call `flyway.info()`, filter for applied migrations, map to a DTO. Structured objects, state and checksum included, no SQL anywhere.
+Flyway discovers migrations by file name, so two branches that pick the same version number fail validation loudly. Liquibase uses a master changelog that lists every file, and changes to that list can auto-merge wrongly and fail later. That won't decide the tool on its own. If you go with Liquibase, name an owner for migration ordering and add a review rule for the master changelog.
 
-On the Liquibase side there's no read API to call. The service holds a `SELECT` against `DATABASECHANGELOG`, because querying the bookkeeping table directly is the standard way to read embedded Liquibase status. Inconvenient — until you look at what that table returns: `AUTHOR`, `CONTEXTS`, `LABELS`, `DEPLOYMENT_ID`. Flyway records none of those anywhere in the database. Its `author` field in my JSON literally reads `"n/a"`, because Flyway never asks who wrote a migration. Liquibase makes the author mandatory on every changeset.
+## Where this doesn't pay off
 
-The trade runs the other way for timing. Flyway persists execution time per migration — `"executionTimeMs": 2` on my machine. Liquibase's table has no duration column at all, so that field is `null` on every Liquibase row, and I kept the nulls in the API response on purpose. The gap is the finding.
+If a service changes its schema a few times a year, none of this is worth a long debate. Pick the tool your team already knows. The decisions above matter for long-lived services with many contributors, regulated environments and platforms that ship to more than one database engine.
 
-So the bookkeeping choice is real: Flyway tells you *how fast* but not *who*; Liquibase tells you *who, where and under which label* but not *how long*. Neither table gives you both.
+## Summary
 
-## The decision, compressed
+Flyway and Liquibase build the same schema. What you're choosing is a set of governance decisions: your rollback policy, what you need to audit, how much per-change control you want, which licenses you accept and who owns merge risk. Make those calls first, write them down, and the tool choice mostly follows. The repository includes an 18-row feature matrix served by the app, which is a useful starting point for that conversation with your team.
 
-| Question | Flyway | Liquibase |
-|---|---|---|
-| Team writes SQL fluently, one DB engine | Fits well | Extra ceremony for no payoff |
-| Need `rollbackCount` as a tested command, not a runbook | No — Community has none | Yes, built in |
-| Need the same changelog to run against multiple DB dialects | No | Yes |
-| Merge conflicts should fail loud, at validation time | Yes — version collision blocks the build | Quieter — an include-list conflict can merge clean and fail later |
-| Need per-changeset author/context/label tracked in the DB itself | Not tracked | Tracked (`AUTHOR`, `CONTEXTS`, `LABELS` columns) |
-| Need per-migration execution time recorded | Yes | No — `DATABASECHANGELOG` has no duration column |
+Has the Liquibase license change come up in your dependency reviews yet, and did it change anything? Let me know your thoughts in the comments.
 
-Neither tool loses on schema correctness; both produced identical structures in this project. What you are really picking is a rollback story, a merge-conflict failure mode, and a bookkeeping model. Those three rarely appear on the comparison slide that gets a tool chosen, and all three are what your team actually lives with for the following five years.
-
-The full repo, with both migration trees, the live comparison endpoint and an 18-row feature matrix generated from running code, is at [github.com/wallaceespindola/flyway-vs-liquibase-db-migrations](https://github.com/wallaceespindola/flyway-vs-liquibase-db-migrations).
-
-Does your team treat rollback as a supported operation, or as "write a new migration and hope"? And if you migrated from one of these tools to the other, what actually triggered the switch? I would genuinely like to hear how that has worked out for you in production.
+**#database #flyway #liquibase #springboot #techleadership #softwarearchitecture**
 
 ---
 
-Wallace Espindola, Senior Software Engineer & Solution Architect
-GitHub: https://github.com/wallaceespindola/ · LinkedIn: https://www.linkedin.com/in/wallaceespindola/
+**Examples repository:** the Spring Boot application that builds one schema with both Flyway and Liquibase, the comparison endpoint, the feature matrix and the diagrams are in <https://github.com/wallaceespindola/flyway-vs-liquibase-db-migrations>.
+
+Need more tech insights?
+Check out my GitHub, LinkedIn, and Speaker Deck.
+Happy coding!
+
+Wallace Espindola, Solution Architect
+
+- GitHub: <https://github.com/wallaceespindola/>
+- LinkedIn: <https://www.linkedin.com/in/wallaceespindola/>
+- Speaker Deck: <https://speakerdeck.com/wallacese>

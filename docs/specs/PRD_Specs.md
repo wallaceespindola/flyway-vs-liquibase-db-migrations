@@ -1,29 +1,29 @@
-Build a flyway vs liquibase application comparison using Java21, Maven, Spring Boot, and H2. 
+Build a flyway vs liquibase application comparison using Java21, Maven, Spring Boot, and H2.
 
 Enrich with example files for both techs and way of work.
 
-Support Windows, Linux, and macOS. Include start and stop scripts for sh and ps1. 
+Support Windows, Linux, and macOS. Include start and stop scripts for sh and ps1.
 
-Support one-command startup for the full environment. Local mode. 
+Support one-command startup for the full environment. Local mode.
 
-Frontend available in /resources from spring directly, available on app startup, using HTML, CSS, JavaScript only. 
+Frontend available in /resources from spring directly, available on app startup, using HTML, CSS, JavaScript only.
 
-Frontend features: show main statuses from db from a test app, using flyway and liquibase. 
+Frontend features: show main statuses from db from a test app, using flyway and liquibase.
 
 Backend exposes REST controllers. Documentation must describe architecture, execution flow, and steps.
 
 Use best practices of design, coding and tests. Use java records where suitable, and lombok where applicable, to reduce boiler plate code.
 
-Author Information: Include an Author section in the README containing the author's full name, a short professional description, GitHub profile URL, and LinkedIn profile URL. 
+Author Information: Include an Author section in the README containing the author's full name, a short professional description, GitHub profile URL, and LinkedIn profile URL.
 
 Keep these values easy to update and clearly separated from the technical documentation.
 
-- Project name: https://github.com/wallaceespindola/flyway-vs-liquibase-db-migrations
+- Project name: <https://github.com/wallaceespindola/flyway-vs-liquibase-db-migrations>
 - Author: Wallace Espindola
 - GitHub: github.com/wallaceespindola
 - LinkedIn: linkedin.com/in/wallaceespindola
 
-Author Information: 
+Author Information:
 The project README must include an Author section identifying Wallace Espindola as the project author, with links to his GitHub (wallaceespindola) and LinkedIn (wallaceespindola) profiles.
 
 Add a .gitignore and ignore AI common files, vscode and intellij ide files, windows and mac os files.
