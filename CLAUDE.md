@@ -125,10 +125,21 @@ and every numeric interpolation through `num()`. That is the single XSS choke po
 
 ## Documentation
 
-`docs/diagrams/` (PlantUML + Mermaid, six diagram types), `docs/articles/` (five platforms),
-`docs/presentations/` (Markdown deck + PPTX + `generate_pptx.py`), `docs/specs/PRD_Specs.md`.
+This repo is also the single source for an article series (one repo per series):
 
-Regenerate the deck with `python3 docs/presentations/generate_pptx.py` after editing slide content.
+- `docs/articles/<platform>/article.md` for devto, dzone, infoq, javapro, linkedin, medium, substack, each
+  with `banner.png` (InfoQ and JavaPro have none yet) and `diagrams/` (source next to PNG; DZone and
+  InfoQ embed JPEG copies). Banner layouts: `docs/articles/BANNER_DESIGN.md`, `generate_banners.py`.
+- `docs/presentations/slides.md` is the Marp deck source; `make slides` exports the Speaker Deck PDF
+  and rebuilds the editable PPTX via `build_pptx.py`. Import steps: `GOOGLE_SLIDES.md`.
+- `docs/diagrams/` holds the canonical PlantUML/Mermaid sources (`make diagrams` renders all).
+  Article and slide copies of `two-engines-overview` and `paired-migrations` are derived from here.
+- `docs/glossary.md` lists every acronym used in the docs; add new ones there.
+- `make docs-check` runs markdownlint and the offline link check, as `.github/workflows/docs.yml` does.
 
-When changing behaviour, the docs that make **specific factual claims** — the feature matrix, the
-applied counts, the diagram contents — need updating alongside the code.
+Code snippets in articles are copied from the repo: change code first, then the articles. Articles
+use no em dashes, sentence-case headings (InfoQ title excepted) and end with the "Examples repository"
+line plus the fixed footer. The repo README must not list or link the articles.
+
+When changing behaviour, the docs that make **specific factual claims** (the feature matrix, the
+applied counts, the diagram contents, the versions in articles and slides) need updating alongside the code.

@@ -380,8 +380,9 @@ a migration change that makes the two engines diverge fails the build.
 
 | Where | What |
 | --- | --- |
-| [`docs/diagrams/`](docs/diagrams/) | Class, Component, Deployment, Sequence, Class model and ERD — each in PlantUML and Mermaid |
-| [`docs/presentations/`](docs/presentations/) | 24-slide deck as Markdown and PPTX, plus a delivery script |
+| [`docs/diagrams/`](docs/diagrams/) | Class, Component, Deployment, Sequence, Class model and ERD in PlantUML and Mermaid, plus an engine overview and the paired-migration map |
+| [`docs/presentations/`](docs/presentations/) | 25-slide Marp talk deck with speaker notes, exported to PDF and editable PPTX |
+| [`docs/glossary.md`](docs/glossary.md) | Every acronym used in the docs |
 | [`docs/specs/PRD_Specs.md`](docs/specs/PRD_Specs.md) | The original requirements |
 
 ---

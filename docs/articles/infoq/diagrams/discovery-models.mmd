@@ -1,0 +1,22 @@
+flowchart TB
+    subgraph conv["Convention-based (Flyway)"]
+        direction TB
+        f1["Scan classpath:db/migration"] --> f2["Parse version from file name<br/>V1__ ... V5__, then R__"]
+        f2 --> f3["Sort by version<br/>one ordered namespace"]
+        f3 --> f4["Apply what is not in<br/>flyway_schema_history"]
+        fc["Merge conflict:<br/>two branches add V6__<br/>duplicate version fails validation"]
+    end
+    subgraph mani["Manifest-based (Liquibase)"]
+        direction TB
+        l1["Read master changelog<br/>db.changelog-master.yaml"] --> l2["Follow include list<br/>XML, YAML, SQL files"]
+        l2 --> l3["Identify each changeset<br/>id + author + file"]
+        l3 --> l4["Apply what is not in<br/>DATABASECHANGELOG"]
+        lc["Merge conflict:<br/>lands in the include list<br/>a wrong resolution drops<br/>a changeset without error"]
+    end
+    f3 -.-> fc
+    l2 -.-> lc
+
+    classDef step fill:#d0ebff,stroke:#1971c2,color:#000
+    classDef risk fill:#ffe3e3,stroke:#c92a2a,color:#000
+    class f1,f2,f3,f4,l1,l2,l3,l4 step
+    class fc,lc risk

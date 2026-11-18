@@ -1,0 +1,21 @@
+flowchart LR
+    spec["Intended schema<br/>category, product,<br/>product_audit, view"]
+    spec --> fw["Flyway scripts<br/>6 migrations"]
+    spec --> lb["Liquibase changelog<br/>7 changesets"]
+    fw --> db1[("H2 database A")]
+    lb --> db2[("H2 database B")]
+    db1 --> is1["INFORMATION_SCHEMA<br/>tables, views, columns"]
+    db2 --> is2["INFORMATION_SCHEMA<br/>tables, views, columns"]
+    is1 --> diff{"Structural diff<br/>bookkeeping tables<br/>and indexes excluded"}
+    is2 --> diff
+    diff -- "empty" --> ok["schemasEquivalent: true<br/>build passes"]
+    diff -- "not empty" --> ko["Named differences<br/>build fails"]
+
+    classDef src fill:#fff3bf,stroke:#e67700,color:#000
+    classDef run fill:#d0ebff,stroke:#1971c2,color:#000
+    classDef pass fill:#d3f9d8,stroke:#2f9e44,color:#000
+    classDef fail fill:#ffe3e3,stroke:#c92a2a,color:#000
+    class spec,fw,lb src
+    class db1,db2,is1,is2,diff run
+    class ok pass
+    class ko fail

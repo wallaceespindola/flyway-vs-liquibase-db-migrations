@@ -1,0 +1,50 @@
+@startuml history-providers
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+hide empty members
+
+interface MigrationHistoryProvider {
+  + engine() : MigrationEngine
+  + status() : MigrationStatusReport
+}
+
+class FlywayHistoryService {
+  - flyway : Flyway
+  + engine() : MigrationEngine
+  + status() : MigrationStatusReport
+  - toAppliedMigration(MigrationInfo) : AppliedMigration
+}
+
+class LiquibaseHistoryService {
+  - jdbcTemplate : JdbcTemplate
+  - HISTORY_QUERY : String
+  + engine() : MigrationEngine
+  + status() : MigrationStatusReport
+}
+
+class ComparisonService {
+  - providers : Map<MigrationEngine, MigrationHistoryProvider>
+  + status(MigrationEngine) : MigrationStatusReport
+  + compare() : ComparisonReport
+  ~ diff(SchemaSnapshot, SchemaSnapshot) : List<String>
+}
+
+class "Flyway" as Flyway <<library>>
+class "DATABASECHANGELOG" as DCL <<table>>
+
+MigrationHistoryProvider <|.. FlywayHistoryService
+MigrationHistoryProvider <|.. LiquibaseHistoryService
+ComparisonService o--> "2" MigrationHistoryProvider : List injected,\nkeyed by engine()
+FlywayHistoryService ..> Flyway : info().all()
+LiquibaseHistoryService ..> DCL : SELECT ... ORDER BY ORDEREXECUTED
+
+note bottom of FlywayHistoryService
+  executionTimeMs from Flyway
+  author = "n/a"
+end note
+note bottom of LiquibaseHistoryService
+  executionTimeMs = null
+  author from AUTHOR column
+end note
+@enduml

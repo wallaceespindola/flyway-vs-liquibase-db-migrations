@@ -1,0 +1,19 @@
+flowchart LR
+    pr["Pull request<br/>adds a migration"]
+    rev["Review gate<br/>SQL or changeset diff<br/>rollback declared?"]
+    build["CI: mvn verify<br/>migrates in-memory H2<br/>equivalence + count tests"]
+    smoke["CI smoke job<br/>boots the jar<br/>asserts schemasEquivalent"]
+    merge["Merge"]
+    deploy["Deploy<br/>engine migrates on startup"]
+    hist[("History table<br/>flyway_schema_history<br/>DATABASECHANGELOG")]
+    pr --> rev --> build --> smoke --> merge --> deploy --> hist
+    rev -. "rejected" .-> pr
+    build -. "red build" .-> pr
+    smoke -. "schemas differ" .-> pr
+
+    classDef human fill:#fff3bf,stroke:#e67700,color:#000
+    classDef auto fill:#d0ebff,stroke:#1971c2,color:#000
+    classDef store fill:#d3f9d8,stroke:#2f9e44,color:#000
+    class pr,rev,merge human
+    class build,smoke,deploy auto
+    class hist store

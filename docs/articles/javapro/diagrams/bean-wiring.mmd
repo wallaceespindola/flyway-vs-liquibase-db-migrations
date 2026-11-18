@@ -1,0 +1,24 @@
+flowchart LR
+    subgraph F["FlywayConfig (@Primary side)"]
+        direction TB
+        FP["flywayDataSourceProperties<br/>app.datasource.flyway"] --> FDS["flywayDataSource"]
+        FDS --> FW["flyway<br/>initMethod = migrate"]
+        FDS --> FJT["flywayJdbcTemplate"]
+        FW -. "@DependsOn(&quot;flyway&quot;)" .-> FJT
+    end
+    subgraph L["LiquibaseConfig"]
+        direction TB
+        LP["liquibaseDataSourceProperties<br/>app.datasource.liquibase"] --> LDS["liquibaseDataSource"]
+        LDS --> LB["liquibase (SpringLiquibase)<br/>afterPropertiesSet applies changelog"]
+        LDS --> LJT["liquibaseJdbcTemplate"]
+        LB -. "@DependsOn(&quot;liquibase&quot;)" .-> LJT
+    end
+    FDS --> FDB[("./data/flywaydb")]
+    LDS --> LDB[("./data/liquibasedb")]
+    FW --> FHS["FlywayHistoryService"]
+    LJT --> LHS["LiquibaseHistoryService"]
+    FJT --> SIS["SchemaInspectionService"]
+    LJT --> SIS
+    FHS --> CS["ComparisonService"]
+    LHS --> CS
+    SIS --> CS
