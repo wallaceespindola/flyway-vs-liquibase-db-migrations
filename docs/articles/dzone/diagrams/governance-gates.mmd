@@ -1,4 +1,4 @@
-flowchart LR
+flowchart TB
     pr["Pull request<br/>adds a migration"]
     rev["Review gate<br/>SQL or changeset diff<br/>rollback declared?"]
     build["CI: mvn verify<br/>migrates in-memory H2<br/>equivalence + count tests"]

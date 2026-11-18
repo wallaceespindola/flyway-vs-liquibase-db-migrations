@@ -3,7 +3,7 @@ title: "Make the migration tools prove it before you pick one"
 platform: Substack
 newsletter: Code & Coffee
 author: Wallace Espindola, Solution Architect
-description: "Instead of choosing between Flyway and Liquibase from a feature table, I built the same schema with both and let a test decide whether they agree. The habit, what it turned up and where it doesn't pay off."
+description: "Instead of picking Flyway or Liquibase from a feature table, I built the same schema with both and let a test decide whether they agree."
 tags: [java, spring-boot, database-migrations, flyway, liquibase]
 ---
 
@@ -80,7 +80,7 @@ Both tools keep a bookkeeping table, and I assumed they'd record roughly the sam
 
 Flyway's `flyway_schema_history` records how long each migration took, in milliseconds, and nothing about who wrote it. Ask the app for a Flyway migration and the author comes back as `n/a`. Liquibase's `DATABASECHANGELOG` makes the author a mandatory part of every changeset's identity, and also stores contexts, labels and a deployment id. What it doesn't store is duration. Liquibase prints "ran successfully in 3ms" in the startup log and then doesn't persist it, so the app returns `null` for execution time on every Liquibase row and keeps that null visible in the JSON on purpose.
 
-Reading that history back from inside the app was different too. Flyway hands you an API, `flyway.info()`, that returns applied and pending migrations as objects. Liquibase, embedded in an application, has no lightweight equivalent, so the service just runs a `SELECT` against `DATABASECHANGELOG`. I kept both implementations as they are, because the difference is the finding.
+Reading that history back from inside the app was different too. Flyway hands you an API, `flyway.info()`, that returns applied and pending migrations as objects. Liquibase has a status API too, but it lives on a `Liquibase` instance that `SpringLiquibase` doesn't hand you, so the service just runs a `SELECT` against `DATABASECHANGELOG`. I kept both implementations as they are, because the difference is the finding.
 
 If you care about audit (who changed the schema and as part of which deployment), Liquibase gives you more. If you care about spotting slow migrations from the history, Flyway does. I wouldn't have put either on a shortlist before building this.
 
@@ -90,7 +90,7 @@ This is the one most people pick a tool on. The repo's audit table migration sho
 
 Flyway does have undo migrations, but not in Community. Redgate's [feature summary](https://documentation.red-gate.com/fd/feature-summary-165740620.html) lists them in the paid editions, and Enterprise can also generate the undo scripts for you.
 
-Then the license changed under the comparison. With [Liquibase 5.0](https://docs.liquibase.com/community/release-notes/5-0), announced on 30 September 2025, Liquibase Community moved from Apache 2.0 to the [Functional Source License](https://www.liquibase.com/blog/liquibase-community-for-the-future-fsl) (FSL-1.1-ALv2), which converts to Apache 2.0 after two years. Liquibase describes it as source available rather than OSI open source, contributors now sign a CLA, and the paid product is called Liquibase Secure (it was Pro). So "rollback is free in Liquibase" is still true, with an asterisk your legal team may want to read.
+Then the license changed under the comparison. With [Liquibase 5.0](https://docs.liquibase.com/community/release-notes/5-0), announced on 30 September 2025, Liquibase Community moved from Apache 2.0 to the [Functional Source License](https://www.liquibase.com/blog/liquibase-community-for-the-future-fsl) (FSL-1.1-ALv2), which converts to Apache 2.0 after two years. Liquibase describes it as source available rather than OSI open source, contributors now sign a CLA, and the paid product is called Liquibase Secure (Pro before 5.0, per the release notes). So "rollback is free in Liquibase" is still true, with an asterisk your legal team may want to read.
 
 That's the kind of fact a feature table from two years ago gets wrong, and a habit of re-running the comparison catches. The engine versions in the project come from the Spring Boot BOM (Flyway 12.4.0, Liquibase 5.0.4), so bumping Spring Boot re-runs the whole comparison against new versions for free.
 

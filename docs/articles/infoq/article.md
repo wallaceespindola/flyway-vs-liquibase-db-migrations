@@ -1,18 +1,18 @@
 <!--
-Meta description: Schema migrations are executable artifacts that can be verified like code. A comparison of convention-based Flyway and manifest-based Liquibase, and what the 2025 license shift means for platform choices.
+Meta description: Schema migrations are executable artifacts you can verify like code. A look at convention-based Flyway, manifest-based Liquibase and the 2025 license shift.
 Tags: database migrations, Flyway, Liquibase, schema management, software architecture, open source licensing, Spring Boot
 -->
 
 <!-- banner: none yet, author to supply -->
 
-# Schema Migrations as Verifiable Artifacts: Conventions, Manifests, and Licenses
+# Schema Migrations as Verifiable Artifacts: Conventions, Manifests and Licenses
 
 **Key Takeaways**
 
 - Schema migrations have become executable artifacts that ship with the application, so their outcome can be verified in CI by comparing the schema they produce instead of reviewing scripts alone.
 - Flyway and Liquibase represent two models of a change, convention-based files ordered by version and a manifest of identified changesets, and the choice shows up later in merge conflicts, review load and audit data.
 - When both tools build the same schema, as they do in the reference implementation discussed here, the selection criteria move from schema capability to rollback, history, review ergonomics and licensing.
-- The history table is effectively an audit interface, and the two tools record different facts: Flyway records execution time and exposes a status API, while Liquibase records author, contexts and labels but has to be read with SQL.
+- The history table is effectively an audit interface, and the two tools record different facts: Flyway records execution time and exposes a status API on the bean Spring already holds, while Liquibase records author, contexts and labels and keeps its status API on a `Liquibase` instance that the Spring integration does not hand out.
 - Liquibase Community moved to the source-available Functional Source License with version 5.0, and Flyway keeps undo and drift detection in paid editions, so licensing now belongs in architecture decisions and in automated dependency checks.
 
 ---
@@ -33,7 +33,7 @@ The analysis then looks at three trends that shape a platform decision today: th
 
 ## Migrations as executable artifacts
 
-Schema changes used to be scripts that a database administrator ran by hand during a release window. Migration tools turned them into versioned files that live next to the application code and run automatically. Spring Boot, for example, [documents](https://docs.spring.io/spring-boot/how-to/data-initialization.html) running Flyway or Liquibase on startup as the standard way to evolve a schema, and both tools record each applied change in a history table inside the target database.
+Schema changes used to be scripts that a database administrator ran by hand during a release window. Migration tools turned them into versioned files that live next to the application code and run automatically. Spring Boot's [documentation](https://docs.spring.io/spring-boot/how-to/data-initialization.html), for example, says it supports two higher-level migration tools, Flyway and Liquibase, and both tools record each applied change in a history table inside the target database.
 
 Once migrations run as part of the application lifecycle, they share the properties of other build artifacts. They are versioned, they have checksums, they can be executed in a test environment and their result can be asserted. Both tools already use checksums to detect edits to applied changes (Flyway computes a CRC32 of the script, Liquibase an MD5 of the changeset). What is less common is asserting the result: checking the schema that a set of migrations produces, rather than checking the migrations themselves.
 
@@ -87,11 +87,11 @@ The pattern has uses beyond comparing two tools, which few teams do in productio
 
 Every migration tool keeps a history table, and in regulated environments auditors can ask what it contains. The two tools record different facts and expose them differently, and the reference implementation needs two different implementations of the same `MigrationHistoryProvider` interface to read them.
 
-Flyway exposes history through an in-process API. `flyway.info()` returns applied and pending migrations as `MigrationInfo` objects with version, description, checksum, state and execution time already attached, so the Flyway implementation needs no SQL. Flyway records no author: attribution lives only in version control.
+Flyway exposes history through an in-process API. `flyway.info()` returns applied and pending migrations as `MigrationInfo` objects with version, description, checksum, state and execution time already attached, so the Flyway implementation needs no SQL. Flyway records no author, but its `installed_by` column, exposed as `MigrationInfo.getInstalledBy()`, records the database user that applied each migration.
 
-Liquibase has no comparable read-only status API for embedded use, so the Liquibase implementation queries `DATABASECHANGELOG` directly. The table records more context than Flyway's: author, file name, contexts, labels, deployment ID and execution type. It records no duration, so the reference implementation reports a null execution time for every Liquibase changeset. It also records only what has already run, and finding pending changesets would require parsing the full changelog.
+Liquibase does have a status API. The `Liquibase` class offers `getChangeSetStatuses()`, `listUnrunChangeSets()` and `reportStatus()`, but they need an instance built from the changelog plus an open database connection. `SpringLiquibase`, which runs the update at startup, does not hand that object out, so the Liquibase implementation queries `DATABASECHANGELOG` directly. The asymmetry comes from what each Spring integration exposes, not from a missing Liquibase API. The table records more context than Flyway's: author, file name, contexts, labels, deployment ID and execution type. It records no duration, so the reference implementation reports a null execution time for every Liquibase changeset. It also records only what has already run, so listing pending changesets means going through that status API rather than the table.
 
-Two consequences follow for architects. First, the Liquibase history table becomes a de facto public interface, so its schema has to be tracked across Liquibase upgrades. Second, the author attribute should not be over-read. It is the value written in the changeset file, which identifies who wrote the change, not the identity that deployed it. Deployment identity still has to come from pipeline logs.
+Two consequences follow for architects. First, the Liquibase history table becomes a de facto public interface, so its schema has to be tracked across Liquibase upgrades. Second, the author attribute should not be over-read. It is the value written in the changeset file, which identifies who wrote the change. Liquibase does not record who deployed it, so deployment identity has to come from pipeline logs.
 
 ## The license shift in the category
 
@@ -104,7 +104,7 @@ Flyway's edition boundary has a different shape. Its [feature summary](https://d
 | Capability | Flyway Community | Flyway paid editions | Liquibase Community 5.x (FSL) |
 | --- | --- | --- | --- |
 | Declared rollback or undo | No, fix forward | Undo migrations | Built in, per changeset |
-| Dry run | No | Dry-run scripts | Not covered in this analysis |
+| Dry run | No | Dry-run scripts | `update-sql` prints the SQL without running it |
 | Drift detection or diff | No | Enterprise only | `diff` and `diffChangeLog` |
 | OSI-approved license | Yes | Commercial | No, source available |
 

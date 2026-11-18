@@ -21,7 +21,7 @@ The project is a Spring Boot 4.1.2 application on Java 25 with plain JDBC. It ru
 
 ![Two engines wired side by side in one Spring Boot application: FlywayConfig migrates the flywaydb H2 database from six SQL scripts, LiquibaseConfig migrates the liquibasedb H2 database from seven changesets, and ComparisonService reads both back to answer GET /api/v1/comparison](diagrams/two-engines-overview.jpg)
 
-After startup, `ComparisonService` reads both schemas back from `INFORMATION_SCHEMA` and compares tables, columns and views. Here's the headline payload, trimmed from the repo README:
+After startup, `ComparisonService` reads both schemas back from `INFORMATION_SCHEMA` and compares tables, columns and views. The API wraps every response in an `ApiResponse` envelope with `success`, `message`, `data` and `timestamp` fields. Here's the `data` payload of the comparison response, trimmed:
 
 ```json
 {
@@ -79,7 +79,7 @@ public SpringLiquibase liquibase(@Qualifier(DATA_SOURCE) DataSource dataSource) 
 
 `setDropFirst(false)` is the equivalent of disabling clean. `setContexts(contexts)` is the more interesting one for governance, because contexts decide which changesets run in which environment. If contexts are part of your model, the list of allowed context names belongs in the standard. Otherwise each team invents its own and nobody can tell which changes ran in production.
 
-One wiring detail belongs in any standard that embeds the engine in the application. Both `JdbcTemplate` beans are annotated with `@DependsOn` on their engine bean, so no query can reach a database before its migrations have run. Without it you get a startup race that only shows up under load.
+One wiring detail belongs in any standard that embeds the engine in the application. Both `JdbcTemplate` beans are annotated with `@DependsOn` on their engine bean, so no query can reach a database before its migrations have run. Without it you get a startup ordering race: bean creation order can let a query hit a database the engine has not migrated yet.
 
 ## The review gate: what a reviewer sees in the diff
 
@@ -128,7 +128,7 @@ CREATE TABLE product_audit
 );
 ```
 
-The Liquibase counterpart declares both a guard and an undo path. This is trimmed from `004-add-product-audit-table.xml`, with the column list removed:
+The Liquibase counterpart declares both a guard and an undo path. This is trimmed from `004-add-product-audit-table.xml`, with the column definitions, the `idx_product_audit_product` index and the seed insert left out:
 
 ```xml
 <changeSet id="004-add-product-audit-table" author="wallaceespindola" context="demo">
@@ -183,7 +183,7 @@ return new AppliedMigration(
         info.getState().getDisplayName());
 ```
 
-Liquibase has no equivalent embedded read API, so `LiquibaseHistoryService` queries `DATABASECHANGELOG` directly:
+Liquibase does have a status API (`getChangeSetStatuses()` and `listUnrunChangeSets()`), but it lives on the `Liquibase` class and needs an instance built from the changelog plus an open connection. `SpringLiquibase` runs the update at startup and doesn't hand you that object, so `LiquibaseHistoryService` queries `DATABASECHANGELOG` directly:
 
 ```java
 private static final String HISTORY_QUERY =
@@ -203,7 +203,7 @@ Second, timing. Flyway persists execution time per migration. Liquibase stores n
 
 Third, context. `DATABASECHANGELOG` records contexts, labels, deployment ID and execution type, none of which Flyway tracks. For a regulated environment that wants to answer "which changes ran in this deployment, under which context", the Liquibase table answers more on its own.
 
-For a platform team, the practical consequence is that a status dashboard or a compliance export is cheap to build on Flyway (one API call) and needs SQL against an internal table on Liquibase. That table is effectively a public interface, so its schema becomes something you track across Liquibase upgrades.
+For a platform team, the practical consequence is that a status dashboard or a compliance export is cheap to build on Flyway (one API call) and needs SQL against an internal table on Liquibase, unless you build a separate `Liquibase` instance for the status API. That table is effectively a public interface, so its schema becomes something you track across Liquibase upgrades.
 
 ## Turning equivalence into a CI gate
 
@@ -257,7 +257,7 @@ On the Flyway side, the gap is between Community and the paid editions. Redgate'
 
 On the Liquibase side, the change is the license itself. With [Liquibase 5.0](https://www.liquibase.com/blog/liquibase-community-for-the-future-fsl), announced on September 30, 2025, Liquibase Community moved from Apache 2.0 to the Functional Source License (FSL-1.1-ALv2). Each version converts to Apache 2.0 two years after its release, and versions already released under Apache 2.0 stay that way. Liquibase's FAQ says FSL "may be referred to as a 'source available' or 'fair source' license", and it isn't an OSI-approved open source license. The restriction targets third parties that commercialize Liquibase in competition with Liquibase, not ordinary internal use. Contributors now sign a CLA, and the commercial product is now called Liquibase Secure. The [5.0 release notes](https://docs.liquibase.com/community/release-notes/5-0) add that Community 5.0 ships without extensions and drivers (they come through the new package manager) and requires Java 17 or later.
 
-In this repo nobody chose Liquibase 5. The Spring Boot 4.1.2 BOM manages the version, so upgrading Spring Boot moved the project from an Apache 2.0 Liquibase to an FSL one without anyone editing a dependency line. I think that's the strongest argument for putting license checks into the build (a license scanner on the resolved dependency tree), not into a one-time procurement review. If your company's policy only allows OSI-approved licenses, that gate will now fire on Liquibase 5.x, and you need an approved exception, a pinned 4.x version or a different tool.
+In this repo nobody chose Liquibase 5. The Spring Boot 4.1.2 BOM manages the version, so upgrading Spring Boot moved the project from an Apache 2.0 Liquibase to an FSL one without anyone editing a dependency line. I think that's the strongest argument for putting license checks into the build (a license scanner on the resolved dependency tree), not into a one-time procurement review. If your company's policy only allows OSI-approved licenses, that gate will now fire on Liquibase 5.x, and you need an approved exception, a pinned 4.x version or a different tool. Pinning 4.x overrides the version the Spring Boot 4.1 BOM manages, which takes the project off Spring Boot's tested dependency set, so verify that combination before you rely on it.
 
 Either tool can still be the right choice. The license row in your decision matrix has an owner outside engineering, and that owner needs to see the version that actually ships.
 
@@ -284,7 +284,7 @@ Either way, the parts I'd make non-negotiable are the same: hardened bootstrap s
 - Both engines build an identical business schema in the repo, so the decision rests on review, rollback, audit and licensing.
 - Put the safety switches (`validateOnMigrate`, `cleanDisabled`, `setDropFirst(false)`) and the `@DependsOn` ordering into a shared configuration so teams can't drift.
 - Write the rollback policy down. Flyway Community means fix forward. Liquibase means a declared rollback per changeset, and `MARK_RAN` needs a reviewer's sign-off.
-- Flyway gives you an API for history and records timing. Liquibase records author, contexts and labels, but you read it with SQL.
+- Flyway gives you an API for history and records timing. Liquibase records author, contexts and labels, but behind `SpringLiquibase` you read them with SQL.
 - Licensing changed in 2025. Scan the resolved dependency tree, because a framework upgrade can change the license for you.
 
 The full source, both migration trees, the tests and the CI workflow are in the [companion repo](https://github.com/wallaceespindola/flyway-vs-liquibase-db-migrations). Fork it and replace the H2 URLs with your own database to see what the comparison says for your dialect.

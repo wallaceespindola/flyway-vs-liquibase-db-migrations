@@ -5,7 +5,7 @@ github: https://github.com/wallaceespindola/
 description: What a tech lead decides when choosing between Flyway and Liquibase, from rollback policy and audit needs to the Liquibase 5 license change.
 ---
 
-# Your migration tool is a governance decision. Make it on purpose
+# Your migration tool is a governance decision
 
 ![Abstract banner for a leadership article on choosing between Flyway and Liquibase](banner.png)
 
@@ -41,7 +41,7 @@ So ask what your audit and incident reviews need:
 - **"Who wrote this change, and for which environment?"** Liquibase keeps the answer in the database. With Flyway it lives in version control.
 - **"How long did each migration take?"** Flyway records it. Liquibase doesn't.
 
-There's also a practical twist for teams that build internal dashboards. Flyway has an embedded read API, `flyway.info()`. Liquibase has no equivalent, so the app reads its history with a plain `SELECT` against `DATABASECHANGELOG`. It's a small thing, but know it before someone promises a status page.
+There's also a practical twist for teams that build internal dashboards. Flyway's `flyway.info()` is available straight from the bean the app already has. Liquibase has a status API too, but it lives on the `Liquibase` class and needs an instance built from the changelog plus an open connection. The Spring integration runs the update and doesn't hand you that object, so the app reads its history with a plain `SELECT` against `DATABASECHANGELOG`. It's a small thing, but know it before someone promises a status page.
 
 ## Decision 3: how much control per change you want
 
@@ -65,7 +65,7 @@ That control has a cost. Reviewers have to learn the changeset model and the tag
 
 This one is new, and I think it's the decision most teams haven't made consciously yet.
 
-With version 5.0, [announced on September 30, 2025](https://www.liquibase.com/blog/liquibase-community-for-the-future-fsl), Liquibase moved its Community edition from Apache 2.0 to the Functional Source License (FSL-1.1-ALv2). Each release converts to Apache 2.0 after two years. Liquibase's own FAQ calls it "source available", not OSI open source. The commercial product, formerly Pro, is now Liquibase Secure, and contributors now sign a CLA. The [5.0 release notes](https://docs.liquibase.com/community/release-notes/5-0) have the details.
+With version 5.0, [announced on September 30, 2025](https://www.liquibase.com/blog/liquibase-community-for-the-future-fsl), Liquibase moved its Community edition from Apache 2.0 to the Functional Source License (FSL-1.1-ALv2). Each release converts to Apache 2.0 after two years. Liquibase's own FAQ calls it "source available", not OSI open source. Contributors now sign a CLA, and the [5.0 release notes](https://docs.liquibase.com/community/release-notes/5-0) list the paid edition, previously Pro, under its new name, Liquibase Secure.
 
 This matters for a lead because it can change silently. Spring Boot 4.1's dependency management brings in Liquibase 5.0.4, so a routine framework upgrade moves you onto the FSL. For most teams using Liquibase inside their own services, I don't expect a practical problem. But some organizations allow only OSI-approved licenses, and some have open source program offices that want to see every license change. Someone on the team should make that call before the upgrade lands.
 
@@ -77,7 +77,7 @@ What I'd put in front of the team:
 
 ## Decision 5: who owns the merge risk
 
-Flyway discovers migrations by file name, so two branches that pick the same version number fail validation loudly. Liquibase uses a master changelog that lists every file, and changes to that list can auto-merge wrongly and fail later. That won't decide the tool on its own. If you go with Liquibase, name an owner for migration ordering and add a review rule for the master changelog.
+Flyway discovers migrations by file name, so two branches that pick the same version number fail validation loudly. Liquibase uses a master changelog that lists every file. Two branches appending to it produce a Git conflict, and a careless resolution can drop an include without failing anything until someone notices a changeset never ran. That won't decide the tool on its own. If you go with Liquibase, name an owner for migration ordering and add a review rule for the master changelog.
 
 ## Where this doesn't pay off
 

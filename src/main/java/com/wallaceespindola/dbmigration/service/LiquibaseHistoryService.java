@@ -18,9 +18,10 @@ import org.springframework.stereotype.Service;
 /**
  * Reads Liquibase's history straight out of the {@code DATABASECHANGELOG} table.
  *
- * <p>This is the honest way to do it when Liquibase is embedded in an application: unlike Flyway,
- * Liquibase offers no lightweight read-only status API, so the bookkeeping table becomes the public
- * interface. In exchange that table records considerably more than Flyway's — author, contexts,
+ * <p>This is the pragmatic way to do it when Liquibase runs through {@code SpringLiquibase}: Liquibase's
+ * own status API ({@code Liquibase#getChangeSetStatuses}) needs a {@code Liquibase} instance built from the
+ * changelog and a connection, which the Spring integration does not expose, so the bookkeeping table
+ * becomes the interface. In exchange that table records considerably more than Flyway's — author, contexts,
  * labels, deployment id and exec type all live here, which is what makes Liquibase's audit trail
  * richer.
  *
@@ -57,9 +58,9 @@ public class LiquibaseHistoryService implements MigrationHistoryProvider {
 
         Instant lastApplied = applied.isEmpty() ? null : applied.getLast().appliedAt();
 
-        // Liquibase only records what it has already run. Discovering pending changesets requires a
-        // full changelog parse, which is deliberately out of scope for a read-only status endpoint —
-        // by the time the application has started, SpringLiquibase has applied everything anyway.
+        // DATABASECHANGELOG only records what has already run. Pending changesets would need
+        // Liquibase#listUnrunChangeSets on an instance SpringLiquibase does not expose, and by the time
+        // the application has started, SpringLiquibase has applied everything anyway.
         return new MigrationStatusReport(
                 MigrationEngine.LIQUIBASE,
                 MigrationEngine.LIQUIBASE.displayName(),

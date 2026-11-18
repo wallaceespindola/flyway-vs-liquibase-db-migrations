@@ -232,7 +232,7 @@ Notes read from the source:
 
 - `FlywayHistoryService` depends on the `Flyway` bean itself and uses `flyway.info().all()`. It issues no SQL.
 - `LiquibaseHistoryService` depends on `liquibaseJdbcTemplate` and runs a `SELECT` against `DATABASECHANGELOG`,
-  because Liquibase exposes no equivalent read-only status API for embedded use.
+  because `SpringLiquibase` does not expose the `Liquibase` instance its status API (`getChangeSetStatuses`) needs.
 - `ComparisonService` receives `List<MigrationHistoryProvider>` from the Spring context and indexes it into an
   `EnumMap` keyed by `MigrationEngine`.
 - `SchemaInspectionService` is the only bean holding both `JdbcTemplate`s, in a

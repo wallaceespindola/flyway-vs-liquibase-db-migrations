@@ -1,7 +1,7 @@
 ---
-title: "Flyway and Liquibase side by side: one schema, two databases, one diff"
+title: "Flyway vs Liquibase: one schema, two databases, one diff"
 published: false
-description: "A hands-on Spring Boot 4 project that migrates two H2 databases, one with Flyway and one with Liquibase, then diffs the schemas at runtime. The files, the wiring and the commands."
+description: "A hands-on Spring Boot 4 project that migrates one H2 database with Flyway and one with Liquibase, then diffs the two schemas at runtime."
 tags: java, springboot, database, devops
 cover_image: https://raw.githubusercontent.com/wallaceespindola/flyway-vs-liquibase-db-migrations/main/docs/articles/devto/banner.png
 # canonical_url: <set to the primary published URL before cross-posting>
@@ -21,7 +21,7 @@ The stack is Java 25, Spring Boot 4.1.2, plain JDBC and Maven. The engine versio
 
 ![Two H2 databases side by side: FlywayConfig migrates ./data/flywaydb from the six scripts in db/migration, LiquibaseConfig migrates ./data/liquibasedb from the master changelog, and ComparisonService reads both through INFORMATION_SCHEMA to answer GET /api/v1/comparison](diagrams/two-engines-overview.png)
 
-The rule the whole project rests on: `./data/flywaydb` belongs to Flyway, `./data/liquibasedb` belongs to Liquibase, and neither engine ever touches the other's database. If both ran against one database, the second engine would find the tables already there and the comparison would mean nothing.
+The rule the whole project rests on: `./data/flywaydb` belongs to Flyway, `./data/liquibasedb` belongs to Liquibase, and neither engine ever touches the other's database. Share a single database between them and whichever engine runs second sees a schema that already exists, which makes the diff worthless.
 
 ## Step 1: turn off DataSource auto-configuration
 
@@ -198,7 +198,7 @@ Then ask for the comparison:
 curl -s http://localhost:8080/api/v1/comparison | jq
 ```
 
-Here's what I got on a clean start, trimmed to one migration per engine and one feature row (timestamps and timings will differ on your machine):
+Here's what I got on a clean start, trimmed for length (timestamps and timings will differ on your machine):
 
 ```json
 {
@@ -273,7 +273,7 @@ List<AppliedMigration> applied = Arrays.stream(all)
         .toList();
 ```
 
-`flyway.info()` returns applied and pending migrations as objects, ordered, with state and checksum. Liquibase has no equivalent lightweight read API when you embed it, so `LiquibaseHistoryService` queries the bookkeeping table directly:
+`flyway.info()` returns applied and pending migrations as objects, ordered, with state and checksum, and it comes straight from the bean the app already has. Liquibase does have a status API (`getChangeSetStatuses()` and `listUnrunChangeSets()` on the `Liquibase` class), but it needs an instance built from the changelog plus an open database connection. `SpringLiquibase` runs the update at startup and doesn't hand you that object, so `LiquibaseHistoryService` queries the bookkeeping table directly:
 
 ```java
 private static final String HISTORY_QUERY =
@@ -285,7 +285,7 @@ private static final String HISTORY_QUERY =
         """;
 ```
 
-I kept both shapes instead of hiding them behind something clever. The SQL route is the finding: on the Liquibase side, the table is the interface. In exchange, that table carries author, contexts, labels and deployment id, none of which exist in `flyway_schema_history`.
+I kept both shapes instead of hiding them behind something clever. The SQL route is the finding: with the Spring integration, the table is the easiest interface on the Liquibase side. In exchange, that table carries author, contexts, labels and deployment id, none of which exist in `flyway_schema_history`.
 
 A few more endpoints if you want to poke around:
 
@@ -312,7 +312,7 @@ The last one returns the 18-row feature matrix on its own.
 
 ## Licensing, before you pick one
 
-The rollback in changeset 004 is free, but check what "free" means now. With [Liquibase 5.0](https://docs.liquibase.com/community/release-notes/5-0), Liquibase Community moved from Apache 2.0 to the [Functional Source License](https://www.liquibase.com/blog/liquibase-community-for-the-future-fsl) (FSL-1.1-ALv2), which converts to Apache 2.0 after two years. Liquibase's own FAQ calls it source available, not OSI open source, and contributors now sign a CLA. The commercial product is Liquibase Secure, formerly Pro. Whether that matters depends on how you use and distribute it, so ask whoever signs off on licenses before you standardize on it.
+The rollback in changeset 004 is free, but check what "free" means now. With [Liquibase 5.0](https://docs.liquibase.com/community/release-notes/5-0), Liquibase Community moved from Apache 2.0 to the [Functional Source License](https://www.liquibase.com/blog/liquibase-community-for-the-future-fsl) (FSL-1.1-ALv2), which converts to Apache 2.0 after two years. Liquibase's own FAQ calls it source available, not OSI open source, and contributors now sign a CLA. The commercial product is Liquibase Secure, formerly Pro, per the 5.0 release notes. Whether that matters depends on how you use and distribute it, so ask whoever signs off on licenses before you standardize on it.
 
 On the Flyway side, undo migrations aren't in Community. Per Redgate's [feature summary](https://documentation.red-gate.com/fd/feature-summary-165740620.html) they're a paid-edition feature (Enterprise can also generate undo scripts for you). In Community, reverting means a new forward migration, which is exactly what the V4 comment says.
 

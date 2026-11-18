@@ -58,8 +58,10 @@ duplicated as literals. The Flyway side is `@Primary`.
 
 **`MigrationHistoryProvider` has two genuinely different implementations**, and the difference is a
 finding, not an accident: `FlywayHistoryService` reads history through Flyway's `info()` API;
-`LiquibaseHistoryService` must `SELECT` from `DATABASECHANGELOG` because Liquibase exposes no
-equivalent embedded read API. Keep both shapes — collapsing them would erase the point.
+`LiquibaseHistoryService` `SELECT`s from `DATABASECHANGELOG`. Liquibase *does* have a status API
+(`Liquibase#getChangeSetStatuses`, `listUnrunChangeSets`), but it needs a `Liquibase` instance built from
+the changelog plus a connection, and `SpringLiquibase` does not expose one; Flyway's `info()` comes straight
+off the bean. Keep both shapes — the asymmetry in what each Spring integration exposes is the point.
 
 ### Migration files are a paired translation table
 

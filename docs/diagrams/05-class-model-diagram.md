@@ -123,7 +123,7 @@ Normalisation decisions visible in the model:
 | `AppliedMigration.type` / `status` | `MigrationType` name / `MigrationState` display name | `EXECTYPE` in both fields |
 | `AppliedMigration.script` | migration filename from `MigrationInfo.getScript()` | the `FILENAME` column |
 | `MigrationStatusReport.historyTable` | `flyway_schema_history` | `DATABASECHANGELOG` |
-| `MigrationStatusReport.pendingCount` | counted from `info().all()` where `installedOn` is null | always `0` — detecting pending changesets would require a full changelog parse |
+| `MigrationStatusReport.pendingCount` | counted from `info().all()` where `installedOn` is null | always `0`: pending changesets would need `Liquibase#listUnrunChangeSets` on an instance `SpringLiquibase` does not expose, and everything is applied at startup anyway |
 
 `SchemaSnapshot.columns` entries are formatted `TABLE.COLUMN:TYPE`. `SchemaSnapshot.indexes` is reported but
 deliberately excluded from the diff, because H2 auto-generates constraint-backing index names that legitimately

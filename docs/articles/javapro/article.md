@@ -182,7 +182,7 @@ private static AppliedMigration toAppliedMigration(MigrationInfo info) {
 
 No SQL. `flyway.info().all()` returns applied and pending migrations with state, checksum and execution time, which is why this service injects the `Flyway` bean, not a `JdbcTemplate`. Repeatable migrations have no version, so the identifier comes from the description. `NO_AUTHOR` is `"n/a"`, because Flyway does not record who wrote a migration.
 
-Liquibase has no comparable read-only status call for embedded use, so the other implementation treats its tracking table as the interface. Trimmed from `LiquibaseHistoryService`:
+Liquibase has a status API too (`listUnrunChangeSets()` on the `Liquibase` class), but it needs an instance built from the changelog plus an open connection, and `SpringLiquibase` doesn't hand one out. So this implementation treats the tracking table as the interface. Trimmed from `LiquibaseHistoryService`:
 
 ```java
 private static final String HISTORY_QUERY =
@@ -193,10 +193,14 @@ private static final String HISTORY_QUERY =
         ORDER BY ORDEREXECUTED
         """;
 
+// ...
+
 public LiquibaseHistoryService(
         @Qualifier(LiquibaseConfig.JDBC_TEMPLATE) JdbcTemplate jdbcTemplate) {
     this.jdbcTemplate = jdbcTemplate;
 }
+
+// ...
 
 private static final RowMapper<AppliedMigration> CHANGELOG_ROW_MAPPER =
         (ResultSet rs, int rowNum) -> {
@@ -214,9 +218,9 @@ private static final RowMapper<AppliedMigration> CHANGELOG_ROW_MAPPER =
         };
 ```
 
-Look at the qualifier on the constructor. Inject the unqualified template and you get the `@Primary` one, which points at the Flyway database, where `DATABASECHANGELOG` does not exist. The `status()` method (not shown) reports zero pending changesets: finding unapplied ones means parsing the whole changelog, and `SpringLiquibase` has applied everything by then.
+Look at the qualifier on the constructor. Inject the unqualified template and you get the `@Primary` one, which points at the Flyway database, where `DATABASECHANGELOG` does not exist. The `status()` method (not shown) reports zero pending changesets, because `SpringLiquibase` has applied everything by then.
 
-The execution time is `null` by design, and Jackson keeps the field in the JSON. The [`DATABASECHANGELOG` table](https://docs.liquibase.com/concepts/tracking-tables/databasechangelog-table.html) holds an author per changeset, contexts, labels and a deployment ID, but no duration. Flyway records a duration and no author.
+The execution time is `null` by design, and Jackson keeps the field in the JSON. The [`DATABASECHANGELOG` table](https://docs.liquibase.com/secure/user-guide-5-1/what-is-the-databasechangelog-table) holds an author per changeset, contexts, labels and a deployment ID, but no duration. Flyway records a duration and no author.
 
 `ComparisonService` receives both as a `List<MigrationHistoryProvider>` and keys them by `engine()` into an `EnumMap`, so a third engine would be one more `@Service`.
 
@@ -366,7 +370,7 @@ If you run both engines today, which part of your schema would you trust a diff 
 
 - flyway-vs-liquibase-db-migrations (source, migrations, tests, diagrams), [GitHub](https://github.com/wallaceespindola/flyway-vs-liquibase-db-migrations)
 - Flyway feature summary by edition, [documentation.red-gate.com](https://documentation.red-gate.com/fd/feature-summary-165740620.html)
-- Liquibase DATABASECHANGELOG table, [docs.liquibase.com](https://docs.liquibase.com/concepts/tracking-tables/databasechangelog-table.html)
+- Liquibase DATABASECHANGELOG table, [docs.liquibase.com](https://docs.liquibase.com/secure/user-guide-5-1/what-is-the-databasechangelog-table)
 - Liquibase 5.0 release notes, [docs.liquibase.com](https://docs.liquibase.com/community/release-notes/5-0)
 - Liquibase Community and the Functional Source License, [liquibase.com](https://www.liquibase.com/blog/liquibase-community-for-the-future-fsl)
 - Spring Framework `@DependsOn` Javadoc, [docs.spring.io](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/context/annotation/DependsOn.html)

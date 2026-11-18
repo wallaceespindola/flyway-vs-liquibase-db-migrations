@@ -8,8 +8,9 @@ import com.wallaceespindola.dbmigration.dto.MigrationStatusReport;
  *
  * <p>Two genuinely different implementations sit behind this interface, and the difference is itself
  * a finding: {@link FlywayHistoryService} reads history through Flyway's public {@code info()} API,
- * whereas {@link LiquibaseHistoryService} has to query the {@code DATABASECHANGELOG} table directly
- * because Liquibase exposes no comparable read-only status API for embedded use.
+ * whereas {@link LiquibaseHistoryService} queries the {@code DATABASECHANGELOG} table directly. Liquibase
+ * does have a status API ({@code Liquibase#getChangeSetStatuses}), but it needs a {@code Liquibase} instance
+ * built from the changelog and a connection, which {@code SpringLiquibase} does not expose.
  *
  * @author Wallace Espindola
  */

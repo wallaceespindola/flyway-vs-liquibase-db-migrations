@@ -82,7 +82,7 @@ The one number that differs, 6 against 7, is a good place to start looking.
 
 ## Six against seven is a modeling choice
 
-Flyway's `V5` adds an `active` column to `product` and backfills it in the same script. Liquibase's `005` file splits that into two changesets, one for the column and one for the backfill, each with its own label and its own rollback. Trimmed from `005-add-product-active-flag.xml`:
+Flyway's `V5` adds an `active` column to `product` and backfills it in the same script. Liquibase's `005` file splits that into two changesets, one for the column and one for the backfill, each with its own label and its own rollback. Trimmed from `005-add-product-active-flag.xml` (comments, the index and the first changeset's rollback left out):
 
 ```xml
 <changeSet id="005-add-product-active-flag" author="wallaceespindola" context="demo"
@@ -100,6 +100,13 @@ Flyway's `V5` adds an `active` column to `product` and backfills it in the same 
         <column name="active" valueBoolean="false"/>
         <where>stock_quantity = 0</where>
     </update>
+
+    <rollback>
+        <update tableName="product">
+            <column name="active" valueBoolean="true"/>
+            <where>stock_quantity = 0</where>
+        </update>
+    </rollback>
 </changeSet>
 ```
 
@@ -123,11 +130,11 @@ databaseChangeLog:
       file: db/changelog/changes/003-seed-reference-data.sql
 ```
 
-That reads like a mechanical detail until two branches each add a migration. On the Flyway side, if both pick the next version number, validation fails loudly and someone renames a file. On the Liquibase side, both branches append a line to the include list, and that kind of change is easy to auto-merge wrongly. The failure, when it comes, shows up later and quieter. I'd rather have the loud one, but I also know a review rule ("changes to the master changelog get a second look") closes most of the gap.
+That reads like a mechanical detail until two branches each add a migration. On the Flyway side, if both pick the next version number, validation fails loudly and someone renames a file. On the Liquibase side, both branches append a line at the same spot in the include list, which produces a Git conflict. The risk is a careless resolution that drops an include. Nothing fails until someone notices a changeset never ran. I'd rather have the loud one, but I also know a review rule ("changes to the master changelog get a second look") closes most of the gap.
 
 ## Format: plain SQL or a vocabulary of tags
 
-Flyway Community migrations are SQL in your database's dialect. Anyone who can read SQL can review them, and that matters more than it sounds. A reviewer who has never used either tool can read `ALTER TABLE product ADD COLUMN active ...` and tell you if it's wrong.
+Flyway Community migrations are mostly SQL in your database's dialect. Anyone who can read SQL can review them, and that matters more than it sounds. A reviewer who has never used either tool can read `ALTER TABLE product ADD COLUMN active ...` and tell you if it's wrong.
 
 Liquibase accepts XML, YAML, JSON and SQL as first-class formats, and the project mixes three of them in one changelog: `001` is XML, `002` is YAML and `003` is a SQL-formatted changelog. The abstraction buys dialect portability, since Liquibase generates the DDL for the target database at runtime. It also has an edge. `002` needs check constraints such as `price >= 0`, which have no portable tag, so that changeset drops to an inline `sql` block for those lines.
 
@@ -135,7 +142,7 @@ I don't think this one has a winner. If your product runs on one database and al
 
 ## Rollback is where the tools really part ways
 
-Rollback decides what a bad deployment day looks like. Flyway's `V4` adds an audit table. Trimmed (the repo file has a longer header comment):
+Rollback decides what a bad deployment day looks like. Flyway's `V4` adds an audit table. Trimmed (the header comment and the seed `INSERT ... SELECT` backfill are left out):
 
 ```sql
 -- Flyway V4: add an audit trail table.
@@ -154,7 +161,7 @@ CREATE INDEX idx_product_audit_product ON product_audit (product_id);
 
 There is no rollback here, because Flyway Community has none. Undo migrations exist in Flyway's [paid editions](https://documentation.red-gate.com/fd/feature-summary-165740620.html) (Enterprise can even generate them), but on Community you revert by writing a new forward migration that undoes the old one.
 
-The Liquibase changeset for the same table carries a precondition and a rollback. Trimmed from `004-add-product-audit-table.xml`, with the column definitions left out:
+The Liquibase changeset for the same table carries a precondition and a rollback. Trimmed from `004-add-product-audit-table.xml`, with the column definitions, the index and the seed insert left out:
 
 ```xml
 <changeSet id="004-add-product-audit-table" author="wallaceespindola" context="demo">
@@ -183,7 +190,7 @@ The forward-only school deserves a fair hearing, because it's a deliberate posit
 
 The finding I didn't expect only showed up once I tried to report each engine's status from the application itself, instead of from a CLI.
 
-Flyway has a read API. `flyway.info()` hands back every known migration as an object, applied and pending, with state, checksum and execution time already filled in. Trimmed from `FlywayHistoryService`:
+Flyway's read API is one call on the bean the app already has. `flyway.info()` hands back every known migration as an object, applied and pending, with state, checksum and execution time already filled in. Trimmed from `FlywayHistoryService`:
 
 ```java
 MigrationInfo[] all = flyway.info().all();
@@ -195,7 +202,7 @@ List<AppliedMigration> applied = Arrays.stream(all)
         .toList();
 ```
 
-Liquibase has nothing equivalent for an embedded read, so `LiquibaseHistoryService` queries the bookkeeping table directly:
+Liquibase has a status API too, `getChangeSetStatuses()` and `listUnrunChangeSets()` on the `Liquibase` class, but it needs an instance built from the changelog plus an open database connection. `SpringLiquibase` runs the update at startup and doesn't hand you that object, so `LiquibaseHistoryService` queries the bookkeeping table directly:
 
 ```java
 private static final String HISTORY_QUERY =
@@ -207,7 +214,7 @@ private static final String HISTORY_QUERY =
         """;
 ```
 
-I looked for a shortcut before writing that query, and the table really is the interface. In exchange, look at what it holds: author, contexts, labels, deployment ID, execution type. Flyway records none of those in `flyway_schema_history`. Who wrote a Flyway migration is a question for `git blame`. Liquibase makes `author` mandatory on every changeset and keeps it in the database.
+Building a second `Liquibase` instance just to read status felt heavier than one query, so the table became the interface. In exchange, look at what it holds: author, contexts, labels, deployment ID, execution type. Flyway records none of those in `flyway_schema_history`. Who wrote a Flyway migration is a question for `git blame`. Liquibase makes `author` mandatory on every changeset and keeps it in the database.
 
 The trade runs the other way for timing. Flyway stores execution time per migration in milliseconds. `DATABASECHANGELOG` has no duration column, so the Liquibase side returns `"executionTimeMs": null` on every row. I kept those nulls in the JSON on purpose. Hiding them would make the two engines look more alike than they are.
 
@@ -221,7 +228,7 @@ Views are the easy case. Both tools have a way to say "redefine this whenever it
 
 For years the licensing comparison was simple. Liquibase Community was Apache 2.0 and included rollback and diff. Flyway Community was free and kept undo, dry runs and drift detection for paid editions.
 
-That changed with Liquibase 5.0. In its [announcement of September 30, 2025](https://www.liquibase.com/blog/liquibase-community-for-the-future-fsl), Liquibase moved Community from Apache 2.0 to the Functional Source License (FSL-1.1-ALv2). Each release converts to Apache 2.0 after two years, and Liquibase's own FAQ describes the license as "source available", not OSI open source. The commercial product, formerly Pro, is now Liquibase Secure, and contributors now sign a CLA. The [5.0 release notes](https://docs.liquibase.com/community/release-notes/5-0) cover the details.
+That changed with Liquibase 5.0. In its [announcement of September 30, 2025](https://www.liquibase.com/blog/liquibase-community-for-the-future-fsl), Liquibase moved Community from Apache 2.0 to the Functional Source License (FSL-1.1-ALv2). Each release converts to Apache 2.0 after two years, and Liquibase's own FAQ describes the license as "source available", not OSI open source. Per the [5.0 release notes](https://docs.liquibase.com/community/release-notes/5-0), the commercial product formerly called Pro is now Liquibase Secure. Anyone contributing code also has to sign a CLA.
 
 This project pulls Liquibase 5.0.4 from the Spring Boot 4.1 BOM, so it's on the FSL whether I chose that or not. For using Liquibase inside your own application, I don't think much changes in practice. The FSL is mostly aimed at competing commercial offerings. But "mostly" is a word your legal team will want to read for itself, and some organizations have policies that allow OSI licenses and nothing else. The point I'd make is narrower: Liquibase's free rollback and diff are still free, and Flyway's undo is still paid, but "both are open source" is no longer a sentence you can write without a footnote.
 
@@ -240,7 +247,7 @@ The experiment confirmed what I expected about the schema and surprised me about
 - Both tools built the same schema, with zero structural differences. Schema correctness is not a reason to pick either one.
 - Rollback is where they part ways. Liquibase includes it for free, while Flyway keeps undo in paid editions and expects forward fixes on Community.
 - The bookkeeping models record different things: Flyway records time, Liquibase records authorship, contexts and labels.
-- Flyway has an embedded read API. Liquibase makes you query its table, which is less convenient and more informative.
+- Flyway's `info()` comes straight from the Spring bean. Liquibase's status API needs its own instance, so the app queries the table, which is less convenient and more informative.
 - Liquibase 5's move to the FSL makes licensing a decision you now have to make on purpose, not a default.
 
 I'm curious how this looks from your side. Does your team rely on rollback scripts, or is everything forward-only by design? Has the Liquibase license change come up in your organization's dependency reviews? And if you moved from one tool to the other, what actually triggered the switch? Let me know in the comments.

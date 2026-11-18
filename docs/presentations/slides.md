@@ -424,12 +424,12 @@ FROM DATABASECHANGELOG
 ORDER BY ORDEREXECUTED
 ```
 
-`service/LiquibaseHistoryService.java`: no embedded read API, so query the table
+`service/LiquibaseHistoryService.java`: SpringLiquibase exposes no status object, so query the table
 
 <!--
 This finding surprised me most while building the demo, and it matters if you embed the engine in an application.
 flyway.info() hands you objects: applied and pending, already ordered, with state and checksum. FlywayHistoryService is essentially a stream over that array.
-Liquibase has no equivalent, so LiquibaseHistoryService runs a JdbcTemplate query against DATABASECHANGELOG. It works, and that table has more columns than Flyway's, but you are now coupled to Liquibase's internal table shape.
+Liquibase does have a status API, getChangeSetStatuses on the Liquibase class, but it needs an instance built from the changelog and a connection, and SpringLiquibase does not expose one. So LiquibaseHistoryService runs a JdbcTemplate query against DATABASECHANGELOG. It works, and that table has more columns than Flyway's, but you are now coupled to Liquibase's internal table shape.
 Both classes implement the same MigrationHistoryProvider interface. The asymmetric implementations are a finding, not an accident.
 -->
 

@@ -68,7 +68,8 @@ public final class FeatureMatrix {
             new FeatureComparison(
                     "Embedded status API",
                     "flyway.info() returns applied and pending migrations as objects",
-                    "No lightweight read API — query DATABASECHANGELOG directly",
+                    "Liquibase#getChangeSetStatuses exists, but SpringLiquibase exposes no instance; "
+                            + "query DATABASECHANGELOG",
                     FLYWAY),
             new FeatureComparison(
                     "Concurrency safety",

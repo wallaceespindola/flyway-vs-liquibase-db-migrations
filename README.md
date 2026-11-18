@@ -183,14 +183,16 @@ Indexes are deliberately excluded from the equivalence check — H2 auto-generat
 indexes under names that legitimately differ between engines, so including them would report noise as
 drift.
 
-**Flyway has a real embedded status API. Liquibase does not.** This shows up directly in the two
+**Flyway's status API comes with the bean; Liquibase's does not.** Liquibase has a status API
+(`Liquibase#getChangeSetStatuses`, `listUnrunChangeSets`), but it needs a `Liquibase` instance built from the
+changelog and a connection, and `SpringLiquibase` does not expose one. This shows up directly in the two
 implementations of `MigrationHistoryProvider`:
 
 ```java
 // FlywayHistoryService — the engine tells you its own state.
 MigrationInfo[] all = flyway.info().all();
 
-// LiquibaseHistoryService — no equivalent API, so the bookkeeping table is the interface.
+// LiquibaseHistoryService: SpringLiquibase exposes no status object, so the table is the interface.
 SELECT ID, AUTHOR, FILENAME, DATEEXECUTED, ORDEREXECUTED, EXECTYPE,
        MD5SUM, DESCRIPTION, COMMENTS, CONTEXTS, LABELS, DEPLOYMENT_ID
 FROM DATABASECHANGELOG ORDER BY ORDEREXECUTED
