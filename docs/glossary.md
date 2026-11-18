@@ -25,11 +25,13 @@ with what it stands for and, where it matters, how this project uses it.
 | FSL | Functional Source License | Liquibase Community's license since 5.0 (`FSL-1.1-ALv2`): source-available, not OSI open source, converts to Apache 2.0 after two years. |
 | HTML | HyperText Markup Language | The dashboard page and Marp's rendering format for the slides. |
 | HTTP | HyperText Transfer Protocol | The REST API transport on port 8080. |
+| ID | Identifier | Liquibase changeset ids (`005b-backfill-product-active-flag`) and the tables' `id` primary keys. |
 | IDE | Integrated Development Environment | IntelliJ IDEA or VS Code, both of which can preview the PlantUML diagrams. |
 | ISO | International Organization for Standardization | ISO-8601 date-time strings, the Jackson 3 default for `timestamp` fields. |
 | JDBC | Java Database Connectivity | The plain-JDBC data access (`JdbcTemplate`) used instead of JPA. |
 | JDK | Java Development Kit | Java 25 is required to build and run. |
 | JPA | Jakarta Persistence API | Deliberately not used; both engines are compared at the JDBC level. |
+| JPEG | Joint Photographic Experts Group (image format) | DZone and InfoQ embed JPEG copies of the diagrams. |
 | JS | JavaScript | `static/js/app.js`, the dashboard script; `esc()` and `num()` are its XSS choke points. |
 | JSON | JavaScript Object Notation | Response format of every REST endpoint, wrapped in `ApiResponse<T>`. |
 | JVM | Java Virtual Machine | The single process that hosts both engines. |
