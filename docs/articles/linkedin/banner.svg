@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#0f172a"/>
@@ -18,49 +18,49 @@
       <stop offset="100%" stop-color="#35c4d0" stop-opacity="0"/>
     </radialGradient>
   </defs>
-  <rect width="1280" height="720" fill="url(#bg)"/>
-  <ellipse cx="120.0" cy="640.0" rx="560.0" ry="430.0" fill="url(#glowL)"/>
-  <ellipse cx="1160.0" cy="80.0" rx="560.0" ry="430.0" fill="url(#glowR)"/>
+  <rect width="1920" height="1080" fill="url(#bg)"/>
+  <ellipse cx="180.0" cy="960.0" rx="840.0" ry="645.0" fill="url(#glowL)"/>
+  <ellipse cx="1740.0" cy="120.0" rx="840.0" ry="645.0" fill="url(#glowR)"/>
 
-  <rect x="0" y="0" width="10.0" height="720" fill="url(#rule)"/>
+  <rect x="0" y="0" width="15.0" height="1080" fill="url(#rule)"/>
 
-  <text x="84.0" y="158.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="19.0" fill="#94a3b8"
-        letter-spacing="5.0" font-weight="600">MIGRATION TOOLING</text>
+  <text x="126.0" y="237.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="28.5" fill="#94a3b8"
+        letter-spacing="7.5" font-weight="600">MIGRATION TOOLING</text>
 
-  <text x="84.0" y="262.8" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="70.0" font-weight="700"
-        letter-spacing="-1.5" fill="#f2784b">Flyway</text>
-  <text x="84.0" y="342.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="70.0" font-weight="700"
-        letter-spacing="-1.5">
-    <tspan fill="#94a3b8" font-size="40.0" font-weight="400">vs</tspan><tspan
-      fill="#35c4d0" dx="16.0">Liquibase</tspan>
+  <text x="126.0" y="394.2" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="105.0" font-weight="700"
+        letter-spacing="-2.25" fill="#f2784b">Flyway</text>
+  <text x="126.0" y="513.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="105.0" font-weight="700"
+        letter-spacing="-2.25">
+    <tspan fill="#94a3b8" font-size="60.0" font-weight="400">vs</tspan><tspan
+      fill="#35c4d0" dx="24.0">Liquibase</tspan>
   </text>
 
   <!-- A rect, not a line: a gradient stroke on a horizontal line has a zero-height object
        bounding box, so url(#rule) cannot resolve and the rule renders invisible. -->
-  <rect x="84.0" y="390.40000000000003" width="120.0" height="5.0" rx="2.5"
+  <rect x="126.0" y="585.6" width="180.0" height="7.5" rx="3.75"
         fill="url(#rule)"/>
 
-  <text x="84.0" y="464.40000000000003" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="26.0" fill="#e6ecf7">Same schema. Two engines.</text>
-  <text x="84.0" y="507.59999999999997" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="26.0" fill="#e6ecf7">What actually differs.</text>
+  <text x="126.0" y="696.6" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="39.0" fill="#e6ecf7">Same schema. Two engines.</text>
+  <text x="126.0" y="761.4" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="39.0" fill="#e6ecf7">What actually differs.</text>
 
-  <rect x="850.0" y="216.0" width="346.0" height="300.0" rx="14.0"
-        fill="#1a2337" fill-opacity="0.85" stroke="#2a3650" stroke-width="1.5"/>
+  <rect x="1275.0" y="324.0" width="519.0" height="450.0" rx="21.0"
+        fill="#1a2337" fill-opacity="0.85" stroke="#2a3650" stroke-width="2.25"/>
 
-  <text x="878.0" y="290.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="19.0"
+  <text x="1317.0" y="435.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="28.5"
         fill="#94a3b8">Flyway migrations</text>
-  <text x="1168.0" y="290.0" text-anchor="end" font-family="Menlo, Consolas, monospace"
-        font-size="40.0" font-weight="700" fill="#f2784b">6</text>
-  <line x1="878.0" y1="316.0" x2="1168.0" y2="316.0"
-        stroke="#2a3650" stroke-width="1.0"/>
+  <text x="1752.0" y="435.0" text-anchor="end" font-family="Menlo, Consolas, monospace"
+        font-size="60.0" font-weight="700" fill="#f2784b">6</text>
+  <line x1="1317.0" y1="474.0" x2="1752.0" y2="474.0"
+        stroke="#2a3650" stroke-width="1.5"/>
 
-  <text x="878.0" y="386.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="19.0"
+  <text x="1317.0" y="579.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="28.5"
         fill="#94a3b8">Liquibase changesets</text>
-  <text x="1168.0" y="386.0" text-anchor="end" font-family="Menlo, Consolas, monospace"
-        font-size="40.0" font-weight="700" fill="#35c4d0">7</text>
-  <line x1="878.0" y1="412.0" x2="1168.0" y2="412.0"
-        stroke="#2a3650" stroke-width="1.0"/>
-  <text x="878.0" y="470.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="19.0"
+  <text x="1752.0" y="579.0" text-anchor="end" font-family="Menlo, Consolas, monospace"
+        font-size="60.0" font-weight="700" fill="#35c4d0">7</text>
+  <line x1="1317.0" y1="618.0" x2="1752.0" y2="618.0"
+        stroke="#2a3650" stroke-width="1.5"/>
+  <text x="1317.0" y="705.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="28.5"
         fill="#94a3b8">Schema differences</text>
-  <text x="1168.0" y="470.0" text-anchor="end"
-        font-family="Menlo, Consolas, monospace" font-size="40.0" font-weight="700" fill="#4ade80">0</text>
+  <text x="1752.0" y="705.0" text-anchor="end"
+        font-family="Menlo, Consolas, monospace" font-size="60.0" font-weight="700" fill="#4ade80">0</text>
 </svg>

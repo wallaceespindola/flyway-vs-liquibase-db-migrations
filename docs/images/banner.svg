@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="400" viewBox="0 0 1280 400">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="50%" stop-color="#1a2337"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="rule" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#f2784b"/>
+      <stop offset="100%" stop-color="#35c4d0"/>
+    </linearGradient>
+    <radialGradient id="glowL" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#f2784b" stop-opacity="0.24"/>
+      <stop offset="100%" stop-color="#f2784b" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowR" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#35c4d0" stop-opacity="0.24"/>
+      <stop offset="100%" stop-color="#35c4d0" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1280" height="400" fill="url(#bg)"/>
+
+  <circle cx="160.0" cy="200.0" r="300.0" fill="url(#glowL)"/>
+  <circle cx="1000.0" cy="200.0" r="300.0" fill="url(#glowR)"/>
+  <text x="80.0" y="190.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="70.0" font-weight="700"
+        letter-spacing="-1.0"><tspan fill="#f2784b">Flyway</tspan><tspan fill="#94a3b8" font-size="36.0"
+        dx="16.0">vs</tspan><tspan fill="#35c4d0" dx="16.0">Liquibase</tspan></text>
+  <rect x="80.0" y="222.0" width="150.0" height="4.0" rx="2.0" fill="url(#rule)"/>
+  <text x="80.0" y="272.0" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="26.0" fill="#e6ecf7">One schema, two engines</text>
+  <line x1="780.0" y1="120.0" x2="780.0" y2="280.0" stroke="#2a3650" stroke-width="1.5"/>
+  <text x="860.0" y="210.0" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="64.0" font-weight="700" fill="#f2784b">6</text><text x="860.0" y="248.0" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17.0" fill="#94a3b8">migrations</text><text x="1000.0" y="210.0" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="64.0" font-weight="700" fill="#35c4d0">7</text><text x="1000.0" y="248.0" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17.0" fill="#94a3b8">changesets</text><text x="1140.0" y="210.0" text-anchor="middle" font-family="Menlo, Consolas, monospace" font-size="64.0" font-weight="700" fill="#4ade80">0</text><text x="1140.0" y="248.0" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="17.0" fill="#94a3b8">differences</text>
+</svg>

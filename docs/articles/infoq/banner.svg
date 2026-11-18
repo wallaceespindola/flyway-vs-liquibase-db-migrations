@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="768" viewBox="0 0 1024 768">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="50%" stop-color="#1a2337"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="rule" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#f2784b"/>
+      <stop offset="100%" stop-color="#35c4d0"/>
+    </linearGradient>
+    <radialGradient id="glowL" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#f2784b" stop-opacity="0.24"/>
+      <stop offset="100%" stop-color="#f2784b" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowR" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#35c4d0" stop-opacity="0.24"/>
+      <stop offset="100%" stop-color="#35c4d0" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1024" height="768" fill="url(#bg)"/>
+
+  <circle cx="200.0" cy="460.79999999999995" r="260.0" fill="url(#glowL)"/>
+  <circle cx="824.0" cy="460.79999999999995" r="260.0" fill="url(#glowR)"/>
+  <text x="512.0" y="120.0" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-size="64.0" font-weight="700"
+        fill="#e6ecf7" letter-spacing="-1.0">Verifiable migrations</text>
+  <rect x="422.0" y="150.0" width="180.0" height="4.0" rx="2.0" fill="url(#rule)"/>
+  <path d="M 90.0 310.79999999999995 C 301.0 310.79999999999995, 301.0 460.79999999999995, 442.0 460.79999999999995" fill="none" stroke="#f2784b" stroke-opacity="0.25" stroke-width="3.0"/><circle cx="90.0" cy="310.79999999999995" r="7.0" fill="#f2784b"/><path d="M 90.0 385.79999999999995 C 301.0 385.79999999999995, 301.0 460.79999999999995, 442.0 460.79999999999995" fill="none" stroke="#f2784b" stroke-opacity="0.40" stroke-width="3.0"/><circle cx="90.0" cy="385.79999999999995" r="7.0" fill="#f2784b"/><path d="M 90.0 460.79999999999995 C 301.0 460.79999999999995, 301.0 460.79999999999995, 442.0 460.79999999999995" fill="none" stroke="#f2784b" stroke-opacity="0.55" stroke-width="3.0"/><circle cx="90.0" cy="460.79999999999995" r="7.0" fill="#f2784b"/><path d="M 90.0 535.8 C 301.0 535.8, 301.0 460.79999999999995, 442.0 460.79999999999995" fill="none" stroke="#f2784b" stroke-opacity="0.70" stroke-width="3.0"/><circle cx="90.0" cy="535.8" r="7.0" fill="#f2784b"/><path d="M 90.0 610.8 C 301.0 610.8, 301.0 460.79999999999995, 442.0 460.79999999999995" fill="none" stroke="#f2784b" stroke-opacity="0.85" stroke-width="3.0"/><circle cx="90.0" cy="610.8" r="7.0" fill="#f2784b"/><path d="M 934.0 310.79999999999995 C 723.0 310.79999999999995, 723.0 460.79999999999995, 582.0 460.79999999999995" fill="none" stroke="#35c4d0" stroke-opacity="0.25" stroke-width="3.0"/><circle cx="934.0" cy="310.79999999999995" r="7.0" fill="#35c4d0"/><path d="M 934.0 385.79999999999995 C 723.0 385.79999999999995, 723.0 460.79999999999995, 582.0 460.79999999999995" fill="none" stroke="#35c4d0" stroke-opacity="0.40" stroke-width="3.0"/><circle cx="934.0" cy="385.79999999999995" r="7.0" fill="#35c4d0"/><path d="M 934.0 460.79999999999995 C 723.0 460.79999999999995, 723.0 460.79999999999995, 582.0 460.79999999999995" fill="none" stroke="#35c4d0" stroke-opacity="0.55" stroke-width="3.0"/><circle cx="934.0" cy="460.79999999999995" r="7.0" fill="#35c4d0"/><path d="M 934.0 535.8 C 723.0 535.8, 723.0 460.79999999999995, 582.0 460.79999999999995" fill="none" stroke="#35c4d0" stroke-opacity="0.70" stroke-width="3.0"/><circle cx="934.0" cy="535.8" r="7.0" fill="#35c4d0"/><path d="M 934.0 610.8 C 723.0 610.8, 723.0 460.79999999999995, 582.0 460.79999999999995" fill="none" stroke="#35c4d0" stroke-opacity="0.85" stroke-width="3.0"/><circle cx="934.0" cy="610.8" r="7.0" fill="#35c4d0"/>
+  <rect x="442.0" y="390.79999999999995" width="140.0" height="140.0" rx="22.0" fill="#131c2e"
+        stroke="#4ade80" stroke-width="3.0"/>
+  <path d="M 480.0 462.79999999999995 L 504.0 488.79999999999995 L 548.0 434.79999999999995" fill="none"
+        stroke="#4ade80" stroke-width="10.0" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

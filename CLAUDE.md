@@ -130,8 +130,9 @@ and every numeric interpolation through `num()`. That is the single XSS choke po
 This repo is also the single source for an article series (one repo per series):
 
 - `docs/articles/<platform>/article.md` for devto, dzone, infoq, javapro, linkedin, medium, substack, each
-  with `banner.png` (InfoQ and JavaPro have none yet) and `diagrams/` (source next to PNG; DZone and
-  InfoQ embed JPEG copies). Banner layouts: `docs/articles/BANNER_DESIGN.md`, `generate_banners.py`.
+  with `banner.png` (InfoQ also `banner.jpg`) and `diagrams/` (source next to PNG; DZone and
+  InfoQ embed JPEG copies). Banner layouts: `docs/articles/BANNER_DESIGN.md`; `python3 docs/articles/generate_banners.py` renders
+  all eight, including the README banner at `docs/images/banner.png`.
 - `docs/presentations/slides.md` is the Marp deck source; `make slides` exports the Speaker Deck PDF
   and rebuilds the editable PPTX via `build_pptx.py`. Import steps: `GOOGLE_SLIDES.md`.
 - `docs/diagrams/` holds the canonical PlantUML/Mermaid sources (`make diagrams` renders all).

@@ -5,7 +5,7 @@
 One banner per publishing platform, each rendered at that platform's native cover ratio so the CMS
 crops as little as possible.
 
-Each banner uses a **different layout**, not one template recoloured — five near-identical images
+Each banner uses a **different layout**, not one template recoloured — near-identical images
 read as a copy-paste job when the articles are seen side by side. The shared palette is what keeps
 them recognisably one project.
 
@@ -14,8 +14,11 @@ them recognisably one project.
 | `dzone/banner.png` | 1200×628 | **convergence blueprint** — both real file stacks feeding one schema | [DZone](dzone/article.md) |
 | `medium/banner.png` | 1400×700 | **editorial** — centred serif, framed, magazine restraint | [Medium](medium/article.md) |
 | `devto/banner.png` | 1000×420 | **diff** — the same migration in both formats, side by side | [Dev.to](devto/article.md) |
-| `linkedin/banner.png` | 1280×720 | **data card** — left-aligned headline, stat block | [LinkedIn](linkedin/article.md) |
-| `substack/banner.png` | 1200×600 | **typographic** — newsletter masthead, rules and whitespace | [Substack](substack/article.md) |
+| `linkedin/banner.png` | 1920×1080 | **data card** — left-aligned headline, stat block | [LinkedIn](linkedin/article.md) |
+| `substack/banner.png` | 1200×630 | **typographic** — newsletter masthead, rules and whitespace | [Substack](substack/article.md) |
+| `infoq/banner.jpg` (+ `.png`) | 1024×768 | **pattern** — two lanes of lines converging on one verified check, no code | [InfoQ](infoq/article.md) |
+| `javapro/banner.png` | 1200×630 | **listing** — the `@DependsOn` bean wiring as a code card under the stack line | [JavaPro](javapro/article.md) |
+| `../images/banner.png` | 1280×400 | **strip** — the repo README hero: the idea and the 6 / 7 / 0 numbers | [README](../../README.md) |
 
 ![The Dev.to banner: V4__add_product_audit_table.sql beside 004-add-product-audit-table.xml, with
 the preConditions and rollback blocks highlighted on the Liquibase side and the corresponding gaps

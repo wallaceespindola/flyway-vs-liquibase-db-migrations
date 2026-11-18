@@ -1,4 +1,4 @@
-![Flyway vs Liquibase](docs/articles/devto/banner.png)
+![Flyway vs Liquibase: one schema, two engines; 6 migrations, 7 changesets, 0 differences](docs/images/banner.png)
 
 # Flyway vs Liquibase — Database Migrations Compared
 

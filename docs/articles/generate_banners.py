@@ -6,6 +6,10 @@ One banner per publishing platform, each at that platform's native cover ratio s
 badly by the CMS, and each with a DIFFERENT layout — a single recoloured template reads as five
 copies of the same image when the articles are seen together.
 
+    infoq     pattern            two lanes converging on one verified schema (also JPEG)
+    javapro   listing            the @DependsOn bean wiring as a code card
+    readme    strip              repo hero: the idea and the 6 / 7 / 0 numbers (docs/images/banner.png)
+
     dzone     convergence        both real file stacks feeding one schema
     medium    editorial          centred, quiet, magazine cover
     devto     diff               the same migration in both formats, side by side
@@ -18,7 +22,7 @@ recognisably one project: slate background, Flyway orange, Liquibase teal.
 Requires: rsvg-convert (librsvg). On macOS: brew install librsvg
 
 Usage:
-    python3 docs/images/generate_banners.py
+    python3 docs/articles/generate_banners.py
 
 Author: Wallace Espindola
 """
@@ -62,8 +66,11 @@ BANNERS = [
     Banner("dzone", 1200, 628, "convergence"),
     Banner("medium", 1400, 700, "editorial"),
     Banner("devto", 1000, 420, "diff"),
-    Banner("linkedin", 1280, 720, "card"),
-    Banner("substack", 1200, 600, "typographic"),
+    Banner("linkedin", 1920, 1080, "card"),
+    Banner("substack", 1200, 630, "typographic"),
+    Banner("infoq", 1024, 768, "pattern"),
+    Banner("javapro", 1200, 630, "listing"),
+    Banner("readme", 1280, 400, "strip"),
 ]
 
 DEFS = f"""  <defs>
@@ -199,9 +206,9 @@ def style_convergence(w: int, h: int) -> str:
         fill="{MUTED}">Different files. Different counts. One identical schema.</text>
 
   <text x="{left_x}" y="{stack_y - p(14)}" font-family="{MONO}" font-size="{p(13)}" fill="{FLYWAY}"
-        letter-spacing="{p(1)}">db/migration/ — 6 applied</text>
+        letter-spacing="{p(1)}">db/migration/: 6 applied</text>
   <text x="{right_x + card_w}" y="{stack_y - p(14)}" text-anchor="end" font-family="{MONO}"
-        font-size="{p(13)}" fill="{LIQUIBASE}" letter-spacing="{p(1)}">db/changelog/ — 7 applied</text>
+        font-size="{p(13)}" fill="{LIQUIBASE}" letter-spacing="{p(1)}">db/changelog/: 7 applied</text>
 
 {stack(left_x, FLYWAY_FILES, FLYWAY)}
 {stack(right_x, LIQUIBASE_FILES, LIQUIBASE)}
@@ -222,7 +229,7 @@ def style_convergence(w: int, h: int) -> str:
 
   <!-- Fills the band under the stacks and answers the question the two counts provoke. -->
   <text x="{cx}" y="{stack_y + stack_h + p(40)}" text-anchor="middle" font-family="{SANS}"
-        font-size="{p(16)}" fill="{MUTED}">Six files each — but <tspan fill="{LIQUIBASE}"
+        font-size="{p(16)}" fill="{MUTED}">Six files each, but <tspan fill="{LIQUIBASE}"
       font-family="{MONO}" font-size="{p(14)}">005-add-product-active-flag.xml</tspan> holds two
     changesets,</text>
   <text x="{cx}" y="{stack_y + stack_h + p(64)}" text-anchor="middle" font-family="{SANS}"
@@ -315,7 +322,7 @@ def style_diff(w: int, h: int) -> str:
         ([("", TEXT)], None),
         ([("-- No rollback. Reverting means", CMT)], "miss"),
         ([("-- a NEW forward migration.", CMT)], "miss"),
-        ([("-- undo is a paid Teams feature.", CMT)], "miss"),
+        ([("-- undo needs a paid edition.", CMT)], "miss"),
     ]
 
     liquibase_code = [
@@ -380,7 +387,7 @@ def style_diff(w: int, h: int) -> str:
 {pane(rx_, "004-add-product-audit-table.xml", LIQUIBASE, liquibase_code, "XML")}
 
   <text x="{w / 2}" y="{foot_y}" text-anchor="middle" font-family="{SANS}" font-size="{p(13)}"
-        fill="{MUTED}">Identical result in the database — but only one side can declare how to undo
+        fill="{MUTED}">Identical result in the database, but only one side can declare how to undo
     itself.</text>
 """
     return frame(w, h, body)
@@ -484,12 +491,109 @@ def style_typographic(w: int, h: int) -> str:
     return frame(w, h, body)
 
 
+# ------------------------------------------------------------- infoq: pattern (two inputs, one check)
+
+def style_pattern(w: int, h: int) -> str:
+    """Architect audience: an abstract pattern, not code. Two lanes converge on one verified schema."""
+    s = min(w / 1024, h / 768)
+    p = lambda v: round(v * s, 2)
+    cx, cy = w / 2, h * 0.60
+    lanes = []
+    for i, (colour, x0) in enumerate(((FLYWAY, p(90)), (LIQUIBASE, w - p(90)))):
+        for k in range(5):
+            y = cy - p(150) + k * p(75)
+            lanes.append(f'<path d="M {x0} {y} C {(x0 + cx) / 2} {y}, {(x0 + cx) / 2} {cy}, '
+                         f'{cx + (-p(70) if i == 0 else p(70))} {cy}" fill="none" stroke="{colour}" '
+                         f'stroke-opacity="{0.25 + k * 0.15:.2f}" stroke-width="{p(3)}"/>')
+            lanes.append(f'<circle cx="{x0}" cy="{y}" r="{p(7)}" fill="{colour}"/>')
+    body = f"""
+  <circle cx="{p(200)}" cy="{cy}" r="{p(260)}" fill="url(#glowL)"/>
+  <circle cx="{w - p(200)}" cy="{cy}" r="{p(260)}" fill="url(#glowR)"/>
+  <text x="{cx}" y="{p(120)}" text-anchor="middle" font-family="{SANS}" font-size="{p(64)}" font-weight="700"
+        fill="{TEXT}" letter-spacing="{p(-1)}">Verifiable migrations</text>
+  <rect x="{cx - p(90)}" y="{p(150)}" width="{p(180)}" height="{p(4)}" rx="{p(2)}" fill="url(#rule)"/>
+  {''.join(lanes)}
+  <rect x="{cx - p(70)}" y="{cy - p(70)}" width="{p(140)}" height="{p(140)}" rx="{p(22)}" fill="{BG_INSET}"
+        stroke="{OK}" stroke-width="{p(3)}"/>
+  <path d="M {cx - p(32)} {cy + p(2)} L {cx - p(8)} {cy + p(28)} L {cx + p(36)} {cy - p(26)}" fill="none"
+        stroke="{OK}" stroke-width="{p(10)}" stroke-linecap="round" stroke-linejoin="round"/>
+"""
+    return frame(w, h, body)
+
+
+# ------------------------------------------------------------------ javapro: listing (Java on show)
+
+def style_listing(w: int, h: int) -> str:
+    """Java magazine: the bean wiring that makes the comparison safe, as a code card, plus the stack."""
+    s = min(w / 1200, h / 630)
+    p = lambda v: round(v * s, 2)
+    K, ANN, STR, CMT = FLYWAY, VIOLET, "#9ae6b4", "#64748b"
+    code = [
+        [("@Bean", ANN), ("(name = ", TEXT), ('"flyway"', STR), (", initMethod = ", TEXT), ('"migrate"', STR), (")", TEXT)],
+        [("public ", K), ("Flyway flyway(DataSource ds) { ... }", TEXT)],
+        [("", TEXT)],
+        [("@Bean", ANN), ("(JDBC_TEMPLATE)", TEXT)],
+        [("@DependsOn", ANN), ("(", TEXT), ('"flyway"', STR), (")", TEXT)],
+        [("public ", K), ("JdbcTemplate flywayJdbcTemplate(...)", TEXT)],
+        [("", TEXT)],
+        [("// same chain for Liquibase, own database", CMT)],
+    ]
+    x0, y0, lh = p(80), p(250), p(36)
+    rows = []
+    for i, segs in enumerate(code):
+        spans = "".join(f'<tspan fill="{c}">{t.replace("<", "&lt;")}</tspan>' for t, c in segs)
+        rows.append(f'<text x="{x0 + p(28)}" y="{y0 + i * lh}" font-family="{MONO}" font-size="{p(21)}" '
+                    f'xml:space="preserve">{spans}</text>')
+    body = f"""
+  <circle cx="{w - p(150)}" cy="{p(140)}" r="{p(260)}" fill="url(#glowR)"/>
+  <text x="{x0}" y="{p(118)}" font-family="{SANS}" font-size="{p(56)}" font-weight="700" fill="{TEXT}"
+        letter-spacing="{p(-1)}"><tspan fill="{FLYWAY}">Flyway</tspan><tspan fill="{MUTED}" font-size="{p(30)}"
+        dx="{p(14)}">vs</tspan><tspan fill="{LIQUIBASE}" dx="{p(14)}">Liquibase</tspan></text>
+  <text x="{x0}" y="{p(166)}" font-family="{MONO}" font-size="{p(22)}" fill="{MUTED}">Java 25 · Spring Boot 4.1</text>
+  <rect x="{x0}" y="{y0 - p(44)}" width="{w - 2 * x0}" height="{len(code) * lh + p(40)}" rx="{p(14)}"
+        fill="{BG_INSET}" stroke="{BORDER}" stroke-width="{p(1.5)}"/>
+  <rect x="{x0}" y="{y0 - p(44)}" width="{p(6)}" height="{len(code) * lh + p(40)}" fill="url(#rule)"/>
+  {''.join(rows)}
+"""
+    return frame(w, h, body)
+
+
+# ------------------------------------------------------------------------- readme: wide hero strip
+
+def style_strip(w: int, h: int) -> str:
+    """Repo README hero: the project's idea in one line and the three numbers it proves."""
+    s = min(w / 1280, h / 400)
+    p = lambda v: round(v * s, 2)
+    stats = [("6", "migrations", FLYWAY), ("7", "changesets", LIQUIBASE), ("0", "differences", OK)]
+    cells = "".join(
+        f'<text x="{w - p(420) + i * p(140)}" y="{p(210)}" text-anchor="middle" font-family="{MONO}" '
+        f'font-size="{p(64)}" font-weight="700" fill="{c}">{n}</text>'
+        f'<text x="{w - p(420) + i * p(140)}" y="{p(248)}" text-anchor="middle" font-family="{SANS}" '
+        f'font-size="{p(17)}" fill="{MUTED}">{label}</text>'
+        for i, (n, label, c) in enumerate(stats))
+    body = f"""
+  <circle cx="{p(160)}" cy="{h / 2}" r="{p(300)}" fill="url(#glowL)"/>
+  <circle cx="{w - p(280)}" cy="{h / 2}" r="{p(300)}" fill="url(#glowR)"/>
+  <text x="{p(80)}" y="{p(190)}" font-family="{SANS}" font-size="{p(70)}" font-weight="700"
+        letter-spacing="{p(-1)}"><tspan fill="{FLYWAY}">Flyway</tspan><tspan fill="{MUTED}" font-size="{p(36)}"
+        dx="{p(16)}">vs</tspan><tspan fill="{LIQUIBASE}" dx="{p(16)}">Liquibase</tspan></text>
+  <rect x="{p(80)}" y="{p(222)}" width="{p(150)}" height="{p(4)}" rx="{p(2)}" fill="url(#rule)"/>
+  <text x="{p(80)}" y="{p(272)}" font-family="{SANS}" font-size="{p(26)}" fill="{TEXT}">One schema, two engines</text>
+  <line x1="{w - p(500)}" y1="{p(120)}" x2="{w - p(500)}" y2="{p(280)}" stroke="{BORDER}" stroke-width="{p(1.5)}"/>
+  {cells}
+"""
+    return frame(w, h, body)
+
+
 STYLES = {
     "convergence": style_convergence,
     "editorial": style_editorial,
     "diff": style_diff,
     "card": style_card,
     "typographic": style_typographic,
+    "pattern": style_pattern,
+    "listing": style_listing,
+    "strip": style_strip,
 }
 
 
@@ -500,14 +604,17 @@ def main() -> int:
         return 1
 
     for b in BANNERS:
-        svg_path = OUT_DIR / b.slug / "banner.svg"
-        png_path = OUT_DIR / b.slug / "banner.png"
+        folder = OUT_DIR.parent / "images" if b.slug == "readme" else OUT_DIR / b.slug
+        svg_path, png_path = folder / "banner.svg", folder / "banner.png"
 
         svg_path.write_text(STYLES[b.style](b.width, b.height), encoding="utf-8")
         subprocess.run(["rsvg-convert", "-w", str(b.width), "-h", str(b.height),
                         "-o", str(png_path), str(svg_path)], check=True)
 
-        print(f"  {png_path.name:26} {b.width}x{b.height:<5} {b.style:12} "
+        if b.slug == "infoq":  # InfoQ only takes JPEG
+            subprocess.run(["sips", "-s", "format", "jpeg", "-s", "formatOptions", "88", str(png_path),
+                            "--out", str(folder / "banner.jpg")], check=True, capture_output=True)
+        print(f"  {b.slug + '/' + png_path.name:26} {b.width}x{b.height:<5} {b.style:12} "
               f"{png_path.stat().st_size / 1024:6.1f} KB")
 
     print(f"\n{len(BANNERS)} banners written to {OUT_DIR}")

@@ -3,7 +3,7 @@ Meta description: Schema migrations are executable artifacts you can verify like
 Tags: database migrations, Flyway, Liquibase, schema management, software architecture, open source licensing, Spring Boot
 -->
 
-<!-- banner: none yet, author to supply -->
+![Abstract banner: five orange lanes and five teal lanes converging on one green check mark under the words Verifiable migrations](banner.jpg)
 
 # Schema Migrations as Verifiable Artifacts: Conventions, Manifests and Licenses
 

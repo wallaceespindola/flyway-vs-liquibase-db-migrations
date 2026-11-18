@@ -1,4 +1,4 @@
-<!-- banner: none yet, author to supply -->
+![Banner: Flyway vs Liquibase on Java 25 and Spring Boot 4.1, with the DependsOn bean wiring as code](banner.png)
 
 # Two migration engines, one verified schema: a Flyway and Liquibase diff in Java 25 and Spring Boot 4.1
 
@@ -30,7 +30,7 @@ spring:
       - org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration
 ```
 
-The connection settings live under a custom `app.datasource` prefix, so nothing in `spring.*` picks them up by accident. Wiring only one engine by hand would have compared framework code with mine. The point is to show what each tool needs when you do it yourself. Figure 1 shows the result: each configuration class builds the same chain of properties, `DataSource`, engine and `JdbcTemplate`.
+The connection settings live under a custom `app.datasource` prefix, so nothing in `spring.*` picks them up by accident. Wiring both by hand shows what each tool needs. Figure 1 shows the result: each configuration class builds the same chain of properties, `DataSource`, engine and `JdbcTemplate`.
 
 ![Bean graph: FlywayConfig and LiquibaseConfig each build properties, DataSource, engine and JdbcTemplate beans on their own H2 database, with DependsOn edges to each engine](diagrams/bean-wiring.png)
 

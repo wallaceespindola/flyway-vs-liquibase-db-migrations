@@ -38,9 +38,9 @@
         fill="#94a3b8">Different files. Different counts. One identical schema.</text>
 
   <text x="34.0" y="133.57999999999998" font-family="Menlo, Consolas, monospace" font-size="13.0" fill="#f2784b"
-        letter-spacing="1.0">db/migration/ — 6 applied</text>
+        letter-spacing="1.0">db/migration/: 6 applied</text>
   <text x="1166.0" y="133.57999999999998" text-anchor="end" font-family="Menlo, Consolas, monospace"
-        font-size="13.0" fill="#35c4d0" letter-spacing="1.0">db/changelog/ — 7 applied</text>
+        font-size="13.0" fill="#35c4d0" letter-spacing="1.0">db/changelog/: 7 applied</text>
 
 
   <rect x="34.0" y="147.57999999999998" width="266.0" height="38.0" rx="6.0" fill="#131c2e"
@@ -130,7 +130,7 @@
 
   <!-- Fills the band under the stacks and answers the question the two counts provoke. -->
   <text x="600.0" y="460.58" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
-        font-size="16.0" fill="#94a3b8">Six files each — but <tspan fill="#35c4d0"
+        font-size="16.0" fill="#94a3b8">Six files each, but <tspan fill="#35c4d0"
       font-family="Menlo, Consolas, monospace" font-size="14.0">005-add-product-active-flag.xml</tspan> holds two
     changesets,</text>
   <text x="600.0" y="484.58" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif"
