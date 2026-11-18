@@ -1,5 +1,6 @@
-flowchart LR
+flowchart TB
     subgraph fw["Flyway: 6 applied"]
+        direction LR
         v1["V1 create category<br/>(SQL)"]
         v2["V2 create product<br/>(SQL)"]
         v3["V3 seed data<br/>(SQL)"]
@@ -8,6 +9,7 @@ flowchart LR
         r["R__ catalog view<br/>(re-runs on checksum change)"]
     end
     subgraph lb["Liquibase: 7 applied"]
+        direction LR
         c1["001 create category<br/>(XML)"]
         c2["002 create product<br/>(YAML)"]
         c3["003 seed data<br/>(formatted SQL)"]
