@@ -9,7 +9,7 @@
 
 ## Abstract
 
-This article walks through a Spring Boot 4.1 application on Java 25 that builds the same schema twice, with Flyway 12.4.0 and with Liquibase 5.0.4, each against its own H2 database, and diffs the results at runtime by reading `INFORMATION_SCHEMA`. It covers the explicit bootstrap of both engines with two `DataSource` chains, the `@Qualifier`, `@Primary` and `@DependsOn` annotations that keep them apart and ordered, a history interface with two implementations that share no code, the diff logic, the integration test that fails the build when the schemas drift, and what changed in the move to Spring Boot 4. It is for anyone who wires more than one persistence stack into a Spring context.
+This article walks through a Spring Boot 4.1 application on Java 25 that builds the same schema twice, with Flyway 12.4.0 and with Liquibase 5.0.4, each against its own H2 database, and diffs the results at runtime by reading `INFORMATION_SCHEMA`. It covers the explicit bootstrap of both engines with two `DataSource` chains, the `@Qualifier`, `@Primary` and `@DependsOn` annotations that keep them apart and ordered, a history interface with two implementations that share no code, the diff logic, the integration test that fails the build when the schemas drift and what changed in the move to Spring Boot 4. It is for anyone who wires more than one persistence stack into a Spring context.
 
 ---
 

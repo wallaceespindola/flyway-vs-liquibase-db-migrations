@@ -1,6 +1,6 @@
 <!-- Author: rewrite this fully in your own words before submitting to DZone. -->
 
-# Database migrations as a platform standard: governing Flyway and Liquibase
+# Governing database migrations with Flyway and Liquibase
 
 ![Two migration engines building the same schema side by side, used as the evidence base for a platform team's migration standard](banner.png)
 
@@ -197,7 +197,7 @@ private static final String HISTORY_QUERY =
 
 Three findings fall out of those two snippets.
 
-First, authorship. Flyway records no author (`NO_AUTHOR` is the string `n/a`), so "who" lives only in version control. Liquibase makes `author` a mandatory attribute of every changeset. Keep in mind that the value is whatever the developer typed into the file. It identifies the author of the change, not the identity that deployed it, and it isn't authenticated. If your auditors need the deployer, you still need pipeline logs.
+First, authorship. Flyway records no author (`NO_AUTHOR` is the string `n/a`), so "who" lives only in version control. Liquibase makes `author` a mandatory attribute of every changeset. Keep in mind that the value is whatever the developer typed into the file. It identifies the author of the change, not the identity that deployed it, and it isn't authenticated. Flyway's `installed_by` column does record the database user that applied each migration, which is as trustworthy as your database logins. So Flyway records who deployed but not who wrote the change, and Liquibase records the author but not who deployed it. If your auditors need a named human deployer, you still need pipeline logs.
 
 Second, timing. Flyway persists execution time per migration. Liquibase stores no duration at all, so the repo returns `"executionTimeMs": null` for every Liquibase row. Jackson is configured to keep nulls on purpose, because the missing value is a finding. If a standard requires migration duration for capacity planning, a Liquibase shop has to capture it elsewhere.
 
@@ -255,7 +255,7 @@ The last part of the standard is the one engineers like least, and it changed re
 
 On the Flyway side, the gap is between Community and the paid editions. Redgate's [feature summary](https://documentation.red-gate.com/fd/feature-summary-165740620.html) lists undo migrations and dry-run scripts in the paid editions, and drift detection in Enterprise only. If your rollback policy depends on undo, you're making a purchase decision.
 
-On the Liquibase side, the change is the license itself. With [Liquibase 5.0](https://www.liquibase.com/blog/liquibase-community-for-the-future-fsl), announced on September 30, 2025, Liquibase Community moved from Apache 2.0 to the Functional Source License (FSL-1.1-ALv2). Each version converts to Apache 2.0 two years after its release, and versions already released under Apache 2.0 stay that way. Liquibase's FAQ says FSL "may be referred to as a 'source available' or 'fair source' license", and it isn't an OSI-approved open source license. The restriction targets third parties that commercialize Liquibase in competition with Liquibase, not ordinary internal use. Contributors now sign a CLA, and the commercial product is now called Liquibase Secure. The [5.0 release notes](https://docs.liquibase.com/community/release-notes/5-0) add that Community 5.0 ships without extensions and drivers (they come through the new package manager) and requires Java 17 or later.
+On the Liquibase side, the change is the license itself. With [Liquibase 5.0](https://www.liquibase.com/blog/liquibase-community-for-the-future-fsl), announced on September 30, 2025, Liquibase Community moved from Apache 2.0 to the Functional Source License (FSL-1.1-ALv2). Each version converts to Apache 2.0 two years after its release, and versions already released under Apache 2.0 stay that way. Liquibase's FAQ says FSL "may be referred to as a 'source available' or 'fair source' license", and it isn't an OSI-approved open source license. The restriction targets third parties that commercialize Liquibase in competition with Liquibase, not ordinary internal use. Contributors now sign a CLA, and the commercial product [is now called Liquibase Secure](https://www.liquibase.com/5-0-launch). The [5.0 release notes](https://docs.liquibase.com/community/release-notes/5-0) add that Community 5.0 ships without extensions and drivers (they come through the new package manager) and requires Java 17 or later.
 
 In this repo nobody chose Liquibase 5. The Spring Boot 4.1.2 BOM manages the version, so upgrading Spring Boot moved the project from an Apache 2.0 Liquibase to an FSL one without anyone editing a dependency line. I think that's the strongest argument for putting license checks into the build (a license scanner on the resolved dependency tree), not into a one-time procurement review. If your company's policy only allows OSI-approved licenses, that gate will now fire on Liquibase 5.x, and you need an approved exception, a pinned 4.x version or a different tool. Pinning 4.x overrides the version the Spring Boot 4.1 BOM manages, which takes the project off Spring Boot's tested dependency set, so verify that combination before you rely on it.
 
@@ -268,7 +268,7 @@ Standardize on **Flyway** when:
 - Your teams write and review SQL comfortably and target one database engine.
 - A forward-fix rollback policy is acceptable, or you're licensed for the paid editions.
 - You want a status API for dashboards and health checks without querying an internal table.
-- You prefer merge conflicts that fail loudly on a duplicated version number.
+- You prefer a duplicated version number to fail the build loudly.
 
 Standardize on **Liquibase** when:
 
@@ -307,7 +307,7 @@ Wallace Espindola, Solution Architect
 DZone submission metadata
 TL;DR: Flyway and Liquibase build the same schema, so a platform standard should decide review gates, rollback policy, audit needs and licensing instead.
 Article type: Analysis
-Summary (meta description): How a platform team standardizes database migrations with Flyway or Liquibase: bootstrap switches, review gates, rollback policy, audit trail and licensing checks.
+Summary (meta description): How a platform team standardizes migrations with Flyway or Liquibase: bootstrap switches, review gates, rollback policy, audit and licensing.
 Primary zone: Databases. Additional zones: Java, DevOps, Software Design and Architecture.
 Tags: flyway, liquibase, database-migrations, spring-boot, devops, governance
 -->

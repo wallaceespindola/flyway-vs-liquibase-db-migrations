@@ -228,7 +228,7 @@ Views are the easy case. Both tools have a way to say "redefine this whenever it
 
 For years the licensing comparison was simple. Liquibase Community was Apache 2.0 and included rollback and diff. Flyway Community was free and kept undo, dry runs and drift detection for paid editions.
 
-That changed with Liquibase 5.0. In its [announcement of September 30, 2025](https://www.liquibase.com/blog/liquibase-community-for-the-future-fsl), Liquibase moved Community from Apache 2.0 to the Functional Source License (FSL-1.1-ALv2). Each release converts to Apache 2.0 after two years, and Liquibase's own FAQ describes the license as "source available", not OSI open source. Per the [5.0 release notes](https://docs.liquibase.com/community/release-notes/5-0), the commercial product formerly called Pro is now Liquibase Secure. Anyone contributing code also has to sign a CLA.
+That changed with Liquibase 5.0. In its [announcement of September 30, 2025](https://www.liquibase.com/blog/liquibase-community-for-the-future-fsl), Liquibase moved Community from Apache 2.0 to the Functional Source License (FSL-1.1-ALv2). Each release converts to Apache 2.0 after two years, and Liquibase's own FAQ describes the license as "source available", not OSI open source. The commercial product formerly called Pro [is now Liquibase Secure](https://www.liquibase.com/5-0-launch). Anyone contributing code also has to sign a CLA.
 
 This project pulls Liquibase 5.0.4 from the Spring Boot 4.1 BOM, so it's on the FSL whether I chose that or not. For using Liquibase inside your own application, I don't think much changes in practice. The FSL is mostly aimed at competing commercial offerings. But "mostly" is a word your legal team will want to read for itself, and some organizations have policies that allow OSI licenses and nothing else. The point I'd make is narrower: Liquibase's free rollback and diff are still free, and Flyway's undo is still paid, but "both are open source" is no longer a sentence you can write without a footnote.
 
@@ -250,7 +250,7 @@ The experiment confirmed what I expected about the schema and surprised me about
 - Flyway's `info()` comes straight from the Spring bean. Liquibase's status API needs its own instance, so the app queries the table, which is less convenient and more informative.
 - Liquibase 5's move to the FSL makes licensing a decision you now have to make on purpose, not a default.
 
-I'm curious how this looks from your side. Does your team rely on rollback scripts, or is everything forward-only by design? Has the Liquibase license change come up in your organization's dependency reviews? And if you moved from one tool to the other, what actually triggered the switch? Let me know in the comments.
+I'm curious how this looks from your side: does your team rely on rollback scripts, or is everything forward-only by design? Let me know in the comments.
 
 ---
 

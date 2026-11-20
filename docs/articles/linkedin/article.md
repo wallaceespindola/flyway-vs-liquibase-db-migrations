@@ -65,7 +65,7 @@ That control has a cost. Reviewers have to learn the changeset model and the tag
 
 This one is new, and I think it's the decision most teams haven't made consciously yet.
 
-With version 5.0, [announced on September 30, 2025](https://www.liquibase.com/blog/liquibase-community-for-the-future-fsl), Liquibase moved its Community edition from Apache 2.0 to the Functional Source License (FSL-1.1-ALv2). Each release converts to Apache 2.0 after two years. Liquibase's own FAQ calls it "source available", not OSI open source. Contributors now sign a CLA, and the [5.0 release notes](https://docs.liquibase.com/community/release-notes/5-0) list the paid edition, previously Pro, under its new name, Liquibase Secure.
+With version 5.0, [announced on September 30, 2025](https://www.liquibase.com/blog/liquibase-community-for-the-future-fsl), Liquibase moved its Community edition from Apache 2.0 to the Functional Source License (FSL-1.1-ALv2). Each release converts to Apache 2.0 after two years. Liquibase's own FAQ calls it "source available", not OSI open source. Contributors now sign a CLA, and the paid edition, [previously Pro](https://www.liquibase.com/5-0-launch), goes by Liquibase Secure.
 
 This matters for a lead because it can change silently. Spring Boot 4.1's dependency management brings in Liquibase 5.0.4, so a routine framework upgrade moves you onto the FSL. For most teams using Liquibase inside their own services, I don't expect a practical problem. But some organizations allow only OSI-approved licenses, and some have open source program offices that want to see every license change. Someone on the team should make that call before the upgrade lands.
 

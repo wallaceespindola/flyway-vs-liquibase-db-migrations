@@ -29,7 +29,7 @@ Most comparisons of Flyway and Liquibase are feature tables. They list supported
 
 This article takes a different route. It treats a set of migrations as an executable artifact whose result can be measured, and uses a small open reference implementation to measure it. The same logical schema is built twice, once by each tool, in two separate databases, and the two results are compared at runtime. The comparison makes it possible to separate what the tools have in common from what actually distinguishes them.
 
-The analysis then looks at three trends that shape a platform decision today: the move from reviewing scripts to verifying outcomes, the split between convention-based and manifest-based migration models, and the license changes that moved governance capabilities across edition boundaries in 2025. The reference implementation uses an embedded H2 database and has not been measured in a production estate, so the article discusses design and trade-offs. It does not report adoption or performance outcomes.
+The analysis then looks at three trends that shape a platform decision today: the move from reviewing scripts to verifying outcomes, the split between convention-based and manifest-based migration models and the license changes that moved governance capabilities across edition boundaries in 2025. The reference implementation uses an embedded H2 database and has not been measured in a production estate, so the article discusses design and trade-offs. It does not report adoption or performance outcomes.
 
 ## Migrations as executable artifacts
 
@@ -81,7 +81,7 @@ The claim is enforced twice. An integration test asserts that the list of differ
 
 The comparison has a defined scope. Indexes are deliberately excluded, because H2 generates constraint-backing indexes under names that differ between the two tools, and comparing them would report naming noise as drift. Any team adopting this pattern has to make the same decision explicitly: which object types are compared, and which are known to differ for reasons that do not matter.
 
-The pattern has uses beyond comparing two tools, which few teams do in production. It applies when a team migrates from one tool to the other and needs evidence that the new changelog reproduces the old schema, when a single Liquibase changelog targets several database engines and its portability needs to be tested rather than assumed, and when a freshly migrated database is compared with a long-lived environment to detect manual changes.
+The pattern has uses beyond comparing two tools, which few teams do in production. It applies when a team migrates from one tool to the other and needs evidence that the new changelog reproduces the old schema, when a single Liquibase changelog targets several database engines and its portability needs to be tested rather than assumed and when a freshly migrated database is compared with a long-lived environment to detect manual changes.
 
 ## History tables as an audit interface
 
