@@ -164,5 +164,5 @@ Wallace Espindola, Solution Architect
 
 <!--
 Publishing note for the author: this article is submitted for InfoQ's 4-week exclusive publishing window.
-Do not cross-post it to other platforms until that window closes. Declare any AI tool use in the InfoQ submission form, not in the article text.
+Do not cross-post it to other platforms until that window closes.
 -->

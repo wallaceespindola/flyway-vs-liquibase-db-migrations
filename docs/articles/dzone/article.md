@@ -4,13 +4,6 @@
 
 ![Two migration engines building the same schema side by side, used as the evidence base for a platform team's migration standard](banner.png)
 
-**Author**: Wallace Espindola, Solution Architect
-**LinkedIn**: <https://www.linkedin.com/in/wallaceespindola/>
-**GitHub**: <https://github.com/wallaceespindola/>
-**Companion repo**: <https://github.com/wallaceespindola/flyway-vs-liquibase-db-migrations>
-
----
-
 At some point a platform team gets asked to pick one schema migration tool for every service in the company. Often the request follows an incident: a migration ran twice, a rollback was improvised at 2 a.m., or an auditor asked who changed a table and nobody could answer from the database alone. The choice is almost always Flyway or Liquibase, and it is almost always made from a feature table.
 
 I don't think a feature table is enough for that decision, so I built a [companion repository](https://github.com/wallaceespindola/flyway-vs-liquibase-db-migrations) that builds the same schema twice, once with each engine, and diffs the results at runtime. This article is the governance side of that experiment. It covers what a platform team should standardize, where the review and CI gates sit, how to write a rollback policy, what the history tables give an auditor and why licensing belongs in the procurement checklist. It is not a tutorial on either tool, and I don't have adoption numbers from a company-wide rollout to report. What I have is a runnable baseline that every claim below can be checked against.
